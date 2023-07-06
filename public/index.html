@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Info</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <h1>User Info</h1>
+  
+  <form onsubmit="getUserInfo(event)">
+    <input type="text" id="userIdInput" placeholder="Enter User ID" required>
+    <button type="submit">Get User Info</button>
+  </form>
+  <div id="user-info"></div>
+
+  <script>
+    function getUserInfo(event) {
+      event.preventDefault();
+      const userIdInput = document.getElementById('userIdInput');
+      const userId = userIdInput.value;
+
+      // Make an HTTP request to the API endpoint with the entered userId
+      axios.get(`/api/user?userId=${userId}`)
+        .then(response => {
+          // Handle the received data and update the page
+          const userInfo = response.data;
+          const userInfoDiv = document.getElementById('user-info');
+          userInfoDiv.innerHTML = `
+            <p>Login: ${userInfo.login}</p>
+            <p>Full Name: ${userInfo.displayname}</p>
+            <p>Level: ${userInfo.cursus_users[1].level}</p>
+            <img src="${userInfo.image.versions.medium}"></img>
+          `;
+        })
+        .catch(error => {
+          console.error('Error fetching user info:', error);
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+:root {
+	--black: #08080a;
+	--eerie_black: #17181b;
+	--raisin_black: rgba(39, 41, 46, 1);
+	--primary_color: #d64b3a;
+	--platinum: #e6e7e7;
+
+	--platinum_40_percent: rgba(230, 231, 231, 0.4);
+	--raisin_black_40_percent: rgba(39, 41, 46, 0.4);
+
+	--red: #c03c3c;
+	--green: #88bd6f;
+	--blue: #3a70f4;
+}
+
+.header_h1 {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 40px;
+}
+
+.header_h2 {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 32px;
+}
+
+.header_h3 {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 24px;
+}
+
+.header_h4 {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 20px;
+	text-transform: uppercase;
+}
+
+.p1_regular {
+	font-family: "Poppins", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 18px;
+}
+
+.p1_bold {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 18px;
+}
+
+.p2_regular {
+	font-family: "Poppins", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 16px;
+}
+
+.p2_bold {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 16px;
+}
+
+.p3_regular {
+	font-family: "Poppins", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 14px;
+}
+
+.p3_bold {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 14px;
+}
+
+.p4_regular {
+	font-family: "Poppins", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 12px;
+}
+
+.p4_bold {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 12px;
+}
+
+.blur {
+	backdrop-filter: blur(20px);
+}
+
+.primary_color_bg {
+	background-color: var(--primary_color);
+}
+.primary_color_color {
+	color: var(--primary_color);
+}
+
+.platinum_40_color {
+	color: var(--platinum_40_percent);
+}
+
+body {
+    background-image: url('/assets/images/Background.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+
+	font-family: "Poppins", sans-serif;
+	background-color: var(--raisin_black);
+	color: var(--platinum);
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+    width: 100vw;
+    height: 100vh;
+}
+
+
+
+:root {
+	--dark: #34495e;
+	--light: #ffffff;
+	--success: #0abf30;
+	--error: #e24d4c;
+	--warning: #e9bd0c;
+	--info: #3498db;
+}
+
+.notifications {
+	z-index: 1050;
+	position: fixed;
+	top: 30px;
+	right: 20px;
+}
+
+.notifications :where(.toast_1, .column) {
+	display: flex;
+	align-items: center;
+}
+
+.notifications .toast_1 {
+	width: 400px;
+	position: relative;
+	overflow: hidden;
+	list-style: none;
+	border-radius: 4px;
+	padding: 16px 17px;
+	margin-bottom: 10px;
+	background: var(--light);
+	justify-content: space-between;
+	animation: show_toast_1 0.3s ease forwards;
+}
+@keyframes show_toast_1 {
+	0% {
+		transform: translateX(100%);
+	}
+	40% {
+		transform: translateX(-5%);
+	}
+	80% {
+		transform: translateX(0%);
+	}
+	100% {
+		transform: translateX(-10px);
+	}
+}
+.notifications .toast_1.hide {
+	animation: hide_toast_1 0.3s ease forwards;
+}
+@keyframes hide_toast_1 {
+	0% {
+		transform: translateX(-10px);
+	}
+	40% {
+		transform: translateX(0%);
+	}
+	80% {
+		transform: translateX(-5%);
+	}
+	100% {
+		transform: translateX(calc(100% + 20px));
+	}
+}
+.toast_1::before {
+	position: absolute;
+	content: "";
+	height: 3px;
+	width: 100%;
+	bottom: 0px;
+	left: 0px;
+	animation: progress 5s linear forwards;
+}
+@keyframes progress {
+	100% {
+		width: 0%;
+	}
+}
+.toast_1.success::before,
+.btn#success {
+	background: var(--success);
+}
+.toast_1.error::before,
+.btn#error {
+	background: var(--error);
+}
+.toast_1.warning::before,
+.btn#warning {
+	background: var(--warning);
+}
+.toast_1.info::before,
+.btn#info {
+	background: var(--info);
+}
+.toast_1 .column i {
+	font-size: 1.75rem;
+}
+.toast_1.success .column i {
+	color: var(--success);
+}
+.toast_1.error .column i {
+	color: var(--error);
+}
+.toast_1.warning .column i {
+	color: var(--warning);
+}
+.toast_1.info .column i {
+	color: var(--info);
+}
+.toast_1 .column span {
+	color: black;
+	font-size: 1.07rem;
+	margin-left: 12px;
+}
+.toast_1 i:last-child {
+	color: #aeb0d7;
+	cursor: pointer;
+}
+.toast_1 i:last-child:hover {
+	color: var(--dark);
+}
+
+@media screen and (max-width: 530px) {
+	.notifications {
+		width: 95%;
+	}
+	.notifications .toast_1 {
+		width: 100%;
+		font-size: 1rem;
+		margin-left: 20px;
+	}
+}

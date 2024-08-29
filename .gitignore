@@ -139,3 +139,4 @@ GitHub.sublime-settings
 
 node_modules/
 db.sqlite3
+package-lock.json

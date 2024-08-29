@@ -1,0 +1,23 @@
+.button_component {
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 320px;
+    height: 48px;
+    border-radius: 16px;
+    color: var(--platinum);
+    border: 1px solid var(--platinum_40_percent);
+    background-color: var(--primary_color);
+}
+.button_component:hover {
+    opacity: 0.8;
+}
+
+.no-bg {
+    background-color: transparent;
+}

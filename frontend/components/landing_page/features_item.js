@@ -11,23 +11,22 @@ export default class Features_Item extends HTMLElement {
 		const flip = this.getAttribute("data-flip");
 
 		this.innerHTML = /*html*/`
-		<div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
-
-			${flip === "true" ? `
+		<div class="d-flex justify-content-between align-items-center w-100 flex-wrap feature_subclass">
+			${flip === "true" ? /*html*/`
 				<div class="d-flex justify-content-center align-items-center flex-column cta_container">
-					<h1 class="header_h1 primary_color_color">${header}</h1>
-					<span class="p2_regular">
+					<h1 class="header_h1 primary_color_color text-center">${header}</h1>
+					<span class="p2_regular text-center">
 						${subheader}
 					</span>
 				</div>
 
-				<img src="${image}" alt="landing_page_feature_image" class="">
-			` : `
-				<img src="${image}" alt="landing_page_feature_image" class="">
+				<img src="${image}" alt="landing_page_feature_image" class="landing_page_features_img">
+			` : /*html*/`
+				<img src="${image}" alt="landing_page_feature_image" class="landing_page_features_img">
 
 				<div class="d-flex justify-content-center align-items-center flex-column cta_container">
-					<h1 class="header_h1 primary_color_color">${header}</h1>
-					<span class="p2_regular">
+					<h1 class="header_h1 primary_color_color text-center">${header}</h1>
+					<span class="p2_regular text-center">
 						${subheader}
 					</span>
 				</div>

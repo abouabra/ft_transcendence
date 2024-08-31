@@ -1,7 +1,7 @@
 export default class Button_Component extends HTMLElement {
 	constructor() {
 		super();
-		
+
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/common.css'));
 

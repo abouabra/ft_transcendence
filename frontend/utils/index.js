@@ -14,18 +14,24 @@ function route(event) {
 const routes = {
 	404: "not-found-page",
 
-	// "/register/": "register-page",
-	// "/login/": "login-page",
-
 	"/": "landing-page",
-	// "/about/": "about-page",
-	// "/contact/": "contact-page",
+	"/about_us/": "about-us-page",
+	"/privacy/": "privacy-page",
 };
 
+const allowedRoutesWithoutLogin = ["/", "/about_us/", "/privacy/"];
+
 async function handleLocationChange() {
+	let path = window.location.pathname;
+
+	if (allowedRoutesWithoutLogin.includes(path)) {
+		const component = routes[path] || routes[404];
+		document.getElementById("root_div").innerHTML = `<${component}></${component}>`;
+		return;
+	}
+
 	const response = await makeRequest("/api/auth/is_authenticated/");
 	const isAuthenticated = response.response_code === 200;
-	let path = window.location.pathname;
 
 	if (!isAuthenticated && path !== ("/")) {
 		GoTo("/");

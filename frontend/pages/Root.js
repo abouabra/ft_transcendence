@@ -1,4 +1,6 @@
 import Landing_Page from "./Landing_Page.js";
+import Privacy_Page from "./Privacy.js";
+import About_Us_Page from "./About_Us.js";
 import Not_Found_Page from "./Not_Found_Page.js";
 import Button_Component from "../components/common/button.js";
 import Features_Item from "../components/landing_page/features_item.js";

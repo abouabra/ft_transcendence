@@ -114,23 +114,24 @@
 }
 
 body {
-    background-image: url('/assets/images/Background.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
+	background-color: #000;
+	background-image: url("/assets/images/Background.jpg");
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	
+	/* min-width: 100dvw;
+  	min-height: 100dvh; */
+	
+	/* background-position: center; */
 
 	font-family: "Poppins", sans-serif;
 	background-color: var(--raisin_black);
 	color: var(--platinum);
 	margin: 0;
 	padding: 0;
-	box-sizing: border-box;
-    width: 100vw;
-    height: 100vh;
+	height: 100dvh;
 }
-
-
 
 :root {
 	--dark: #34495e;
@@ -263,4 +264,18 @@ body {
 		font-size: 1rem;
 		margin-left: 20px;
 	}
+}
+
+#bg_video {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	min-width: 100%;
+	min-height: 100%;
+	width: auto;
+	height: auto;
+	z-index: -100;
+	transform: translate(-50%, -50%);
+	background-size: cover;
+	/* filter: blur(30px); */
 }

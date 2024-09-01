@@ -115,6 +115,10 @@
 	color: var(--platinum_40_percent);
 }
 
+.platinum_40_color_border {
+	border: 1px solid var(--platinum_40_percent);
+}
+
 body {
     background-image: url('/assets/images/Background.jpg');
     background-size: cover;

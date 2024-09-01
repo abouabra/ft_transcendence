@@ -15,7 +15,7 @@ export default class AboutUS_UserCard extends HTMLElement {
 		this.innerHTML = /*html*/`
 			<img src="${image}" alt="user_image" class="user_image">
 
-			<div class="d-flex flex-column user_card_container">
+			<div class="d-flex flex-column user_card_container blur platinum_40_color_border ">
 				<div class="d-flex flex-column" style="gap: 10px;">
 					<span class="p4_regular platinum_40_color">Name</span>				
 					<span class="p2_bold">${name}</span>

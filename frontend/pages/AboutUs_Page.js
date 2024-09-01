@@ -1,5 +1,7 @@
 import Landing_Page_Footer from "../components/landing_page/landing_page_footer.js";
 import AboutUS_UserCard from "../components/about_us/AboutUS_UserCard.js";
+import AboutUS_TechCard from "../components/about_us/AboutUS_TechCard.js";
+
 
 export default class AboutUs_Page extends HTMLElement {
 	constructor() {
@@ -27,8 +29,7 @@ export default class AboutUs_Page extends HTMLElement {
 				<img src="/assets/images/landing_page/arrow-down.gif" alt="arrow-down" class="landing_page_arrow_down">
 			</div>
 
-			<div class="d-flex flex-column h-100 justify-content-around
-			 align-items-center">
+			<div class="d-flex flex-column h-100 justify-content-around align-items-center">
 				<div class="d-flex flex-column justify-content-around flex-wrap">
 					<h1 class="landing_page_header primary_color_color">Meet the Team</h1>
 					<span class="p1_bold">
@@ -71,6 +72,168 @@ export default class AboutUs_Page extends HTMLElement {
 				</div>
 			</div>
 
+			<div class="d-flex flex-column" style="gap: 50px;">
+				<h1 class="landing_page_header primary_color_color">Technologies used</h1>
+				<div class="d-flex w-100 justify-content-center">
+					<div class="d-flex flex-column" style="gap: 50px;width: fit-content">
+						<div class="d-flex" style="gap: 50px;width: fit-content">
+							<div class="d-flex flex-column justify-content-between" style="gap: 50px;">
+								<div class="d-flex flex-column blur platinum_40_color_border technologies_used_container" style="width: fit-content;">
+									<span class="header_h2">
+										Web Frameworks & Languages
+									</span>
+				
+									<div class="d-flex flex-wrap justify-content-around" style="gap: 100px;">
+										<aboutus-techcard 
+											data-name="Django"
+											data-desciption="Backend web framework for building the API."
+											data-image="/assets/images/about_us/django.png"
+											>
+										</aboutus-techcard>
+										<aboutus-techcard 
+											data-name="HTML / CSS / JS"
+											data-desciption="Frontend languages for building the user interface."
+											data-image="/assets/images/about_us/html_css_js.png"
+											>
+										</aboutus-techcard>
+									</div>
+								</div>
+								<div class="d-flex flex-column blur platinum_40_color_border technologies_used_container" style="width: fit-content;">
+									<span class="header_h2">
+										Database & Caching
+									</span>
+				
+									<div class="d-flex flex-wrap justify-content-around" style="gap: 100px;">
+										<aboutus-techcard 
+											data-name="PostgreSQL"
+											data-desciption="Database management system for storing user, game, and authentication data."
+											data-image="/assets/images/about_us/postgresql.png"
+											>
+										</aboutus-techcard>
+										<aboutus-techcard 
+											data-name="Redis"
+											data-desciption="In-memory data store for caching and managing sessions."
+											data-image="/assets/images/about_us/redis.png"
+											>
+										</aboutus-techcard>
+									</div>
+								</div>
+								<div class="d-flex flex-column blur platinum_40_color_border technologies_used_container" style="width: fit-content;">
+									<span class="header_h2">
+										Containerization & Orchestration
+									</span>
+				
+									<div class="d-flex flex-wrap justify-content-around" style="gap: 100px;">
+										<aboutus-techcard 
+											data-name="Docker"
+											data-desciption="Containerization platform to package the services."
+											data-image="/assets/images/about_us/docker.png"
+											>
+										</aboutus-techcard>
+										<aboutus-techcard 
+											data-name="Kubernetes"
+											data-desciption="Orchestration platform to manage containerized applications."
+											data-image="/assets/images/about_us/kubernetes.png"
+											>
+										</aboutus-techcard>
+									</div>
+								</div>
+								<div class="d-flex flex-column blur platinum_40_color_border technologies_used_container" style="width: fit-content;">
+									<span class="header_h2">
+										Security & Secrets Management
+									</span>
+				
+									<div class="d-flex flex-wrap justify-content-around" style="gap: 100px;">
+										<aboutus-techcard 
+											data-name="HashiCorp Vault"
+											data-desciption="Tool for managing secrets and protecting sensitive data."
+											data-image="/assets/images/about_us/hashicorp_vault.png"
+											>
+										</aboutus-techcard>
+										<aboutus-techcard 
+											data-name="ModSecurity"
+											data-desciption="Web application firewall for providing additional security."
+											data-image="/assets/images/about_us/modsecurity.png"
+											>
+										</aboutus-techcard>
+									</div>
+								</div>
+							</div>
+
+
+
+
+							<div class="d-flex flex-column blur platinum_40_color_border technologies_used_container">
+								<span class="header_h2">
+									Monitoring & Logging
+								</span>
+
+								<div class="d-flex flex-column flex-wrap justify-content-center align-items-center" style="gap: 120px;">
+									<aboutus-techcard 
+										data-name="Prometheus"
+										data-desciption="Monitoring system for collecting and analyzing metrics."
+										data-image="/assets/images/about_us/prometheus.png"
+										>
+									</aboutus-techcard>
+									<aboutus-techcard 
+										data-name="Grafana"
+										data-desciption="Visualization tool for displaying the metrics collected by Prometheus."
+										data-image="/assets/images/about_us/grafana.png"
+										>
+									</aboutus-techcard>
+									<aboutus-techcard 
+										data-name="Elasticsearch"
+										data-desciption="Search engine used for logging and search capabilities."
+										data-image="/assets/images/about_us/elasticsearch.png"
+										>
+									</aboutus-techcard>
+									<aboutus-techcard 
+										data-name="Kibana"
+										data-desciption="Data visualization tool for logs from Elasticsearch."
+										data-image="/assets/images/about_us/kibana.png"
+										>
+									</aboutus-techcard>
+									<aboutus-techcard 
+										data-name="Logstash"
+										data-desciption="Server-side data processing pipeline for ingesting logs."
+										data-image="/assets/images/about_us/logstash.png"
+										>
+									</aboutus-techcard>
+								</div>
+							</div>
+
+
+
+						</div>
+						<div class="d-flex flex-column blur platinum_40_color_border technologies_used_container">
+							<span class="header_h2">
+								Hosting & Deployment
+							</span>
+
+							<div class="d-flex flex-wrap justify-content-around">
+								<aboutus-techcard 
+									data-name="Azure Kubernetes Service (AKS)"
+									data-desciption="Managed Kubernetes service for deploying the application."
+									data-image="/assets/images/about_us/aks.png"
+									>
+								</aboutus-techcard>
+								<aboutus-techcard 
+									data-name="GitHub"
+									data-desciption="Version control system for managing the source code."
+									data-image="/assets/images/about_us/github_big.png"
+									>
+								</aboutus-techcard>
+								<aboutus-techcard 
+									data-name="Nginx"
+									data-desciption="Web server and load balancer for handling frontend requests."
+									data-image="/assets/images/about_us/nginx.png"
+									>
+								</aboutus-techcard>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 			
 			<landing-page-footer></landing-page-footer>
 		</div>

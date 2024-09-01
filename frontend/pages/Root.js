@@ -2,6 +2,7 @@ import Landing_Page from "./Landing_Page.js";
 import Not_Found_Page from "./Not_Found_Page.js";
 import Button_Component from "../components/common/button.js";
 import Features_Item from "../components/landing_page/features_item.js";
+import AboutUs_Page from "./AboutUs_Page.js";
 
 export default class Root_Page extends HTMLElement {
 	constructor() {

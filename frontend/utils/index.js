@@ -18,14 +18,25 @@ const routes = {
 	// "/login/": "login-page",
 
 	"/": "landing-page",
+	"/about_us/": "aboutus-page",
 	// "/about/": "about-page",
 	// "/contact/": "contact-page",
 };
 
+const arr = ["/", "/about_us/"];
+
 async function handleLocationChange() {
+	let path = window.location.pathname;
+	if (arr.includes(path)) {
+		const component = routes[path] || routes[404];
+		const root_div = document.getElementById("root_div");
+		root_div.innerHTML = `<${component}></${component}>`;
+		return;
+	}
+
+
 	const response = await makeRequest("/api/auth/is_authenticated/");
 	const isAuthenticated = response.response_code === 200;
-	let path = window.location.pathname;
 
 	if (!isAuthenticated && path !== ("/")) {
 		GoTo("/");

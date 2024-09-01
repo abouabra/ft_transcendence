@@ -91,6 +91,7 @@
 	font-size: 12px;
 }
 
+
 .p4_bold {
 	font-family: "Poppins", sans-serif;
 	font-weight: 700;
@@ -100,6 +101,7 @@
 
 .blur {
 	backdrop-filter: blur(20px);
+	background-color: rgba(39, 41, 46, 0.2);
 }
 
 .primary_color_bg {

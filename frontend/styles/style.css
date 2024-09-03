@@ -6,11 +6,21 @@
 	--platinum: #e6e7e7;
 
 	--platinum_40_percent: rgba(230, 231, 231, 0.4);
-	--raisin_black_40_percent: rgba(39, 41, 46, 0.4);
+	--raisin_black_20_percent: rgba(39, 41, 46, 0.2);
 
 	--red: #c03c3c;
 	--green: #88bd6f;
 	--blue: #3a70f4;
+}
+
+a {
+	text-decoration: none;
+	color: var(--platinum);
+}
+
+a:hover{
+	text-decoration: none;
+	color: var(--platinum);
 }
 
 .header_h1 {
@@ -101,7 +111,7 @@
 
 .blur {
 	backdrop-filter: blur(20px);
-	background-color: rgba(39, 41, 46, 0.2);
+	background-color: var(--raisin_black_20_percent);
 }
 
 .primary_color_bg {

@@ -32,7 +32,6 @@ async function handleLocationChange() {
 	const component = routes[path] || routes[404];
 	const root_div = document.getElementById("root_div");
 
-
 	if (allowedRoutesWithoutLogin.includes(path) || component == routes[404]) {
 		root_div.innerHTML = `<${component}></${component}>`;
 		return;
@@ -40,7 +39,7 @@ async function handleLocationChange() {
 	else
 	{
 		if (!root_div.querySelector("base-component")) {
-			root_div.innerHTML = /*html*/ `<base-component></base-component>`;
+			root_div.innerHTML = /*html*/ `<base-page></base-page>`;
 		}
 		
 		const base_page = document.getElementById("base_page");

@@ -59,7 +59,7 @@ export default class Search_Bar extends HTMLElement {
 				return;
 			}
 			search_user_bar_option.classList.add("show");
-			console.log(e.target.value);
+			console.log("Search Bar: " , e.target.value);
 		});
 	}
 

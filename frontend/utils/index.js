@@ -28,7 +28,7 @@ const allowedRoutesWithoutLogin = ["/", "/about_us/", "/privacy/", "/base/"];
 
 async function handleLocationChange() {
 	let path = window.location.pathname;
-	console.log(path);
+	console.log("handleLocationChange(): " , path);
 	const component = routes[path] || routes[404];
 	const root_div = document.getElementById("root_div");
 

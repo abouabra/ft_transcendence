@@ -12,6 +12,11 @@
 	--green: #88bd6f;
 	--blue: #3a70f4;
 }
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
 
 a {
 	text-decoration: none;

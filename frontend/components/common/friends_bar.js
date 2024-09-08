@@ -28,7 +28,14 @@ export default class Friends_Bar extends HTMLElement {
 							<div>
 								<img src="${item.avatar}" class="friends_bar_item_icon"/>
 								<div class="friends_bar_item_icon_status"></div>
-							</div>
+								${
+									item.is_playing ? /*html*/ `
+									<div class="in_game_bar">
+										<span class="in_game_bar_text" style="white-space: nowrap;">In Game</span>
+									</div>
+									` : ""
+								}
+								</div>
 
 							<div class="d-flex jusify-content-center" style="gap: 2px;">
 								${

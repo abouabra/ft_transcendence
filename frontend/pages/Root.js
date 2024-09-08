@@ -8,6 +8,11 @@ import Base_Page from "./Base.js";
 import Friends_Servers_Bar from "../components/common/friends_servers_bar.js";
 import Friends_Bar from "../components/common/friends_bar.js";
 import Servers_Bar from "../components/common/servers_bar.js";
+import Nav_Header from "../components/common/nav_header.js";
+import Search_Bar from "../components/common/search_bar.js";
+import Notifications_Bar from "../components/common/notifications_bar.js";
+import User_Bar from "../components/common/user_bar.js";
+
 
 export default class Root_Page extends HTMLElement {
 	constructor() {

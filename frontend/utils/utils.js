@@ -154,3 +154,27 @@ function createLink(url, rel = "stylesheet") {
 	link.href = url;
 	return link;
 }
+
+
+function checkFlexWrap(container) {
+    const children = Array.from(container.children);
+    
+    // Check if any child has wrapped
+    let isWrapped = false;
+    let prevBottom = children[0].getBoundingClientRect().bottom;
+
+    for (let i = 1; i < children.length; i++) {
+        const currentTop = children[i].getBoundingClientRect().top;
+        if (currentTop > prevBottom) {
+            isWrapped = true;
+            break;
+        }
+    }
+
+    // Update justify-content based on wrap status
+    if (isWrapped) {
+        container.style.justifyContent = 'center';
+    } else {
+        container.style.justifyContent = 'space-between';
+    }
+}

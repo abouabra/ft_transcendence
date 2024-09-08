@@ -7,3 +7,17 @@ base-page {
     align-items: center;
     flex-wrap: wrap;
 }
+
+.center-part {
+    display: flex;
+    flex-direction: column;
+
+    
+    gap: 20px;
+
+    width: 75%;
+    height: 90%;
+
+    /* background-color: chocolate; */
+}
+

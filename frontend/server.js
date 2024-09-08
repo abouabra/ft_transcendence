@@ -11,7 +11,7 @@ app.get("*", (req, res) => {
 
 });
 
-const IP = "127.0.0.1";
+const IP = "0.0.0.0";
 const PORT = 3000;
 
 app.listen(PORT, IP, () => {

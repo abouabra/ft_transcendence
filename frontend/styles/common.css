@@ -1,3 +1,8 @@
+.landing_page_container {
+	height: 100%;
+	width: clamp(300px, 95%, 1440px);
+}
+
 .button_component {
     cursor: pointer;
     text-align: center;
@@ -671,6 +676,9 @@ user-bar {
 
 
 @media screen and (max-width: 800px) {
+    * {
+        transition: unset;
+    }
     side-bar {
         height: 75px;
         width: 100%;
@@ -700,10 +708,11 @@ user-bar {
         justify-content: center;
     }
 
-    friends-servers-bar{
+    friends-servers-bar {
         position: unset;
         flex-direction: row;
-        height: 106px;
+        height: 70px;
+        min-height: 70px;
         width: 100vw;
         min-width: 100vw;
         transform: unset;
@@ -718,28 +727,35 @@ user-bar {
         min-width: max-content;
 
         flex-direction: row;
-        height: 70px;
+        height: 68px;
+        transition: unset;
     }
     friends-bar:hover {
         width: fit-content;
-        height: 70px;
+        height: 68px;
         position: unset;    
         overflow: hidden;
+        transition: unset;
+
     }
 
     servers-bar {
         flex-direction: row;
-        height: 70px;
+        height: 68px;
 
         width: max-content;
         min-width: max-content;
+        transition: unset;
+
     }
 
     servers-bar:hover {
         width: fit-content;
-        height: 70px;
+        height: 68px;
         position: unset;    
         overflow: hidden;
+        transition: unset;
+
     }
 
     .friends_bar_item{

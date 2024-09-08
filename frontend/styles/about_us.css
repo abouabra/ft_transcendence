@@ -1,0 +1,26 @@
+.technologies_used_container {
+    gap: 100px;
+    border-radius: 30px;
+    padding: 30px;
+}
+
+.demo_test {
+    width: 100%;
+    height: 300px;
+    border-radius: 30px;
+    background-color: red;
+}
+
+.demo_test_tall{
+    width: 100%;
+    height: fit-content;
+    border-radius: 30px;
+    background-color: blue;
+}
+
+aboutus-page
+{	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}

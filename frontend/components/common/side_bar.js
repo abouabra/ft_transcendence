@@ -18,27 +18,27 @@ export default class Side_Bar extends HTMLElement {
 				<side-bar-item
 					data-icon="Light/Game.svg"
 					data-text="Play a Game"
-					data-link="/home/" >
+					data-link="/play/" >
 				</side-bar-item>
 				<side-bar-item
 					data-icon="Light/3 User.svg"
 					data-text="Enroll in Tournament"
-					data-link="/home/" >
+					data-link="/tournament/" >
 				</side-bar-item>
 				<side-bar-item
 					data-icon="Light/Message.svg"
 					data-text="Chat with friends"
-					data-link="/home/" >
+					data-link="/chat/" >
 				</side-bar-item>
 				<side-bar-item
 					data-icon="Light/Chart.svg"
 					data-text="Leaderboard"
-					data-link="/home/" >
+					data-link="/leaderboard/" >
 				</side-bar-item>
 				<side-bar-item
 					data-icon="Light/Bag 3.svg"
 					data-text="Shop"
-					data-link="/home/" >
+					data-link="/shop/" >
 				</side-bar-item>
 		`;
 

@@ -10,11 +10,6 @@ export default class AboutUs_Page extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/about_us.css'));
 
-		// <div class="cta_buttons">
-		// 	<button-component data-text='GET STARTED' > </button-component>
-		// 	<button-component data-text='I ALREADY HAVE AN ACCOUNT' data-type="no-bg" > </button-component>
-		// </div>	
-
 		this.innerHTML = /* html */`
 		<div class="landing_page_container">
 			<div class="landing_page_section">
@@ -29,7 +24,7 @@ export default class AboutUs_Page extends HTMLElement {
 				<img src="/assets/images/landing_page/arrow-down.gif" alt="arrow-down" class="landing_page_arrow_down">
 			</div>
 
-			<div class="d-flex flex-column h-100 justify-content-around align-items-center">
+			<div class="d-flex flex-column justify-content-around align-items-center" style="gap: 150px;margin: 150px 0px;">
 				<div class="d-flex flex-column justify-content-around flex-wrap">
 					<h1 class="landing_page_header primary_color_color">Meet the Team</h1>
 					<span class="p1_bold">
@@ -37,7 +32,7 @@ export default class AboutUs_Page extends HTMLElement {
 					</span>
 				</div>
 
-				<div class="d-flex w-100 justify-content-around flex-wrap">
+				<div class="d-flex w-100 justify-content-around flex-wrap" style="gap: 150px;">
 					
 					<aboutus-usercard 
 						data-name="AYMAN BOUABRA"
@@ -74,9 +69,9 @@ export default class AboutUs_Page extends HTMLElement {
 
 			<div class="d-flex flex-column" style="gap: 50px;">
 				<h1 class="landing_page_header primary_color_color">Technologies used</h1>
-				<div class="d-flex w-100 justify-content-center">
-					<div class="d-flex flex-column" style="gap: 50px;width: fit-content">
-						<div class="d-flex" style="gap: 50px;width: fit-content">
+				<div class="d-flex w-100 justify-content-center" >
+					<div class="d-flex flex-column" style="gap: 50px;width: fit-content" >
+						<div class="d-flex flex-wrap" style="gap: 50px;width: fit-content" id="technologies_used_row">
 							<div class="d-flex flex-column justify-content-between" style="gap: 50px;">
 								<div class="d-flex flex-column blur platinum_40_color_border technologies_used_container" style="width: fit-content;">
 									<span class="header_h2">
@@ -168,7 +163,7 @@ export default class AboutUs_Page extends HTMLElement {
 									Monitoring & Logging
 								</span>
 
-								<div class="d-flex flex-column flex-wrap justify-content-center align-items-center" style="gap: 120px;">
+								<div class="d-flex flex-column flex-wrap justify-content-center align-items-center h-100 justify-content-between" style="gap: 150px;">
 									<aboutus-techcard 
 										data-name="Prometheus"
 										data-desciption="Monitoring system for collecting and analyzing metrics."
@@ -210,7 +205,7 @@ export default class AboutUs_Page extends HTMLElement {
 								Hosting & Deployment
 							</span>
 
-							<div class="d-flex flex-wrap justify-content-around">
+							<div class="d-flex flex-wrap justify-content-around" style="gap: 150px;">
 								<aboutus-techcard 
 									data-name="Azure Kubernetes Service (AKS)"
 									data-desciption="Managed Kubernetes service for deploying the application."
@@ -238,6 +233,12 @@ export default class AboutUs_Page extends HTMLElement {
 			<landing-page-footer></landing-page-footer>
 		</div>
 		`;
+
+
+		const technologies_used_row = document.getElementById('technologies_used_row');
+		const resizeObserver2 = new ResizeObserver(() => checkFlexWrap(technologies_used_row));
+		resizeObserver2.observe(technologies_used_row);
+
 	}
 
 	connectedCallback() {}

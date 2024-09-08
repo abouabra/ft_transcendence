@@ -14,17 +14,18 @@ import Nav_Header from "../components/common/nav_header.js";
 import Search_Bar from "../components/common/search_bar.js";
 import Notifications_Bar from "../components/common/notifications_bar.js";
 import User_Bar from "../components/common/user_bar.js";
-
+import Play_Page from "./Play.js";
+import Home_Page from "./Home.js";
 
 export default class Root_Page extends HTMLElement {
 	constructor() {
 		super();
 
 		const head = document.head || document.getElementsByTagName("head")[0];
-		head.appendChild(createLink('/styles/Root.css'));
+		head.appendChild(createLink('/styles/root.css'));
 
-		this.innerHTML = `
-
+		this.innerHTML = /*html*/`
+			<base-page></base-page>
 		`;
 	}
 

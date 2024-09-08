@@ -18,6 +18,9 @@ export default class Side_Bar_Item extends HTMLElement {
 
 			<span class="p2_bold" style="white-space: nowrap;">${text}</span>
 		`;
+		this.addEventListener("click", () => {
+			GoTo(link);
+		});
 
 	}
 

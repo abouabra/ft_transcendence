@@ -9,7 +9,7 @@ export default class Button_Component extends HTMLElement {
 
 
 		this.innerHTML = /*html*/`
-			<button class="button_component blur">
+			<button class="button_component blur platinum_40_color_border">
 				<span class="p3_bold"> 
 					${text}
 				</span>	

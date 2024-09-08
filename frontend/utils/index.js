@@ -15,17 +15,18 @@ const routes = {
 	404: "not-found-page",
 
 	"/": "landing-page",
-	"/about_us/": "about-us-page",
+	"/about_us/": "aboutus-page",
 	"/privacy/": "privacy-page",
+	"/base/": "base-page",
 };
 
-const allowedRoutesWithoutLogin = ["/", "/about_us/", "/privacy/"];
+const allowedRoutesWithoutLogin = ["/", "/about_us/", "/privacy/", "/base/"];
 
 async function handleLocationChange() {
 	let path = window.location.pathname;
+	const component = routes[path] || routes[404];
 
-	if (allowedRoutesWithoutLogin.includes(path)) {
-		const component = routes[path] || routes[404];
+	if (allowedRoutesWithoutLogin.includes(path) || component == routes[404]) {
 		document.getElementById("root_div").innerHTML = `<${component}></${component}>`;
 		return;
 	}
@@ -33,7 +34,8 @@ async function handleLocationChange() {
 	const response = await makeRequest("/api/auth/is_authenticated/");
 	const isAuthenticated = response.response_code === 200;
 
-	if (!isAuthenticated && path !== ("/")) {
+	if (!isAuthenticated && path !== ("/"))
+	{
 		GoTo("/");
 	}
 
@@ -42,7 +44,6 @@ async function handleLocationChange() {
 		GoTo("/");
 	}
 
-	const component = routes[path] || routes[404];
 
 	const root_div = document.getElementById("root_div");
 

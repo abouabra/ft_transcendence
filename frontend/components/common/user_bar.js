@@ -5,17 +5,12 @@ export default class User_Bar extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/common.css"));
 
-		
 
-
-
-
-
-
-		const user_id = 1;
+		const user_id = this.getAttribute("data-userid");
+		const avatar = this.getAttribute("data-avatar");
 
 		this.innerHTML = /*html*/ `
-			<img src="/assets/images/about_us/abouabra.png" alt="user" class="user-bar-icon">
+			<img src=${avatar} alt="user" class="user-bar-icon">
 
 			<div class="user-bar-options">
 				<span class="user-bar-option-items" onclick='handle_action("goto_profile", ${user_id})'>View my profile</span>

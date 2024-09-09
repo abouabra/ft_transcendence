@@ -649,6 +649,7 @@ user-bar {
 
 .search-user-bar-option-items:hover {
     background-color: var(--platinum_40_percent);
+    text-decoration: underline;
 }
 
 .user_search_bar_item_icon_status {

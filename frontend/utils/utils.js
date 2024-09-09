@@ -76,6 +76,7 @@ async function makeRequest(url, method = "GET", data = null) {
 // Function to handle toast notifications based on response
 function handleToastNotifications(response) {
 	// const toastType = response.response_code >= 400 ? "error" : "success";
+	const toastType = "error";
 	const toastData = JSON_TO_DATA(response);
 
 	toastData.forEach((data) => showToast(toastType, data));

@@ -115,3 +115,15 @@ class MeView(generics.GenericAPIView):
         return Response(
             self.serializer_class(request.user).data, status=status.HTTP_200_OK
         )
+
+class SearchUsersView(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UserSerializer
+
+    def post(self, request):
+        search_query = request.data.get("search_query")
+        if search_query:
+            users = User.objects.filter(username__icontains=search_query).order_by("username")[:5]
+            return Response(self.serializer_class(users, many=True).data, status=status.HTTP_200_OK)
+
+        return Response({"detail": "Search query is required"}, status=status.HTTP_400_BAD_REQUEST)

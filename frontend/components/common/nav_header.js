@@ -18,7 +18,7 @@ export default class Nav_Header extends HTMLElement {
 				<div class="d-flex align-items-end" style="gap: 14px; z-index: 4">
 					<search-bar></search-bar>
 					<notifications-bar></notifications-bar>
-					<user-bar></user-bar>
+					<user-bar data-userid=${user.id}   data-avatar=${user.avatar}></user-bar>
 				</div>
 			`;
 

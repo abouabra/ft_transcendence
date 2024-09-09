@@ -3,7 +3,7 @@ export default class AboutUS_UserCard extends HTMLElement {
 		super();
 		
 		const head = document.head || document.getElementsByTagName("head")[0];
-		head.appendChild(createLink('/styles/aboutus_usercard.css'));
+		head.appendChild(createLink('/styles/about_us.css'));
 
 		const name = this.getAttribute("data-name");
 		const expertise = this.getAttribute("data-expertise");

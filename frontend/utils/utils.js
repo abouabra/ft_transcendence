@@ -93,21 +93,15 @@ function JSON_TO_DATA(json) {
 }
 
 function GoTo(url) {
+	const current_url = window.location.pathname;
+	
+	if (current_url === url) return;
+
+	console.log("GoTo(): ", url);
+
 	window.history.pushState({}, "", url);
 	handleLocationChange();
 }
-
-function capture_all_anchors() {
-	let all_anchors = document.getElementsByTagName("a");
-
-	for (let i = 0; i < all_anchors.length; i++) {
-		all_anchors[i].addEventListener("click", (e) => {
-			route(e);
-		});
-	}
-}
-
-capture_all_anchors();
 
 const toastDetails = {
 	timer: 5000,
@@ -177,4 +171,22 @@ function checkFlexWrap(container) {
     } else {
         container.style.justifyContent = 'space-between';
     }
+}
+
+
+function navbar_check_only_one_active(item_to_show) {
+	const user_bar_options = document.querySelector(".user-bar-options");
+	const notifications_bar_options = document.querySelector(".notifications_bar_options");
+	const search_user_bar_option = document.querySelector(".search-user-bar-option");
+
+
+	if (item_to_show != "user-bar-options") {
+		user_bar_options.classList.remove("show");
+	}
+	if (item_to_show != "notifications_bar_options") {
+		notifications_bar_options.classList.remove("show");
+	}
+	if (item_to_show != "search-user-bar-option") {
+		search_user_bar_option.classList.remove("show");
+	}
 }

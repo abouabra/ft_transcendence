@@ -3,7 +3,7 @@ export default class AboutUS_TechCard extends HTMLElement {
 		super();
 
 		const head = document.head || document.getElementsByTagName("head")[0];
-		head.appendChild(createLink('/styles/aboutus_techcard.css'));
+		head.appendChild(createLink('/styles/about_us.css'));
 
 		const name = this.getAttribute("data-name");
 		const desciption = this.getAttribute("data-desciption");

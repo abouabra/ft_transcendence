@@ -52,7 +52,10 @@ export default class Search_Bar extends HTMLElement {
 		const search_bar_input = this.querySelector(".search_bar_input");
 		const search_user_bar_option = this.querySelector(".search-user-bar-option");
 
-		// call this function when the user types in the search bar
+		search_bar_input.addEventListener("focus", () => {
+			navbar_check_only_one_active("search-user-bar-option");
+		});
+
 		search_bar_input.addEventListener("input", (e) => {
 			if (e.target.value == "") {
 				search_user_bar_option.classList.remove("show");

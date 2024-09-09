@@ -76,6 +76,7 @@ export default class Notifications_Bar extends HTMLElement {
 
 		notifications_bar_icon.addEventListener("click", () => {
 			notifications_bar_options.classList.toggle("show");
+			navbar_check_only_one_active("notifications_bar_options");
 		});
 	}
 

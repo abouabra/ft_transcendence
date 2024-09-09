@@ -43,7 +43,17 @@ export default class Side_Bar extends HTMLElement {
 		`;
 
 		const elements = this.querySelectorAll("side-bar-item");
+		const current_path = window.location.pathname;
+
 		elements.forEach((element) => {
+			if (element.getAttribute("data-link") === current_path) {
+				elements.forEach((element) => {
+					element.classList.remove("active_side_bar_item");
+				});
+				element.classList.add("active_side_bar_item");
+			}
+
+
 			element.addEventListener("click", () => {
 				elements.forEach((element) => {
 					element.classList.remove("active_side_bar_item");

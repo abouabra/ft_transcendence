@@ -1,10 +1,9 @@
-import Landing_Page from "./Landing_Page.js";
+import Landing_Page from "./Landing.js";
 import Privacy_Page from "./Privacy.js";
-import About_Us_Page from "./AboutUs_Page.js";
-import Not_Found_Page from "./Not_Found_Page.js";
+import Not_Found_Page from "./Not_Found.js";
 import Button_Component from "../components/common/button.js";
 import Features_Item from "../components/landing_page/features_item.js";
-import AboutUs_Page from "./AboutUs_Page.js";
+import AboutUs_Page from "./AboutUs.js";
 import Side_Bar from "../components/common/side_bar.js";
 import Base_Page from "./Base.js";
 import Friends_Servers_Bar from "../components/common/friends_servers_bar.js";
@@ -16,6 +15,15 @@ import Notifications_Bar from "../components/common/notifications_bar.js";
 import User_Bar from "../components/common/user_bar.js";
 import Play_Page from "./Play.js";
 import Home_Page from "./Home.js";
+import Tournament_Page from "./Tournament.js";
+import Chat_Page from "./Chat.js";
+import Leaderboard_Page from "./Leaderboard.js";
+import Shop_Page from "./Shop.js";
+import Notifications_Page from "./Notifications.js";
+import Profile_Page from "./Profile.js";
+import Settings_Page from "./Settings.js";
+
+
 
 export default class Root_Page extends HTMLElement {
 	constructor() {

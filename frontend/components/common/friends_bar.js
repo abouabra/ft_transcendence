@@ -24,7 +24,7 @@ export default class Friends_Bar extends HTMLElement {
 			${data
 				.map((item) => {
 					return /*html*/ `
-						<div class="friends_bar_item">
+						<div class="friends_bar_item" data-link="/profile/${item.id}">
 							<div>
 								<img src="${item.avatar}" class="friends_bar_item_icon"/>
 								<div class="friends_bar_item_icon_status"></div>
@@ -97,10 +97,15 @@ export default class Friends_Bar extends HTMLElement {
 				}
 			});
 		});
-		
+
 
 		const all_friends_bar_item = this.querySelectorAll(".friends_bar_item");
 		all_friends_bar_item.forEach((item) => {
+			item.addEventListener("click", () => {
+				const link = item.getAttribute("data-link");
+				GoTo(link);
+			});
+
 			item.addEventListener("mouseleave", () => {
 				const options_list_container = item.querySelector(".options_list_container");
 				options_list_container.style.display = "none";

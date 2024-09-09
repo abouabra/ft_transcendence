@@ -54,28 +54,28 @@ async function handleLocationChange() {
     if (isAllowedWithoutLogin(path) || component == routes[404]) {
         root_div.innerHTML = `<${component}></${component}>`;
         return;
-    } else {
-        if (!root_div.querySelector("base-page")) {
-            root_div.innerHTML = /*html*/ `<base-page></base-page>`;
-        }
-
-        const base_page = document.getElementById("base_page");
-        base_page.innerHTML = `<${component}></${component}>`;
-        return;
     }
 
-	// const response = await makeRequest("/api/auth/is_authenticated/");
-	// const isAuthenticated = response.response_code === 200;
 
-	// if (!isAuthenticated && path !== ("/"))
-	// {
-	// 	GoTo("/");
-	// }
 
-	// if (path === "/logout/") {
-	// 	await makeRequest("/api/logout/", "POST");
-	// 	GoTo("/");
-	// }
+    const response = await makeRequest("/api/auth/is_authenticated/");
+	const isAuthenticated = response.response_code === 200;
+
+	if (!isAuthenticated && path !== ("/"))
+	{
+		GoTo("/");
+        return;
+	}
+
+
+
+    if (!root_div.querySelector("base-page")) {
+        root_div.innerHTML = /*html*/ `<base-page></base-page>`;
+    }
+
+    const base_page = document.getElementById("base_page");
+    base_page.innerHTML = `<${component}></${component}>`;
+
 }
 
 window.onpopstate = handleLocationChange;

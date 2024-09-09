@@ -30,9 +30,6 @@ export default class Base_Page extends HTMLElement {
 		resizeObserver1.observe(center_part);
 
 
-		const nav_header = document.querySelector('nav-header');
-		const resizeObserver2 = new ResizeObserver(() => checkFlexWrap(nav_header));
-		resizeObserver2.observe(nav_header);
 
 	}
 

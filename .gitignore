@@ -140,3 +140,5 @@ GitHub.sublime-settings
 node_modules/
 db.sqlite3
 package-lock.json
+
+login_infos_tmp.js

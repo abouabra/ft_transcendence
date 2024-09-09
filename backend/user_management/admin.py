@@ -1,6 +1,15 @@
 from django.contrib import admin
-from user_management.models import User
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import AdminPasswordChangeForm
+from django.utils.translation import gettext_lazy as _
+from .models import User
 
-# Register your models here.
+class CustomUserAdmin(UserAdmin):
+    change_password_form = AdminPasswordChangeForm
+    change_user_password_template = None
 
-admin.site.register(User)
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        self.change_form_template = self.change_user_password_template
+        return super().change_view(request, object_id, form_url, extra_context)
+
+admin.site.register(User, CustomUserAdmin)

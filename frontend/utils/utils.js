@@ -21,7 +21,7 @@ async function refreshAccessToken() {
 	}
 }
 
-const BANNED_TOAST_URLS = ["/api/is_authenticated/", "/api/token/refresh/"];
+const TOAST_URLS = ["/api/auth/is_authenticated/", "/api/auth/token/refresh/"];
 
 async function makeRequest(url, method = "GET", data = null) {
 	const fullUrl = `${BACKEND_DOMAIN}${url}`;
@@ -53,9 +53,9 @@ async function makeRequest(url, method = "GET", data = null) {
 
 
 		// Handle toast notifications
-		if (!BANNED_TOAST_URLS.includes(url)) {
-			handleToastNotifications(jsonResponse);
-		}
+		// if (TOAST_URLS.includes(url)) {
+		// 	handleToastNotifications(jsonResponse);
+		// }
 
 		return jsonResponse;
 	} catch (error) {
@@ -66,7 +66,7 @@ async function makeRequest(url, method = "GET", data = null) {
 		};
 
 		// if (!BANNED_TOAST_URLS.includes(url)) {
-		// 	handleToastNotifications(errorResponse);
+			handleToastNotifications(errorResponse);
 		// }
 
 		return errorResponse;
@@ -75,7 +75,7 @@ async function makeRequest(url, method = "GET", data = null) {
 
 // Function to handle toast notifications based on response
 function handleToastNotifications(response) {
-	const toastType = response.response_code >= 400 ? "error" : "success";
+	// const toastType = response.response_code >= 400 ? "error" : "success";
 	const toastData = JSON_TO_DATA(response);
 
 	toastData.forEach((data) => showToast(toastType, data));

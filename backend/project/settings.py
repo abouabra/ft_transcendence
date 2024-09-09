@@ -14,7 +14,7 @@ SECRET_KEY = "django-insecure-19g&9^_$#obm=yor7wiud&1q14v3ocosk^wc5k)kb3m=unjevt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0']
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
 
 AUTH_USER_MODEL = "user_management.User"
 
@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "user_management",
 ]
 
@@ -41,6 +43,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "project.middlewares.JsonResponseMiddleware",
+    "project.middlewares.JWTAuthCookieMiddleware",
 ]
 
 ROOT_URLCONF = "project.urls"
@@ -120,13 +124,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # REST_FRAMEWORK
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "project.authentication.CookieJWTAuthentication",
     )
 }
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,

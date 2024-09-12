@@ -114,6 +114,34 @@ a:hover{
 	font-size: 12px;
 }
 
+.p5_regular {
+	font-family: "Poppins", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 10px;
+}
+
+.p5_bold {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 10px;
+}
+
+.p6_regular {
+	font-family: "Poppins", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 8px;
+}
+
+.p6_bold {
+	font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 8px;
+}
+
 .blur {
 	backdrop-filter: blur(20px);
 	background-color: var(--raisin_black_20_percent);

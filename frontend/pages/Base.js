@@ -31,6 +31,34 @@ export default class Base_Page extends HTMLElement {
 
 
 
+		
+		if(!window.notification_socket) {
+			window.notification_socket = new WebSocket(`ws://${window.location.hostname}:8000/ws/notifications/`);
+		}
+
+		window.notification_socket.onopen = (event) => {
+			console.log("Notification socket opened");
+			
+			// const sender_id = localStorage.getItem("id");
+			// sendNotification("join_group", sender_id);
+			var ret = window.notification_socket.send(JSON.stringify({ 'type': 'join_group', 'sender_id': 2 , 'receiver_id': 2 }));	
+			console.log("return of ret :" ,ret);
+			console.log("Notification socket message sent to join group");
+		};
+
+		window.notification_socket.onclose = function (event) {
+			console.log("Notification socket closed");
+		};
+
+		window.notification_socket.onerror = function (event) {
+			console.log("Notification socket error");
+		};
+
+		window.notification_socket.onmessage = function (event) {
+			const data = JSON.parse(event.data);
+			console.log("Notification socket message: ", data);
+		};
+
 	}
 
 	connectedCallback() {}

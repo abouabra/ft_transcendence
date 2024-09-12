@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.utils.translation import gettext_lazy as _
-from .models import User
+from .models import User, Notification
 
 # class CustomUserAdmin(UserAdmin):
 #     change_password_form = AdminPasswordChangeForm
@@ -16,3 +16,4 @@ from .models import User
 
 
 admin.site.register(User)
+admin.site.register(Notification)

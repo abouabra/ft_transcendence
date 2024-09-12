@@ -80,7 +80,11 @@ async function handleLocationChange() {
 
 window.onpopstate = handleLocationChange;
 
-
 window.addEventListener("load", () => {
 	handleLocationChange();
 });
+
+
+function send_WS_Message(message) {
+	window.notification_socket.send(JSON.stringify(message));
+}

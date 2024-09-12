@@ -4,9 +4,19 @@ export default class Nav_Header extends HTMLElement {
 
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/common.css"));
-		
+
 		makeRequest("/api/auth/me/")
 		.then((user) => {
+			const tmp_data = {
+				id: user.id,
+				username: user.username,
+				avatar: user.avatar
+			}
+			localStorage.setItem("id", tmp_data.id);
+			localStorage.setItem("username", tmp_data.username);
+			localStorage.setItem("avatar", tmp_data.avatar);
+
+
 			console.log(user);	
 
 			this.innerHTML = /*html*/ `
@@ -21,7 +31,6 @@ export default class Nav_Header extends HTMLElement {
 					<user-bar data-userid=${user.id}   data-avatar=${user.avatar}></user-bar>
 				</div>
 			`;
-
 
 			const nav_header = document.querySelector('nav-header');
 			const resizeObserver = new ResizeObserver(() => checkFlexWrap(nav_header));

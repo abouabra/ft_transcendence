@@ -1,14 +1,15 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer
+from .serializers import UserSerializer, NotificationSerializer, ShortUserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 import logging
 from .serializers import LoginSerializer
 from .decorators import check_if_logged_in
 from django.utils import timezone
 from datetime import datetime
-from .models import User
+from .models import User, Notification
+from rest_framework.pagination import PageNumberPagination
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,9 @@ class RefreshTokenView(generics.GenericAPIView):
                 value=str(refresh.access_token),
                 httponly=True,
                 samesite="Strict",
-                expires=datetime.fromtimestamp(refresh.access_token["exp"], tz=timezone.utc),
+                expires=datetime.fromtimestamp(
+                    refresh.access_token["exp"], tz=timezone.utc
+                ),
             )
             response.data = {"detail": "Token refreshed successfully"}
             response.status_code = status.HTTP_200_OK
@@ -50,7 +53,10 @@ class RefreshTokenView(generics.GenericAPIView):
             return response
 
         except Exception as e:
-            response = Response({"detail": "Error encountered while refreshing the token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            response = Response(
+                {"detail": "Error encountered while refreshing the token"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
             response.delete_cookie("access_token")
             response.delete_cookie("refresh_token")
             return response
@@ -67,12 +73,10 @@ class LoginView(generics.GenericAPIView):
                 username = request.data["username"]
 
                 user = User.objects.get(username=username)
+                user.status = "online"
+                user.save()
 
                 refresh = RefreshToken.for_user(user)
-
-                def set_expiration_date(epoch):
-                    # return epoch - current_epoch
-                    return datetime.fromtimestamp(epoch, tz=timezone.utc)
 
                 response = Response()
                 response.set_cookie(
@@ -87,12 +91,12 @@ class LoginView(generics.GenericAPIView):
                     value=str(refresh.access_token),
                     httponly=True,
                     samesite="Strict",
-                    expires=datetime.fromtimestamp(refresh.access_token["exp"], tz=timezone.utc),
+                    expires=datetime.fromtimestamp(
+                        refresh.access_token["exp"], tz=timezone.utc
+                    ),
                 )
 
-                response.data = {
-                    "detail": "Logged in successfully",
-                }
+                response.data = {"detail": "Logged in successfully"}
                 response.status_code = status.HTTP_200_OK
 
                 return response
@@ -102,28 +106,87 @@ class LoginView(generics.GenericAPIView):
                 )
             except Exception as e:
                 logger.error(f"==============\n\n {str(e)} \n\n==============")
-                return Response({"detail": "Error encountered while logging in"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(
+                    {"detail": "Error encountered while logging in"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MeView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = UserSerializer
+    serializer_class = ShortUserSerializer
 
     def get(self, request):
         return Response(
             self.serializer_class(request.user).data, status=status.HTTP_200_OK
         )
 
+
 class SearchUsersView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = UserSerializer
+    serializer_class = ShortUserSerializer
 
     def post(self, request):
         search_query = request.data.get("search_query")
         if search_query:
-            users = User.objects.filter(username__icontains=search_query).order_by("username")[:5]
-            return Response(self.serializer_class(users, many=True).data, status=status.HTTP_200_OK)
+            users = User.objects.filter(username__icontains=search_query).order_by(
+                "username"
+            )[:5]
+            return Response(
+                self.serializer_class(users, many=True).data, status=status.HTTP_200_OK
+            )
 
-        return Response({"detail": "Search query is required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "Search query is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class NotificationsBriefView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = NotificationSerializer
+
+    def get(self, request):
+        notifications = Notification.objects.filter(receiver=request.user).order_by(
+            "-timestamp"
+        )[:5]
+
+        for notification in notifications:
+            notification.is_read = True
+            notification.save()
+
+        serialized_notifications = self.serializer_class(notifications, many=True).data
+        unread_notifications = Notification.objects.filter(
+            receiver=request.user, is_read=False
+        ).count()
+
+        return Response({
+            "notifications": serialized_notifications,
+            "unread_notifications": unread_notifications,
+        },status=status.HTTP_200_OK)
+
+class UnreadNotificationsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        unread_notifications = Notification.objects.filter(receiver=request.user, is_read=False).count()
+        return Response({
+            "unread_notifications": unread_notifications
+        }, status=status.HTTP_200_OK)
+
+
+class NotificationsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = NotificationSerializer
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 10
+
+    def get(self, request):
+        paginator = self.pagination_class()
+        notifications = Notification.objects.filter(receiver=request.user).order_by(
+            "-timestamp"
+        )
+        result_page = paginator.paginate_queryset(notifications, request)
+        serialized_notifications = self.serializer_class(result_page, many=True).data
+        return paginator.get_paginated_response(serialized_notifications)

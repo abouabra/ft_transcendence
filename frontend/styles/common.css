@@ -462,16 +462,18 @@ notifications-bar {
 }
 
 .notifications_bar_status {
-    width: 6px;
-    height: 6px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background-color: var(--red);
     position: absolute;
     z-index: 3;
     
-    top: 3px;
+    top: 0px;
     right: 3px;
-
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .notifications_bar_icon {

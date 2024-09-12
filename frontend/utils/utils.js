@@ -191,3 +191,15 @@ function navbar_check_only_one_active(item_to_show) {
 		search_user_bar_option.classList.remove("show");
 	}
 }
+
+
+function sendNotification(type, receiver_id)
+{
+	const notification = {
+		type: type,
+		receiver_id: receiver_id,
+		sender_id: localStorage.getItem("id"),
+	};
+
+	send_WS_Message(notification);
+}

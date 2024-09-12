@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Notification
 import re
 
 
@@ -40,6 +40,10 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
+class ShortUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "avatar", "status"]
 
 
 class LoginSerializer(serializers.Serializer):
@@ -66,3 +70,14 @@ class LoginSerializer(serializers.Serializer):
 
         raise serializers.ValidationError("Username and password are required")
 
+
+class NotificationSerializer(serializers.ModelSerializer):
+    sender = ShortUserSerializer()
+    receiver = ShortUserSerializer()
+
+    class Meta:
+        model = Notification
+        fields = "__all__"
+
+    def create(self, validated_data):
+        return Notification.objects.create(**validated_data)

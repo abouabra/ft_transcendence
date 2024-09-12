@@ -34,7 +34,6 @@ export default class Search_Bar extends HTMLElement {
 			if (!search_user_bar_option.contains(event.target)) {
 				search_user_bar_option.classList.remove("show");
 			}
-			console.log('Clicked inside of the div');
 		});
 		
 		

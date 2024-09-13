@@ -1,12 +1,10 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.layers import InMemoryChannelLayer
 import logging
 import json
 from channels.db import database_sync_to_async
 from .models import Notification, User
 
 logger = logging.getLogger(__name__)
-channel_layer = InMemoryChannelLayer()
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -23,28 +21,28 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
         if type == 'join_group':
             group_name = f'user_{sender_id}'
-            await channel_layer.group_add(group_name, self.channel_name)
+            await self.channel_layer.group_add(group_name, self.channel_name)
         else:
             await self.create_notification(data)
-            group_name = f'user_{sender_id}'
+            group_name = f'user_{receiver_id}'
             event = {
                 'type': 'send_notification',
                 'message': data  # Send entire data for flexibility
             }
-            logger.error(f"NotificationConsumer: {event}")
-            await channel_layer.group_send(group_name, event)
+            await self.channel_layer.group_send(group_name, event)
 
     async def send_notification(self, event):
+
         message = event['message']
         await self.send(text_data=json.dumps(message))
 
     @database_sync_to_async
     def create_notification(self, data):
-        new_notification = Notification.objects.create(
-            sender=User.objects.get(id=data['sender_id']),
-            receiver=User.objects.get(id=data['receiver_id']),
-            type=data['type']
-        )
-        new_notification.save()
-
-# baanni change
+        try:
+            Notification.objects.create(
+                sender=User.objects.get(id=data['sender_id']),
+                receiver=User.objects.get(id=data['receiver_id']),
+                type=data['type']
+            )
+        except User.DoesNotExist:
+            pass

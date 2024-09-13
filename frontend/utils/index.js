@@ -46,7 +46,6 @@ function isAllowedWithoutLogin(path) {
 
 async function handleLocationChange() {
     let path = window.location.pathname;
-    console.log("handleLocationChange(): ", path);
 
     const component = matchRoute(path);
     const root_div = document.getElementById("root_div");
@@ -83,8 +82,3 @@ window.onpopstate = handleLocationChange;
 window.addEventListener("load", () => {
 	handleLocationChange();
 });
-
-
-function send_WS_Message(message) {
-	window.notification_socket.send(JSON.stringify(message));
-}

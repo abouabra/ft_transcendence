@@ -5,19 +5,27 @@ export default class Notifications_Bar extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/common.css"));
 
-		makeRequest("/api/auth/unread_notifications/")
+		makeRequest("/api/auth/notifications_brief/")
 		.then((data) => {
-			console.log(data);
+
 			this.innerHTML = /*html*/ `
 				<div class="notifications_bar_icon">
 					<img src="/assets/images/common/Iconly/Light/Notification.svg" alt="search" class="notifications_bar_icon_img">
-					
-					${data.unread_notifications == 0 ? "" : /*html*/ `
-						<div class="notifications_bar_status">
-							<span class="p5_regular">${data.unread_notifications}</span>	
-						</div>
+
+					${data.total_unread_notifications == 0 ? 
+						/*html*/ `
+							<div class="notifications_bar_status hide">
+								<span class="p5_regular">${data.total_unread_notifications}</span>	
+							</div> 
+						` : 
+						/*html*/ `
+							<div class="notifications_bar_status">
+								<span class="p5_regular">${data.total_unread_notifications}</span>	
+							</div> 
 					`}
 				</div>
+						
+
 
 				<div class="notifications_bar_options">
 					<div class="notifications-bar-option-items justify-content-center">
@@ -49,11 +57,19 @@ export default class Notifications_Bar extends HTMLElement {
 	getNotifications () {
 		makeRequest("/api/auth/notifications_brief/")
 		.then((data) => {
-			console.log(data);
+			console.log("Notifications: ", data);
 			const notifications_bar_status = this.querySelector(".notifications_bar_status");
 			if (notifications_bar_status) {
-				notifications_bar_status.querySelector("span").innerText = 0;
-				notifications_bar_status.style.display = "none";
+				const span_count = notifications_bar_status.querySelector("span");
+				var count = parseInt(span_count.textContent);
+				count = count - data.unread_notifications;
+				span_count.textContent = count;
+				if (count < 0)
+					count = 0;
+				span_count.textContent = count;
+
+				if(count == 0)
+					notifications_bar_status.style.display = "none";
 			}
 			
 			const notifications_bar_options = this.querySelector(".notifications_bar_options");

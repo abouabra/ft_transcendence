@@ -98,8 +98,7 @@ function GoTo(url) {
 	
 	if (current_url === url) return;
 
-	console.log("GoTo(): ", url);
-
+	
 	window.history.pushState({}, "", url);
 	handleLocationChange();
 }
@@ -197,9 +196,9 @@ function sendNotification(type, receiver_id)
 {
 	const notification = {
 		type: type,
-		receiver_id: receiver_id,
-		sender_id: localStorage.getItem("id"),
+		receiver_id: parseInt(receiver_id),
+		sender_id: parseInt(localStorage.getItem("id")),
 	};
 
-	send_WS_Message(notification);
+	window.notification_socket.send(JSON.stringify(notification));
 }

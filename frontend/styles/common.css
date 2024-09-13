@@ -590,6 +590,10 @@ user-bar {
     display: flex !important;
 }
 
+.hide {
+    display: none;
+}
+
 .user-bar-option-items {
     color: var(--platinum);
     cursor: pointer;

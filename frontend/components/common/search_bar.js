@@ -46,7 +46,7 @@ export default class Search_Bar extends HTMLElement {
 
 			makeRequest("/api/auth/search/", "POST", {"search_query": e.target.value})
 			.then((data) => {
-				console.log(data);
+
 				search_user_bar_option.innerHTML = "";
 				search_user_bar_option.classList.add("show");
 

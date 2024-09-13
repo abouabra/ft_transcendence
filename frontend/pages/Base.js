@@ -39,10 +39,8 @@ export default class Base_Page extends HTMLElement {
 		window.notification_socket.onopen = (event) => {
 			console.log("Notification socket opened");
 			
-			// const sender_id = localStorage.getItem("id");
-			// sendNotification("join_group", sender_id);
-			var ret = window.notification_socket.send(JSON.stringify({ 'type': 'join_group', 'sender_id': 2 , 'receiver_id': 2 }));	
-			console.log("return of ret :" ,ret);
+			const sender_id = localStorage.getItem("id");
+			sendNotification("join_group", sender_id);
 			console.log("Notification socket message sent to join group");
 		};
 
@@ -57,6 +55,27 @@ export default class Base_Page extends HTMLElement {
 		window.notification_socket.onmessage = function (event) {
 			const data = JSON.parse(event.data);
 			console.log("Notification socket message: ", data);
+
+			const notifications_bar_status = document.querySelector(".notifications_bar_status");
+			if(notifications_bar_status.style.display == "" || notifications_bar_status.style.display == "none")
+				notifications_bar_status.style.display = "flex";
+
+			const counter_span = notifications_bar_status.querySelector("span");
+			counter_span.textContent = parseInt(counter_span.textContent) + 1;
+
+
+			if(data.type == "game_invitation")
+			{
+				handle_action("invite_to_game", data.sender_id);
+			}
+			else if(data.type == "friend_request")
+			{
+
+			}
+			else if(data.type == "strike")
+			{
+
+			}
 		};
 
 	}

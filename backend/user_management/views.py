@@ -148,23 +148,24 @@ class NotificationsBriefView(generics.GenericAPIView):
     serializer_class = NotificationSerializer
 
     def get(self, request):
-        notifications = Notification.objects.filter(receiver=request.user).order_by(
-            "-timestamp"
-        )[:5]
+        notifications = Notification.objects.filter(receiver=request.user).order_by("-timestamp")[:5]
+
+        unread_notifications = 0
 
         for notification in notifications:
+            if not notification.is_read:
+                unread_notifications += 1
             notification.is_read = True
             notification.save()
 
         serialized_notifications = self.serializer_class(notifications, many=True).data
-        unread_notifications = Notification.objects.filter(
-            receiver=request.user, is_read=False
-        ).count()
+        total_unread_notifications = Notification.objects.filter(receiver=request.user, is_read=False).count()
 
         return Response({
             "notifications": serialized_notifications,
-            "unread_notifications": unread_notifications,
-        },status=status.HTTP_200_OK)
+            "total_unread_notifications": total_unread_notifications,
+            "unread_notifications": unread_notifications
+        }, status=status.HTTP_200_OK)
 
 class UnreadNotificationsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)

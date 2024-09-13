@@ -17,7 +17,6 @@ export default class Nav_Header extends HTMLElement {
 			localStorage.setItem("avatar", tmp_data.avatar);
 
 
-			console.log(user);	
 
 			this.innerHTML = /*html*/ `
 				<div class="d-flex align-items-end" style="gap: 2px; flex-wrap: wrap;" id="welcome_back_user">
@@ -40,7 +39,8 @@ export default class Nav_Header extends HTMLElement {
 			const resizeObserver2 = new ResizeObserver(() => checkFlexWrap(welcome_back_user));
 			resizeObserver2.observe(welcome_back_user);
 		
-			}).catch(error => {
+		})
+		.catch(error => {
 			showToast("error", error);
 		});
 	}

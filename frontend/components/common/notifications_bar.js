@@ -57,7 +57,7 @@ export default class Notifications_Bar extends HTMLElement {
 	getNotifications () {
 		makeRequest("/api/auth/notifications_brief/")
 		.then((data) => {
-			console.log("Notifications: ", data);
+
 			const notifications_bar_status = this.querySelector(".notifications_bar_status");
 			if (notifications_bar_status) {
 				const span_count = notifications_bar_status.querySelector("span");

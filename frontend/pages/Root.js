@@ -22,7 +22,7 @@ import Shop_Page from "./Shop.js";
 import Notifications_Page from "./Notifications.js";
 import Profile_Page from "./Profile.js";
 import Settings_Page from "./Settings.js";
-
+import Small_Cards from "../components/common/small_cards.js";
 
 
 export default class Root_Page extends HTMLElement {

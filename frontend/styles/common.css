@@ -2,6 +2,16 @@
 	height: 100%;
 	width: clamp(300px, 95%, 1440px);
 }
+button-component {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 320px; /* Set the maximum width */
+    flex-shrink: 1;
+    min-width: 150px;
+    max-width: 320px;
+}
 
 .button_component {
     cursor: pointer;
@@ -12,7 +22,10 @@
     justify-content: center;
     align-items: center;
 
-    width: 320px;
+    width: 100%; /* Set the maximum width */
+    /* flex-shrink: 1;
+    min-width: 150px; */
+
     height: 48px;
     border-radius: 16px;
     color: var(--platinum);
@@ -779,4 +792,46 @@ user-bar {
     .servers_bar_item:hover {
         background-color: transparent;
     }
+}
+
+small-cards {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 15px;
+}
+
+.small_card {
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    width: 400px;
+    height: fit-content;
+    
+    padding: 20px;
+    gap: 10px;
+    
+    border: 1px solid var(--platinum_40_percent);
+    border-radius: 15px;
+    background-color: var(--raisin_black_20_percent);
+    backdrop-filter: blur(20px);
+}
+
+.small_card_cta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 0px;
+    /* background-color: blue; */
+    /* flex-wrap: wrap; */
 }

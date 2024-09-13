@@ -202,3 +202,26 @@ function sendNotification(type, receiver_id)
 
 	window.notification_socket.send(JSON.stringify(notification));
 }
+
+
+function Make_Small_Card(type, server_id = null)
+{
+	const center_part = document.getElementById("base_page");
+	// const small_cards = document.createElement("small-cards");
+
+	// small_cards.setAttribute("data-type", type);
+	// small_cards.setAttribute("data-server-id", server_id);
+
+	center_part.innerHTML += `<small-cards data-type="${type}" data-server-id="${server_id}"></small-cards>`;
+
+}
+
+function Delete_Small_Card() {
+	const elements = document.querySelectorAll("small-cards");
+	
+	console.log("Deleting small card", elements);
+
+	for (let i = 0; i < elements.length; i++) {
+		elements[i].remove();
+	}
+}

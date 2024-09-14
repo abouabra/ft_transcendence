@@ -180,13 +180,16 @@ friends-bar {
 
 }
 
+/* how to extract the --n-elements variables in JS */
+/* document.querySelector('friends-bar').style.getPropertyValue('--n-elements'); */
+
 friends-bar:hover {
-    width: 300px;
+    width: 350px;
     height: 100%;
     z-index: 2;
     position: absolute;
 
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .friends_bar_item {
@@ -361,12 +364,12 @@ servers-bar {
 }
 
 servers-bar:hover {
-    width: 300px;
+    width: 350px;
     height: 100%;
     z-index: 2;
     position: absolute;
 
-    overflow-y: scroll;
+    overflow-y: auto;
 
     bottom: 5px;
     right: 5px;
@@ -900,4 +903,24 @@ small-cards {
     right: 0;
     top: 50%;
     transform: translateY(-50%) translateX(50%);
+}
+
+@keyframes small_card_end_animation {
+    0% {
+        /* transform: rotateY(0deg); */
+        transform: rotate(0deg);
+        scale: 1;
+        opacity: 1;
+
+    }
+    100% {
+        /* transform: rotateY(180deg); */
+        transform: rotate(360deg);
+        scale: 0;
+        opacity: 0;
+    }
+}
+
+.small-cards-end-animation {
+    animation: small_card_end_animation 1s forwards;
 }

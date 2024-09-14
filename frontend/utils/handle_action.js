@@ -1,13 +1,61 @@
-function handle_action(action, id) {
+function handle_action(action, id, data = null) {
 
 	if (action == "goto_profile") {
 		console.log("Going to profile", id);
 		GoTo(`/profile/${id}`);
 	}
-	else if (action == "invite_to_game") {
-		console.log("Inviting to game", id);
+
+
+
+	else if (action == "invite_to_pong") {
+		console.log("Inviting to Pong Game", id);
+
+		let extra_data = {
+			game_name: "Pong",
+			game_id: 33, // call an api to get the game id
+		}
+
+		if (data)
+			extra_data = {...extra_data, ...data};
+		sendNotification("game_invitation", id, extra_data);
+
+
+		Make_Small_Card("waiting_for_accept_game", null, null, null, null, extra_data.game_name, data.username, data.avatar);
 
 	}
+	else if (action == "invite_to_space_invaders") {
+		console.log("Inviting to Space Invaders Game", id);
+
+		let extra_data = {
+			game_name: "Space Invaders",
+			game_id: 42,  // call an api to get the game id
+		}
+
+		if (data)
+			extra_data = {...extra_data, ...data};
+		sendNotification("game_invitation", id, extra_data);
+
+
+		Make_Small_Card("waiting_for_accept_game", null, null, null, null, extra_data.game_name, data.username, data.avatar);
+	}
+	else if (action == "invite_to_road_fighter") {
+		console.log("Inviting to Road Fighter Game", id);
+
+		let extra_data = {
+			game_name: "Road Fighter",
+			game_id: 7,  // call an api to get the game id
+		}
+
+		if (data)
+			extra_data = {...extra_data, ...data};
+		sendNotification("game_invitation", id, extra_data);
+
+
+		Make_Small_Card("waiting_for_accept_game", null, null, null, null, extra_data.game_name, data.username, data.avatar);
+	}
+	
+
+
 	else if (action == "join_game") {
 		console.log("Joining game", id);
 	}
@@ -29,6 +77,7 @@ function handle_action(action, id) {
 	else if (action == "logout_confirmed")
 	{
 		console.log("Logout Confirmed", id);
+		//call an api to logout then redirect to landing page
 	}
 	else if (action == "delete_server")
 	{

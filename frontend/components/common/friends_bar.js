@@ -6,7 +6,7 @@ export default class Friends_Bar extends HTMLElement {
 		head.appendChild(createLink("/styles/common.css"));
 
 		const data = [
-			{id: 1, name: "User 1",avatar: "/assets/images/about_us/abouabra.png",is_playing: "Pong"},
+			{id: 1, name: "admin",avatar: "/assets/images/avatars/default.jpg",is_playing: "Pong"},
 			{id: 2, name: "User 2",avatar: "/assets/images/about_us/abouabra.png",is_playing: "Space Invaders"},
 			{id: 3, name: "User 3",avatar: "/assets/images/about_us/abouabra.png",is_playing: "Road Fighter"},
 			{id: 4, name: "User 4",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
@@ -62,14 +62,23 @@ export default class Friends_Bar extends HTMLElement {
 										<img src="/assets/images/common/Iconly/Bold/Profile.svg" class="options_list_item_icon"/>
 										<span class="p2_bold" style="white-space: nowrap;">Go To Profile</span>
 									</div>
-									<div class="options_list_item" onclick='handle_action("invite_to_game", ${item.id})'>
-										<img src="/assets/images/common/Iconly/Bold/Game.svg" class="options_list_item_icon"/>
-										<span class="p2_bold" style="white-space: nowrap;">Invite to game</span>
-									</div>
 									<div class="options_list_item" onclick='handle_action("go_to_direct", ${item.id})'>
 										<img src="/assets/images/common/Iconly/Bold/Message.svg" class="options_list_item_icon"/>
 										<span class="p2_bold" style="white-space: nowrap;">Send Message</span>
 									</div>
+									<div class="options_list_item" onclick='handle_action("invite_to_pong", ${item.id}, ${JSON.stringify({username: item.name, avatar: item.avatar})})'>
+										<img src="/assets/images/common/Iconly/Bold/Game.svg" class="options_list_item_icon"/>
+										<span class="p2_bold" style="white-space: nowrap;">Invite to Pong</span>
+									</div>
+									<div class="options_list_item" onclick='handle_action("invite_to_space_invaders", ${item.id}, ${JSON.stringify({username: item.name, avatar: item.avatar})})'>
+										<img src="/assets/images/common/Iconly/Bold/Game.svg" class="options_list_item_icon"/>
+										<span class="p2_bold" style="white-space: nowrap;">Invite to Space Invaders</span>
+									</div>
+									<div class="options_list_item" onclick='handle_action("invite_to_road_fighter", ${item.id}, ${JSON.stringify({username: item.name, avatar: item.avatar})})'>
+										<img src="/assets/images/common/Iconly/Bold/Game.svg" class="options_list_item_icon"/>
+										<span class="p2_bold" style="white-space: nowrap;">Invite to Road Fighter</span>
+									</div>
+									
 								</div>
 							</div>
 						</div>

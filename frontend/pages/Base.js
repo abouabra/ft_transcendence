@@ -12,13 +12,14 @@ export default class Base_Page extends HTMLElement {
 			<div class="center-part" >
 				<nav-header></nav-header>
 				<friends-servers-bar></friends-servers-bar>
+				
 				<div class="d-flex w-100 h-100" style="overflow-x: auto;position: relative;">
 					<div style=" width: 100%; height: 100%;position: relative;" id="base_page">
 						<h1> Base Page </h1>
 					</div>
 				</div>
-					
-			
+				
+				
 			</div>
 		`;
 
@@ -65,7 +66,7 @@ export default class Base_Page extends HTMLElement {
 
 			if(data.type == "game_invitation")
 			{
-				handle_action("invite_to_game", data.sender_id);
+				Make_Small_Card("join_game", null, data.game_id, data.sender.username, data.sender.avatar, data.game_name);	
 			}
 			else if(data.type == "friend_request")
 			{

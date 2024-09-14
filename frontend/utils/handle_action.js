@@ -8,6 +8,10 @@ function handle_action(action, id) {
 		console.log("Inviting to game", id);
 
 	}
+	else if (action == "join_game") {
+		console.log("Joining game", id);
+	}
+
 	else if (action == "go_to_direct") {
 		console.log("Going to direct", id);
 
@@ -19,14 +23,12 @@ function handle_action(action, id) {
 	}
 	else if (action == "logout")
 	{
+		Make_Small_Card("logout");
 		console.log("Logout", id);
 	}
-	else if (action == "goto_notifications")
+	else if (action == "logout_confirmed")
 	{
-		console.log("Notifications", id);
-		const notifications_bar_options = document.querySelector(".notifications_bar_options");
-		notifications_bar_options.classList.remove("show");
-		GoTo('/notifications/')
+		console.log("Logout Confirmed", id);
 	}
 	else if (action == "delete_server")
 	{
@@ -40,5 +42,11 @@ function handle_action(action, id) {
 	{
 		console.log("Delete account", id);
 	}
+	else if (action == "cancel_game_invitation")
+	{
+		console.log("Cancel game invitation", id);
+		Delete_Small_Card();
+	}
+	
 
 }

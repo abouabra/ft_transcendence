@@ -20,6 +20,9 @@ export default class Search_Bar extends HTMLElement {
 			</div>
 			
 			<div class="search-user-bar-option">
+				<div class="search-user-bar-option-items">
+					<span class="p4_bold">type to search</span>
+				</div>
 			</div>
 		`;
 
@@ -28,10 +31,13 @@ export default class Search_Bar extends HTMLElement {
 
 		search_bar_input.addEventListener("focus", () => {
 			navbar_check_only_one_active("search-user-bar-option");
+			search_user_bar_option.classList.add("show");
+
 		});
 		
 		document.addEventListener('click', (event) => {
-			if (!search_user_bar_option.contains(event.target)) {
+			if (!search_user_bar_option.contains(event.target) && !search_bar_input.contains(event.target))
+			{
 				search_user_bar_option.classList.remove("show");
 			}
 		});

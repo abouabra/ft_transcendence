@@ -26,6 +26,20 @@ export default class User_Bar extends HTMLElement {
 			user_bar_options.classList.toggle("show");
 			navbar_check_only_one_active("user-bar-options");
 		});
+
+		const user_bar_option_items = this.querySelectorAll(".user-bar-option-items");
+		user_bar_option_items.forEach(item => {
+			item.addEventListener("click", () => {
+				user_bar_options.classList.remove("show");
+			});
+		});
+
+		document.addEventListener('click', (event) => {
+			if (!user_bar_options.contains(event.target) && !user_bar_icon.contains(event.target))
+			{
+				user_bar_options.classList.remove("show");
+			}
+		});
 	}
 
 

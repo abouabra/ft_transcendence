@@ -29,25 +29,33 @@ export default class Notifications_Bar extends HTMLElement {
 
 				<div class="notifications_bar_options">
 					<div class="notifications-bar-option-items justify-content-center">
-						<span class="p2_bold" onclick='handle_action("goto_notifications", null)'> See all notifications </span>
+						<span class="p2_bold"> See all notifications </span>
 					</div>
 				</div>
 			`;
 
 			const notifications_bar_icon = this.querySelector(".notifications_bar_icon");
-
+			const notifications_bar_options = this.querySelector(".notifications_bar_options");
 			notifications_bar_icon.addEventListener("click", () => {
 				
-				if (!this.querySelector(".notifications_bar_options").classList.contains("show")) {
+				if (!notifications_bar_options.classList.contains("show")) {
 					this.getNotifications();
 				}
 	
-				this.querySelector(".notifications_bar_options").classList.toggle("show");
+				notifications_bar_options.classList.toggle("show");
 	
 	
 				navbar_check_only_one_active("notifications_bar_options");
 			});
-		
+
+			document.addEventListener('click', (event) => {
+				if (!notifications_bar_options.contains(event.target) && !notifications_bar_icon.contains(event.target))
+				{
+					notifications_bar_options.classList.remove("show");
+				}
+			});
+			
+
 		}).catch(error => {
 			showToast("error", error);
 		});
@@ -114,20 +122,29 @@ export default class Notifications_Bar extends HTMLElement {
 								</div>
 						`
 						}).join("")
-
-						
 					}
 
-					<div class="notifications-bar-option-items justify-content-center">
-						<span class="p2_bold" onclick='handle_action("goto_notifications", null)'> See all notifications </span>
+					<div class="notifications-bar-option-items justify-content-center" id="see_all_notifications">
+						<span class="p2_bold" > See all notifications </span>
 					</div>
 			`;
 
 			
 
+			const see_all_notifications = document.getElementById("see_all_notifications");
+			see_all_notifications.addEventListener("click", () => {
+
+				const notifications_bar_options = document.querySelector(".notifications_bar_options");
+				notifications_bar_options.classList.remove("show");
+				
+				GoTo('/notifications/')
+			});
+
 		}).catch(error => {
 			showToast("error", error);
 		});
+
+		
 	}
 
 	connectedCallback() {}

@@ -204,22 +204,38 @@ function sendNotification(type, receiver_id)
 }
 
 
-function Make_Small_Card(type, server_id = null)
+function Make_Small_Card(type, server_id = null, game_id = null, username_who_invited_you = null, avatar_who_invited_you = null, game_name = null, username_waiting_for = null, avatar_waiting_for = null)
 {
 	const center_part = document.getElementById("base_page");
-	// const small_cards = document.createElement("small-cards");
+	// <small-cards data-type="join_game" data-username_who_invited_you="abouabra" data-avatar_who_invited_you="/assets/images/avatars/abouabra.png" data-game-name="Pong" data-game-id="1"></small-cards>
+	// <small-cards data-type="waiting_for_accept_game" data-username_waiting_for="default" data-avatar_waiting_for="/assets/images/avatars/default.jpg" data-game-name="Pong" data-game-id="1"></small-cards>
 
-	// small_cards.setAttribute("data-type", type);
-	// small_cards.setAttribute("data-server-id", server_id);
-
-	center_part.innerHTML += `<small-cards data-type="${type}" data-server-id="${server_id}"></small-cards>`;
-
+	center_part.innerHTML += `<small-cards data-type="${type}" data-server-id="${server_id}" data-game-id="${game_id}" data-username_who_invited_you="${username_who_invited_you}" data-avatar_who_invited_you="${avatar_who_invited_you}" data-game-name="${game_name}" data-username_waiting_for="${username_waiting_for}" data-avatar_waiting_for="${avatar_waiting_for}"></small-cards>`;
 }
+
+// example for logout small card
+// Make_Small_Card("logout");
+
+// example for delete account small card
+// Make_Small_Card("delete_account");
+
+// example for delete server small card
+// Make_Small_Card("delete_server", 1);
+
+// example for leave server small card
+// Make_Small_Card("leave_server", 1);
+
+
+// example for join game small card
+// Make_Small_Card("join_game", null, 1, "abouabra", "/assets/images/avatars/abouabra.png", "Pong");
+
+
+// example for waiting for accept game small card
+// Make_Small_Card("waiting_for_accept_game", null, 1, null, null, "Pong", "default", "/assets/images/avatars/default.jpg");
+
 
 function Delete_Small_Card() {
 	const elements = document.querySelectorAll("small-cards");
-	
-	console.log("Deleting small card", elements);
 
 	for (let i = 0; i < elements.length; i++) {
 		elements[i].remove();

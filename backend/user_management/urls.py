@@ -3,7 +3,6 @@ from . import views
 
 urlpatterns = [
     path('is_authenticated/', views.IsAuthenticatedView.as_view(), name='is_authenticated'),
-    
 
     path('token/', views.LoginView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', views.RefreshTokenView.as_view(), name='token_refresh'),
@@ -14,4 +13,5 @@ urlpatterns = [
     path('unread_notifications/', views.UnreadNotificationsView.as_view(), name='unread_notifications_count'),
     path('notifications_brief/', views.NotificationsBriefView.as_view(), name='notifications_brief'),
     path('notifications/', views.NotificationsView.as_view(), name='notifications'),
+    path('friends_bar/', views.FriendsBarView.as_view(), name='friends_bar'),
 ]

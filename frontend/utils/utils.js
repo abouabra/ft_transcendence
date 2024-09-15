@@ -66,7 +66,7 @@ async function makeRequest(url, method = "GET", data = null) {
 		};
 
 		// if (!BANNED_TOAST_URLS.includes(url)) {
-			handleToastNotifications(errorResponse);
+			// handleToastNotifications(errorResponse);
 		// }
 
 		return errorResponse;

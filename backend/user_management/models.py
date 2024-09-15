@@ -10,6 +10,17 @@ class User(AbstractUser):
     avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/avatars/default.jpg")
     status = models.CharField(max_length=255, blank=False, null=False, default="offline")
 
+    PLAYING_CHOICES = (
+        (None, None),
+        ("pong", "Pong"),
+        ("space_invaders", "Space Invaders"),
+        ("road_fighter", "Road Fighter"),
+    )
+
+    is_playing = models.CharField(choices=PLAYING_CHOICES, max_length=255, blank=True, null=True)
+
+    friends = models.ManyToManyField("self", blank=True, symmetrical=False)
+
     def __str__(self):
         return f"{self.username}"
 

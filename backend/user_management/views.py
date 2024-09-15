@@ -191,3 +191,32 @@ class NotificationsView(generics.GenericAPIView):
         result_page = paginator.paginate_queryset(notifications, request)
         serialized_notifications = self.serializer_class(result_page, many=True).data
         return paginator.get_paginated_response(serialized_notifications)
+
+
+class FriendsBarView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ShortUserSerializer
+
+    def get(self, request):
+        friends = request.user.friends.filter(status="online")
+
+        PLAYING_CHOICES = (
+            (None, None),
+            ("pong", "Pong"),
+            ("space_invaders", "Space Invaders"),
+            ("road_fighter", "Road Fighter"),
+        )
+
+
+        data = self.serializer_class(friends, many=True).data
+        for i in range(len(data)):
+            for j in range(len(PLAYING_CHOICES)):
+                if friends[i].is_playing == PLAYING_CHOICES[j][0]:
+                    data[i]["is_playing"] = PLAYING_CHOICES[j][1]
+                    break
+        
+        # i want to order them, the ones who playing (aka who have is_playing != None) then the rest
+        data.sort(key=lambda x: x["is_playing"] is not None, reverse=True)
+
+         
+        return Response (data, status=status.HTTP_200_OK)

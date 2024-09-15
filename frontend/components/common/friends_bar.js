@@ -81,15 +81,15 @@ export default class Friends_Bar extends HTMLElement {
 										<img src="/assets/images/common/Iconly/Bold/Message.svg" class="options_list_item_icon"/>
 										<span class="p2_bold" style="white-space: nowrap;">Send Message</span>
 									</div>
-									<div class="options_list_item" onclick='handle_action("invite_to_pong", ${item.id}, ${JSON.stringify({username: item.username, avatar: item.avatar})})'>
+									<div class="options_list_item" onclick='handle_action("invite_to_pong", ${item.id}, ${JSON.stringify({username: item.username, avatar: item.avatar, id: item.id})})'>
 										<img src="/assets/images/common/Iconly/Bold/Game.svg" class="options_list_item_icon"/>
 										<span class="p2_bold" style="white-space: nowrap;">Invite to Pong</span>
 									</div>
-									<div class="options_list_item" onclick='handle_action("invite_to_space_invaders", ${item.id}, ${JSON.stringify({username: item.username, avatar: item.avatar})})'>
+									<div class="options_list_item" onclick='handle_action("invite_to_space_invaders", ${item.id}, ${JSON.stringify({username: item.username, avatar: item.avatar, id: item.id})})'>
 										<img src="/assets/images/common/Iconly/Bold/Game.svg" class="options_list_item_icon"/>
 										<span class="p2_bold" style="white-space: nowrap;">Invite to Space Invaders</span>
 									</div>
-									<div class="options_list_item" onclick='handle_action("invite_to_road_fighter", ${item.id}, ${JSON.stringify({username: item.username, avatar: item.avatar})})'>
+									<div class="options_list_item" onclick='handle_action("invite_to_road_fighter", ${item.id}, ${JSON.stringify({username: item.username, avatar: item.avatar, id: item.id})})'>
 										<img src="/assets/images/common/Iconly/Bold/Game.svg" class="options_list_item_icon"/>
 										<span class="p2_bold" style="white-space: nowrap;">Invite to Road Fighter</span>
 									</div>

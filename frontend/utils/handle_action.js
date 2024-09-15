@@ -20,8 +20,7 @@ function handle_action(action, id, data = null) {
 		sendNotification("game_invitation", id, extra_data);
 
 
-		Make_Small_Card("waiting_for_accept_game", null, null, null, null, extra_data.game_name, data.username, data.avatar);
-
+		Make_Small_Card("waiting_for_accept_game", null, null, null, null, extra_data.game_name, extra_data.username, extra_data.avatar, null, id);
 	}
 	else if (action == "invite_to_space_invaders") {
 		console.log("Inviting to Space Invaders Game", id);
@@ -36,7 +35,7 @@ function handle_action(action, id, data = null) {
 		sendNotification("game_invitation", id, extra_data);
 
 
-		Make_Small_Card("waiting_for_accept_game", null, null, null, null, extra_data.game_name, data.username, data.avatar);
+		Make_Small_Card("waiting_for_accept_game", null, null, null, null, extra_data.game_name, extra_data.username, extra_data.avatar, null, id);
 	}
 	else if (action == "invite_to_road_fighter") {
 		console.log("Inviting to Road Fighter Game", id);
@@ -51,7 +50,7 @@ function handle_action(action, id, data = null) {
 		sendNotification("game_invitation", id, extra_data);
 
 
-		Make_Small_Card("waiting_for_accept_game", null, null, null, null, extra_data.game_name, data.username, data.avatar);
+		Make_Small_Card("waiting_for_accept_game", null, null, null, null, extra_data.game_name, extra_data.username, extra_data.avatar, null, id);
 	}
 	
 

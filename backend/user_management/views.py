@@ -214,7 +214,9 @@ class FriendsBarView(generics.GenericAPIView):
                 if friends[i].is_playing == PLAYING_CHOICES[j][0]:
                     data[i]["is_playing"] = PLAYING_CHOICES[j][1]
                     break
-        
+
+
+
         # i want to order them, the ones who playing (aka who have is_playing != None) then the rest
         data.sort(key=lambda x: x["is_playing"] is not None, reverse=True)
 

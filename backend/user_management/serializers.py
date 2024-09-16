@@ -17,7 +17,7 @@ def password_validation(password):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, validators=[password_validation])    
+    password = serializers.CharField(write_only=True, validators=[password_validation])
     password_confirmation = serializers.CharField(write_only=True, validators=[password_validation])
 
 

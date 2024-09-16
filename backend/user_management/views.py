@@ -86,6 +86,7 @@ class LoginView(generics.GenericAPIView):
                     samesite="Strict",
                     expires=datetime.fromtimestamp(refresh["exp"], tz=timezone.utc),
                 )
+                
                 response.set_cookie(
                     key="access_token",
                     value=str(refresh.access_token),

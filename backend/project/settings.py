@@ -3,35 +3,55 @@ from datetime import timedelta
 import environ
 import os
 import logging
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
 
 logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+VAULT_DIR = os.path.join(BASE_DIR, os.pardir, "vault")
 
+# Read the environment variables from the .env file
 env = environ.Env()
-
-env_file = os.path.join(BASE_DIR, os.pardir, "vault/.env")
+env_file = os.path.join(VAULT_DIR, ".env")
 environ.Env.read_env(env_file)
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-
-SECRET_KEY=env("SECRET_KEY")
-
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG=env("DEBUG", default=False)
 
 ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
 
 AUTH_USER_MODEL = "user_management.User"
 
-# Application definition
+# define the environment variables
+SECRET_KEY=env("SECRET_KEY")
+DEBUG=env("DEBUG", default=False)
 
+INTRA_UID = env('INTRA_UID')
+INTRA_SECRET = env('INTRA_SECRET')
+INTRA_CALLBACK_URI = env('INTRA_CALLBACK_URI')
+INTRA_TOKEN_URL = env('INTRA_TOKEN_URL')
+INTRA_AUTH_URL = env('INTRA_AUTH_URL')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False  # Gmail uses TLS, not SSL
+EMAIL_HOST_USER =  env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # https://myaccount.google.com/apppasswords
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  
+
+# To generate a self-signed certificate
+# openssl req -x509 -newkey rsa:4096 -keyout domain.key -out domain.crt -sha256 -days 3650 -nodes -subj "/C=MA/ST=Tanger-Tetouan-Al Hoceima/L=Martil/O=1337/OU=1337MED/CN=ft_transcendence"
+
+# to generate private key and public key for JWT RSA256
+# openssl genrsa -out private.key 2048
+# openssl rsa -in private.key -outform PEM -pubout -out public.key
+
+
+
+# Application definition
 INSTALLED_APPS = [
     "daphne",
     "channels",
@@ -149,6 +169,16 @@ REST_FRAMEWORK = {
 }
 
 
+with open(os.path.join(VAULT_DIR,"private.key"), "rb") as key_file:
+    PRIVATE_KEY = serialization.load_pem_private_key(
+        key_file.read(), password=None, backend=default_backend()
+    )
+
+with open(os.path.join(VAULT_DIR,"public.key"), "rb") as key_file:
+    PUBLIC_KEY = serialization.load_pem_public_key(
+        key_file.read(), backend=default_backend()
+    )
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(seconds=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -156,9 +186,13 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
 
-    "ALGORITHM": "HS256",
-    "SIGNING_KEY": SECRET_KEY,
-    "VERIFYING_KEY": "",
+    # "ALGORITHM": "HS256",
+    # "SIGNING_KEY": SECRET_KEY,
+    # "VERIFYING_KEY": "",
+
+    "ALGORITHM": "RS256",
+    "SIGNING_KEY": PRIVATE_KEY,
+    "VERIFYING_KEY": PUBLIC_KEY,
 
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",

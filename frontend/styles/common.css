@@ -750,6 +750,7 @@ user-bar {
         padding: 0px;
         overflow: unset;
         overflow-x: scroll;
+        justify-content: flex-start;
     }
 
     friends-bar{

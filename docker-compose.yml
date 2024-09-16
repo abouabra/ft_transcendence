@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  nginx:
+    image: transcendence:user_management_db_image
+    container_name: user_management_db_container
+    build: ./infrastructure/user_management_db/
+    ports:
+      - 5432:5432
+    volumes:
+      - user_management_db_data:/var/lib/postgresql/data
+      - /usr/bin/pg_config:/usr/local/bin/pg_config
+    networks:
+      - transcendence_net
+    env_file:
+      - vault/.env
+    # restart: always
+
+volumes:
+
+  user_management_db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /Users/abouabra/Projects/ft_transcendence/volumes/db_data/user_management_db_data
+      o: bind
+
+
+networks:
+  transcendence_net:
+    driver: bridge

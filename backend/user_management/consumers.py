@@ -58,5 +58,4 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_user_info(self, user_id):
         user_serialized_data = ShortUserSerializer(User.objects.get(id=user_id)).data
-        logger.error(json.dumps(user_serialized_data))
         return user_serialized_data

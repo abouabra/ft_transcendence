@@ -21,7 +21,6 @@ export default class Friends_Bar extends HTMLElement {
 			// 	{id: 11, username: "User 11",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
 			// 	{id: 12, username: "User 12",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
 			// ];
-			console.log(data);
 			this.render_data(data);
 		})
 		.catch((error) => {

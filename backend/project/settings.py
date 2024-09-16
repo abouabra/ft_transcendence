@@ -1,18 +1,30 @@
 from pathlib import Path
 from datetime import timedelta
+import environ
+import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env()
+
+env_file = os.path.join(BASE_DIR, os.pardir, "vault/.env")
+environ.Env.read_env(env_file)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-19g&9^_$#obm=yor7wiud&1q14v3ocosk^wc5k)kb3m=unjevt"
+
+SECRET_KEY=env("SECRET_KEY")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG=env("DEBUG", default=False)
 
 ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
 
@@ -34,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "user_management",
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -76,12 +89,15 @@ ASGI_APPLICATION = "project.asgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env("POSTGRES_DB"),
+        'USER': env("POSTGRES_USER"),
+        'PASSWORD': env("POSTGRES_PASSWORD"),
+        'HOST': '127.0.0.1',
+        'PORT': '5432', 
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -180,8 +196,11 @@ SIMPLE_JWT = {
 # CORS settings
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:3000",
     "http://0.0.0.0:3000",
+    "http://127.0.0.1:3000",
+    
+    "http://0.0.0.0:8000",
+    "http://127.0.0.1:8000",
 ]
 
 # Channels settings

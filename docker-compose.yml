@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  nginx:
+  user_management_db:
     image: transcendence:user_management_db_image
     container_name: user_management_db_container
     build: ./infrastructure/user_management_db/
@@ -9,12 +9,26 @@ services:
       - 5432:5432
     volumes:
       - user_management_db_data:/var/lib/postgresql/data
-      - /usr/bin/pg_config:/usr/local/bin/pg_config
     networks:
       - transcendence_net
     env_file:
       - vault/.env
-    # restart: always
+    restart: always
+  
+  redis:
+    image: transcendence:redis_image
+    container_name: redis_container
+    build: ./infrastructure/redis/
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - transcendence_net
+    env_file:
+      - vault/.env
+    restart: always
+
 
 volumes:
 
@@ -24,6 +38,14 @@ volumes:
       type: none
       device: /Users/abouabra/Projects/ft_transcendence/volumes/db_data/user_management_db_data
       o: bind
+  
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /Users/abouabra/Projects/ft_transcendence/volumes/db_data/redis_data
+      o: bind
+    
 
 
 networks:

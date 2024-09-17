@@ -20,8 +20,13 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         receiver_id = data['receiver_id']
         sender_id = data['sender_id']
 
-        receiver_data = await self.get_user_info(receiver_id)
-        sender_data = await self.get_user_info(sender_id)
+        try:
+            receiver_data = await self.get_user_info(receiver_id)
+            sender_data = await self.get_user_info(sender_id)
+        except User.DoesNotExist:
+            return await self.send(text_data=json.dumps({
+                'error': 'User does not exist'
+            }))
         
         data['receiver'] = receiver_data
         data['sender'] = sender_data

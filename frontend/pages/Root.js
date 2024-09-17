@@ -32,7 +32,7 @@ export default class Root_Page extends HTMLElement {
 		head.appendChild(createLink('/styles/root.css'));
 
 		this.innerHTML = /*html*/`
-			<base-page></base-page>
+			<!-- <base-page></base-page> -->
 		`;
 	}
 

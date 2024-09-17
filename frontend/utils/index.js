@@ -50,22 +50,20 @@ async function handleLocationChange() {
     const component = matchRoute(path);
     const root_div = document.getElementById("root_div");
 
+    
     if (isAllowedWithoutLogin(path) || component == routes[404]) {
         root_div.innerHTML = `<${component}></${component}>`;
         return;
     }
 
-
-
     const response = await makeRequest("/api/auth/is_authenticated/");
 	const isAuthenticated = response.response_code === 200;
-
+   
 	if (!isAuthenticated && path !== ("/"))
 	{
 		GoTo("/");
         return;
 	}
-
 
 
     if (!root_div.querySelector("base-page")) {
@@ -82,3 +80,27 @@ window.onpopstate = handleLocationChange;
 window.addEventListener("load", () => {
 	handleLocationChange();
 });
+
+
+function login(username, password) {
+    makeRequest("/api/auth/token/", "POST", {
+        username: username,
+        password: password
+    })
+    .then((data) => {
+        if (data.response_code === 200) {
+            console.log("Logged in successfully");
+            GoTo("/home/");
+        }
+    })
+}
+
+function logout() {
+    makeRequest("/api/auth/logout/")
+    .then((data) => {
+        if (data.response_code === 200) {
+            console.log("Logged out successfully");
+            GoTo("/");
+        }
+    })
+}

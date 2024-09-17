@@ -6,10 +6,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import logging
 from .serializers import LoginSerializer
 from .decorators import check_if_logged_in
-from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timezone
 from .models import User, Notification
 from rest_framework.pagination import PageNumberPagination
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +115,38 @@ class LoginView(generics.GenericAPIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class LogoutView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        try:
+            refresh_token = request.COOKIES.get("refresh_token")
+            if not refresh_token:
+                return Response(
+                    {"detail": "Refresh token is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            refresh = RefreshToken(refresh_token)
+            refresh.blacklist()
+
+            response = Response()
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
+            response.data = {"detail": "Logged out successfully"}
+            response.status_code = status.HTTP_200_OK
+
+            return response
+
+        except Exception as e:
+            response = Response(
+                {"detail": "Error encountered while logging out"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
+            return response
+
 
 class MeView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -127,7 +160,7 @@ class MeView(generics.GenericAPIView):
 class UserView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = UserSerializer
-
+    
     def get(self, request, pk):
         try:
             user = User.objects.get(id=pk)
@@ -161,6 +194,7 @@ class SearchUsersView(generics.ListAPIView):
             {"detail": "Search query is required"}, status=status.HTTP_400_BAD_REQUEST
         )
 
+from django.core.cache import cache
 
 class NotificationsBriefView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -228,6 +262,7 @@ class FriendsBarView(generics.GenericAPIView):
 
 
         data = self.serializer_class(friends, many=True).data
+
         for i in range(len(data)):
             for j in range(len(PLAYING_CHOICES)):
                 if friends[i].is_playing == PLAYING_CHOICES[j][0]:

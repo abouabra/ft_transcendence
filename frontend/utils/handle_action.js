@@ -77,6 +77,7 @@ function handle_action(action, id, data = null) {
 	{
 		console.log("Logout Confirmed", id);
 		//call an api to logout then redirect to landing page
+		logout();
 	}
 	else if (action == "delete_server")
 	{

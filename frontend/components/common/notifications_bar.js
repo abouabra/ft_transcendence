@@ -37,7 +37,7 @@ export default class Notifications_Bar extends HTMLElement {
 			const notifications_bar_icon = this.querySelector(".notifications_bar_icon");
 			const notifications_bar_options = this.querySelector(".notifications_bar_options");
 			notifications_bar_icon.addEventListener("click", () => {
-				
+		
 				if (!notifications_bar_options.classList.contains("show")) {
 					this.getNotifications();
 				}
@@ -103,7 +103,7 @@ export default class Notifications_Bar extends HTMLElement {
 
 
 							return /*html*/ `
-								<div class="notifications-bar-option-items">
+								<div class="notifications-bar-option-items" data-notification-id="${item.id}" data-sender-id="${item.sender.id}">
 									<div style="position: relative">
 										<img src="${item.sender.avatar}" class="friends_bar_item_icon"/>
 										${item.sender.status == "online" ? 
@@ -118,6 +118,8 @@ export default class Notifications_Bar extends HTMLElement {
 											${message}
 										</div>
 									</div>
+
+									<img src="/assets/images/common/Iconly/Light/Close_Square.svg" alt="close" class="notifications-bar-option-close">
 
 								</div>
 						`
@@ -134,10 +136,54 @@ export default class Notifications_Bar extends HTMLElement {
 			const see_all_notifications = document.getElementById("see_all_notifications");
 			see_all_notifications.addEventListener("click", () => {
 
-				const notifications_bar_options = document.querySelector(".notifications_bar_options");
 				notifications_bar_options.classList.remove("show");
 				
 				GoTo('/notifications/')
+			});
+
+
+		
+
+
+			const notifications_bar_option_items = this.querySelectorAll(".notifications-bar-option-items");
+			notifications_bar_option_items.forEach((item) => {
+				const close_button = item.querySelector(".notifications-bar-option-close");
+				if (!close_button)
+					return;
+
+
+
+				close_button.addEventListener("click", () => {
+					const notification_id = item.getAttribute("data-notification-id");
+					makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
+					.then((data) => {
+						item.classList.add("notification_remove_animation");
+						item.addEventListener("animationend", () => {
+							item.remove();
+							this.getNotifications();
+						});
+					}).catch(error => {
+						showToast("error", error);
+					});
+				});
+				//css class type: .notifications-bar-option-items:hover div div span span
+				const span_texts = document.querySelectorAll(".notifications-bar-option-items div div span span");
+				span_texts.forEach((span_text) => {
+
+					if(span_text)
+					{
+						span_text.addEventListener("click", () => {
+							
+							notifications_bar_options.classList.remove("show");
+							
+							const user_id = item.getAttribute("data-sender-id");
+							GoTo(`/profile/${user_id}`);
+						});
+					};
+
+				});
+
+
 			});
 
 		}).catch(error => {

@@ -194,7 +194,6 @@ class SearchUsersView(generics.ListAPIView):
             {"detail": "Search query is required"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-from django.core.cache import cache
 
 class NotificationsBriefView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -229,6 +228,24 @@ class UnreadNotificationsView(generics.GenericAPIView):
             "unread_notifications": unread_notifications
         }, status=status.HTTP_200_OK)
 
+class DeleteNotificationView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def delete(self, request, pk):
+        try:
+            notification = Notification.objects.get(id=pk)
+            notification.delete()
+            return Response({"detail": "Notification deleted successfully"}, status=status.HTTP_200_OK)
+        except Notification.DoesNotExist:
+            return Response(
+                {"detail": "Notification not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while deleting the notification"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 class NotificationsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)

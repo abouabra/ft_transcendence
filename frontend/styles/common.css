@@ -532,7 +532,7 @@ notifications-bar {
 
 .notifications-bar-option-items {
     color: var(--platinum);
-    cursor: pointer;
+    cursor:auto;
     
     transition: 0.5s ease;
 
@@ -553,10 +553,30 @@ notifications-bar {
 
 .notifications-bar-option-items:hover div div span span {
     text-decoration: underline;
+    cursor: pointer;
+} 
+
+.notifications-bar-option-close {
+    width: 25px;
+    height: 25px;
+    align-self: center;
+    cursor: pointer;
 }
 
+@keyframes notification_remove_animation {
+    0% {
+        transform: translateX(0%);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
 
-
+.notification_remove_animation {
+    animation: notification_remove_animation 0.5s forwards;
+}
 
 
 

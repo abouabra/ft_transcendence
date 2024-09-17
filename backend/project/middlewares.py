@@ -41,24 +41,12 @@ class JWTAuthCookieMiddleware(MiddlewareMixin):
             request.META["HTTP_X_REFRESH_TOKEN"] = refresh_token
 
 
-
-# class UserCacheMiddleware(MiddlewareMixin):
-#     def process_request(self, request):
-#         user = get_user(request)  # Get the user object from the request
-#         if user.is_authenticated:
-#             cache_key = get_cache_key(request)
-#             user_specific_cache_key = f"{cache_key}_{user.id}"
-#             request._cache_key = user_specific_cache_key
-
-#     def process_response(self, request, response):
-#         if hasattr(request, '_cache_key'):
-#             response._cache_key = request._cache_key
-#         return response
-
-
-
 class UserCacheMiddleware(MiddlewareMixin):
     def process_request(self, request):
+        # Skip caching for URLs that start with /admin/
+        if request.path.startswith('/admin/'):
+            return None
+
         user = get_user(request)  # Get the user object from the request
         if user.is_authenticated:
             cache_key = get_cache_key(request)
@@ -71,6 +59,10 @@ class UserCacheMiddleware(MiddlewareMixin):
                 return HttpResponse(cached_data, content_type="application/json")
 
     def process_response(self, request, response):
+        # Skip caching for URLs that start with /admin/
+        if request.path.startswith('/admin/'):
+            return response
+
         if hasattr(request, '_cache_key') and response.status_code == 200:
             # Cache the response data
             cache.set(request._cache_key, force_str(response.content), timeout=900)  # Cache for 15 minutes

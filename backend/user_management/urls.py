@@ -13,6 +13,8 @@ urlpatterns = [
     path('search/', views.SearchUsersView.as_view(), name='search_users'),
 
     path('unread_notifications/', views.UnreadNotificationsView.as_view(), name='unread_notifications_count'),
+    path('delete_notifications/<int:pk>/', views.DeleteNotificationView.as_view(), name='delete_notification'),
+    
     path('notifications_brief/', views.NotificationsBriefView.as_view(), name='notifications_brief'),
     path('notifications/', views.NotificationsView.as_view(), name='notifications'),
     path('friends_bar/', views.FriendsBarView.as_view(), name='friends_bar'),

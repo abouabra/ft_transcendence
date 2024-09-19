@@ -6,22 +6,21 @@ export default class Chat_Page extends HTMLElement {
 		
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_page.css'));
-
 		this.innerHTML = /* html */`
 			<div class="w-100 h-100 d-flex align-items-center">
-			<div class="d-flex w-100 platinum_40_color_border chat-container" style="height:90%">
-				<div class="friend-message-container  platinum_40_color_border">
-					<div class="search-bar">
-						<div class="search-input">
+			<div class="d-flex w-100 platinum_40_color_border chat-container">
+				<div class="friend-message-container">
+					<div class="search-bar d-flex flex-column justify-content-center align-items-center">
+						<div class="search-input d-flex ">
 							<img src="/assets/images/common/Iconly/Light/Search_2.svg">
-							<input type="text" value="Search">
+							<input type="text" placeholder="Search">
 						</div>
 					</div>
 					<div class="select-party d-flex justify-content-center w-100">
 							<span class="select-server p3_bold platinum_40_color">Servers</span>
 							<span class="select-direct p3_bold platinum_40_color">Direct</span>
 					</div>
-				<friend-side-msg></friend-side-msg>
+					<friend-side-msg></friend-side-msg>
 				</div>
 				<div class="message-container w-100 d-flex flex-column justify-content-center   align-items-center">
 					<div >

@@ -1,0 +1,14 @@
+
+.creation-container
+{
+    border-radius: 15px;
+    height: 90%;
+    gap:100px;
+}
+
+.rules
+{
+    width: 400px;
+    height: 500px;
+    border-radius: 15px;
+}

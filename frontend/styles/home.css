@@ -1,0 +1,70 @@
+home-page{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+home-slide-show {
+    display: flex;
+    position: relative;
+    max-width: fit-content;  /* Make the component fit its content width */
+}
+
+
+.slide-show-mini-card {
+    display: flex;
+    padding: 11px;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 30px;
+    gap: 20px;
+}
+
+.slide-show-mini-card-image {
+    width: 250px;
+    height: 350px;
+    border-radius: 30px;
+}
+
+
+
+.left-card {
+    left: 10%;
+    transform: scale(0.8) translateX(-50%);
+    z-index: 1;
+}
+
+.center-card {
+    z-index: 2;
+    transform: scale(1);
+}
+
+.right-card {
+    right: 10%;
+    transform: scale(0.8) translateX(50%);
+    z-index: 1;
+}
+
+
+.slide-show-three-dots{
+    display: flex;
+    gap: 4px;
+    width: fit-content;
+    height: fit-content;
+
+    position: absolute;
+    top: 18px;
+    right: 32px;
+}
+
+.slide-show-three-dots-dot {
+    width: 28px;
+    height: 6px;
+    border-radius: 24px;
+    background-color: var(--platinum_40_percent);
+}
+
+.slide-show-three-dots-dot-active {
+    background-color: var(--primary_color);
+}

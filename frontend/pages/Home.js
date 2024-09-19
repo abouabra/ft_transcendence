@@ -8,6 +8,8 @@ export default class Home_Page extends HTMLElement {
 
 		this.innerHTML = /* html */`
 			<h1> Home Page </h1>
+				<home-slide-show></home-slide-show>
+			
 		`;
 	}
 

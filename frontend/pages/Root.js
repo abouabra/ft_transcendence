@@ -24,6 +24,8 @@ import Profile_Page from "./Profile.js";
 import Settings_Page from "./Settings.js";
 import Small_Cards from "../components/common/small_cards.js";
 import Create_Server_page from "./Chat_creat_server.js";
+import Home_Slide_Show from "../components/home_page/home_slide_show.js";
+
 
 export default class Root_Page extends HTMLElement {
 	constructor() {

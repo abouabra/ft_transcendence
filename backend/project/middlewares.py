@@ -29,16 +29,6 @@ class JsonResponseMiddleware:
         return response
 
 
-class JWTAuthCookieMiddleware(MiddlewareMixin):
-    def process_request(self, request):
-        access_token = request.COOKIES.get("access_token")
-        refresh_token = request.COOKIES.get("refresh_token")
-
-        if access_token:
-            request.META["HTTP_AUTHORIZATION"] = f"Bearer {access_token}"
-
-        if refresh_token:
-            request.META["HTTP_X_REFRESH_TOKEN"] = refresh_token
 
 
 class UserCacheMiddleware(MiddlewareMixin):

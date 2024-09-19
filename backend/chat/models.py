@@ -4,7 +4,7 @@ from django.contrib.postgres.fields import ArrayField # NOTE: Use this for Postg
 # Create your models here.
 class Server(models.Model):
     name = models.CharField(max_length=255)
-    avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/servers_avatars/default.jpg")
+    avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/server_avatars/default.jpg")
     
     VISISBILITY_CHOICES = (
         ("public", "Public"),

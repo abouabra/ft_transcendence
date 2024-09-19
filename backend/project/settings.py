@@ -83,7 +83,6 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
 
     "project.middlewares.JsonResponseMiddleware",
-    "project.middlewares.JWTAuthCookieMiddleware",
 ]
 
 ROOT_URLCONF = "project.urls"

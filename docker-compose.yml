@@ -31,22 +31,19 @@ services:
 
 
 volumes:
-
   user_management_db_data:
     driver: local
     driver_opts:
       type: none
-      device: /Users/abouabra/Projects/ft_transcendence/volumes/db_data/user_management_db_data
+      device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/user_management_db_data
       o: bind
-  
+
   redis_data:
     driver: local
     driver_opts:
       type: none
-      device: /Users/abouabra/Projects/ft_transcendence/volumes/db_data/redis_data
+      device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/redis_data
       o: bind
-    
-
 
 networks:
   transcendence_net:

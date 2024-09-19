@@ -141,6 +141,7 @@ node_modules/
 db.sqlite3
 package-lock.json
 
+.DS_Store
 
 # Logs and containers data
 volumes/

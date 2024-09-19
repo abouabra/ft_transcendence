@@ -1,0 +1,62 @@
+.chat-container
+{
+    border-radius: 15px;
+}
+.friend-message-container
+{
+    border-radius: 15px 0 0 15px;
+    width: 400px;
+}
+.server-info
+{
+    text-align: center;
+    margin : auto;
+    margin-top: 300px;
+}
+button-component
+{
+    margin: 0 auto
+
+}
+#create-button
+{
+    margin-bottom: 10px;
+}
+.search-input
+{
+    position: relative;
+    width: 80%;
+    height: 35px;
+    margin : auto;
+    margin-top: 20px;
+
+}
+.search-input input
+{
+    text-align: center;
+    background-color: #27292e;
+    color: var(--platinum_40_percent);
+    border-radius: 15px;
+    border: none;
+    width: 100%;
+    height: 100%;
+}
+.search-input img
+{
+    position: absolute;
+    margin-top: 0.5em;
+    margin-left: 0.5em;
+}
+
+.select-party{
+    margin-top: 1em;
+    padding-bottom: 1em;
+    gap: 40px;
+    border-bottom: 1px var(--platinum_40_percent) solid;
+}
+
+.friend-message-bar
+{
+    height: 52;
+    border-bottom: 1px var(--platinum_40_percent) solid;
+}

@@ -54,19 +54,27 @@ export default class Base_Page extends HTMLElement {
 
 		window.notification_socket.onmessage = function (event) {
 			const data = JSON.parse(event.data);
-			console.log("Notification socket message: ", data);
+			console.log("Notification socket message: ", data)
 
-			const notifications_bar_status = document.querySelector(".notifications_bar_status");
-			if(notifications_bar_status.style.display == "" || notifications_bar_status.style.display == "none")
-				notifications_bar_status.style.display = "flex";
+			if(data.type != "cancel_game_invitation")
+			{
+				const notifications_bar_status = document.querySelector(".notifications_bar_status");
+				if(notifications_bar_status.style.display == "" || notifications_bar_status.style.display == "none")
+					notifications_bar_status.style.display = "flex";
 
-			const counter_span = notifications_bar_status.querySelector("span");
-			counter_span.textContent = parseInt(counter_span.textContent) + 1;
+
+				const counter_span = notifications_bar_status.querySelector("span");
+				counter_span.textContent = parseInt(counter_span.textContent) + 1;
+			}
 
 
 			if(data.type == "game_invitation")
 			{
-				Make_Small_Card("join_game", null, data.game_id, data.sender.username, data.sender.avatar, data.game_name);	
+				Make_Small_Card("join_game", null, data.game_id, data.sender.username, data.sender.avatar, data.game_name, null, null, data.sender.id);
+			}
+			else if(data.type == "cancel_game_invitation")
+			{
+				Delete_Small_Card();
 			}
 			else if(data.type == "friend_request")
 			{

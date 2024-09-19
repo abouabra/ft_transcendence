@@ -166,6 +166,14 @@ a:hover{
 	border: 1px solid var(--platinum_40_percent);
 }
 
+.online_status {
+    background-color: var(--green);
+}
+
+.offline_status {
+    background-color: var(--red);
+}
+
 body {
 	background-color: #000;
 	background-image: url("/assets/images/Background.jpg");

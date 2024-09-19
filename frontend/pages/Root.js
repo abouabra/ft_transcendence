@@ -25,7 +25,6 @@ import Settings_Page from "./Settings.js";
 import Small_Cards from "../components/common/small_cards.js";
 import Create_Server_page from "./Chat_creat_server.js";
 
-
 export default class Root_Page extends HTMLElement {
 	constructor() {
 		super();
@@ -34,7 +33,7 @@ export default class Root_Page extends HTMLElement {
 		head.appendChild(createLink('/styles/root.css'));
 
 		this.innerHTML = /*html*/`
-			<base-page></base-page>
+			<!-- <base-page></base-page> -->
 		`;
 	}
 

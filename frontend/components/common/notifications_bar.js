@@ -37,7 +37,7 @@ export default class Notifications_Bar extends HTMLElement {
 			const notifications_bar_icon = this.querySelector(".notifications_bar_icon");
 			const notifications_bar_options = this.querySelector(".notifications_bar_options");
 			notifications_bar_icon.addEventListener("click", () => {
-				
+		
 				if (!notifications_bar_options.classList.contains("show")) {
 					this.getNotifications();
 				}
@@ -84,26 +84,42 @@ export default class Notifications_Bar extends HTMLElement {
 			notifications_bar_options.innerHTML = /*html*/ `
 					${
 						data.notifications.map((item) => {
-
+							
 							let message;
 
 							if (item.type == "friend_request") {
-								message = `
-									<span class="p4_regular"><span class="p4_bold">${item.sender.username}</span> sent you a friend request</span>
+								message = /*html*/`
+									<div class="d-flex flex-column" style="gap: 10px">
+										<span class="p4_regular"><span class="p4_bold">${item.sender.username}</span> sent you a friend request</span>
+									
+										<div class="d-flex" style="gap: 10px">
+
+											<div class="d-flex justify-content-center align-items-center notifications-bar-option-items-accept-btn online_status">
+												<span class="p4_bold">Accept</span>
+											</div>
+
+											<div class="d-flex justify-content-center align-items-center notifications-bar-option-items-accept-btn offline_status">
+												<span class="p4_bold">Decline</span>
+											</div>
+
+										</div>
+									</div>
 								`;
 							} else if (item.type == "game_invitation") {
-								message = `<span class="p4_regular"><span class="p4_bold">${item.sender.username}</span> sent you a game invitation</span>`;
+								message = /*html*/`<span class="p4_regular"><span class="p4_bold">${item.sender.username}</span> sent you a game invitation</span>`;
 							}
 							else if (item.type == "congrats") {
-							    message = `<span class="p4_regular"><span class="p4_bold">Congratulations! You've advanced to 1000 Elo.</span>`;
+							    message = /*html*/`<span class="p4_regular"><span class="p4_bold">Congratulations! You've advanced to 1000 Elo.</span>`;
 							}
 							else if (item.type == "strike") {
-								message = `<span class="p4_bold" style="color: var(--red)">Warning! You've received a strike.</span>`;
+								message = /*html*/`<span class="p4_bold" style="color: var(--red)">Warning! You've received a strike.</span>`;
+							}
+							else {
+								return "";
 							}
 
-
 							return /*html*/ `
-								<div class="notifications-bar-option-items">
+								<div class="notifications-bar-option-items" data-notification-id="${item.id}" data-sender-id="${item.sender.id}">
 									<div style="position: relative">
 										<img src="${item.sender.avatar}" class="friends_bar_item_icon"/>
 										${item.sender.status == "online" ? 
@@ -118,6 +134,8 @@ export default class Notifications_Bar extends HTMLElement {
 											${message}
 										</div>
 									</div>
+
+									<img src="/assets/images/common/Iconly/Light/Close_Square.svg" alt="close" class="notifications-bar-option-close">
 
 								</div>
 						`
@@ -134,12 +152,124 @@ export default class Notifications_Bar extends HTMLElement {
 			const see_all_notifications = document.getElementById("see_all_notifications");
 			see_all_notifications.addEventListener("click", () => {
 
-				const notifications_bar_options = document.querySelector(".notifications_bar_options");
 				notifications_bar_options.classList.remove("show");
 				
 				GoTo('/notifications/')
 			});
 
+
+
+
+
+			const notifications_bar_option_items = this.querySelectorAll(".notifications-bar-option-items");
+			notifications_bar_option_items.forEach((item) => {
+				const close_button = item.querySelector(".notifications-bar-option-close");
+				if (!close_button)
+					return;
+
+
+
+				close_button.addEventListener("click", () => {
+					const notification_id = item.getAttribute("data-notification-id");
+					makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
+					.then((data) => {
+						item.classList.add("notification_remove_animation");
+						item.addEventListener("animationend", () => {
+							item.remove();
+							this.getNotifications();
+						});
+					}).catch(error => {
+						showToast("error", error);
+					});
+				});
+
+				const span_texts = document.querySelectorAll(".notifications-bar-option-items div div span span");
+				span_texts.forEach((span_text) => {
+
+					if(span_text)
+					{
+						span_text.addEventListener("click", () => {
+							
+							notifications_bar_options.classList.remove("show");
+							
+							const user_id = item.getAttribute("data-sender-id");
+							GoTo(`/profile/${user_id}`);
+						});
+					};
+
+				});
+
+				const item_decline_button = item.querySelector(".notifications-bar-option-items > div > div > div > div .offline_status");
+				
+				if (item_decline_button) {
+					item_decline_button.addEventListener("click", () => {
+						const notification_id = item.getAttribute("data-notification-id");
+						makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
+						.then((data) => {
+							item.classList.add("notification_remove_animation");
+							item.addEventListener("animationend", () => {
+								item.remove();
+								this.getNotifications();
+							});
+							
+						}).catch(error => {
+							showToast("error", error);
+						});
+					});
+				}
+
+				const item_accept_button = item.querySelector(".notifications-bar-option-items > div > div > div > div .online_status");
+
+				if (item_accept_button) {
+					item_accept_button.addEventListener("click", () => {
+						const data_sender_id = item.getAttribute("data-sender-id");
+						const notification_id = item.getAttribute("data-notification-id");
+
+						makeRequest(`/api/auth/accept_friend_request/${data_sender_id}/`, "GET")
+						.then((data) => {
+							makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
+							.then((data) => {
+								item.classList.add("notification_remove_animation");
+								item.addEventListener("animationend", () => {
+									item.remove();
+									this.getNotifications();
+								});
+								
+							}).catch(error => {
+								showToast("error", error);
+							});
+						}).catch(error => {
+							showToast("error", error);
+						});
+					});
+				}
+
+				// const decline_buttons = this.querySelectorAll(".offline_status");
+				// decline_buttons.forEach((button) => {
+				// 	button.addEventListener("click", () => {
+				// 		const notification_id = button.parentElement.parentElement.getAttribute("data-notification-id");
+				// 		makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
+				// 		.then((data) => {
+				// 			item.classList.add("notification_remove_animation");
+				// 			item.addEventListener("animationend", () => {
+				// 				item.remove();
+				// 				this.getNotifications();
+				// 			});
+							
+				// 		}).catch(error => {
+				// 			showToast("error", error);
+				// 		});
+				// 	});
+					
+				// });
+
+
+				
+			});
+
+
+
+			
 		}).catch(error => {
 			showToast("error", error);
 		});

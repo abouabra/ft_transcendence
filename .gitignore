@@ -141,4 +141,13 @@ node_modules/
 db.sqlite3
 package-lock.json
 
-login_infos_tmp.js
+.DS_Store
+
+# Logs and containers data
+volumes/
+
+# Ignore .env file containing credentials, API keys, and other sensitive information
+domain.key
+domain.crt
+private.key
+public.key

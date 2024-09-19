@@ -20,8 +20,13 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         receiver_id = data['receiver_id']
         sender_id = data['sender_id']
 
-        receiver_data = await self.get_user_info(receiver_id)
-        sender_data = await self.get_user_info(sender_id)
+        try:
+            receiver_data = await self.get_user_info(receiver_id)
+            sender_data = await self.get_user_info(sender_id)
+        except User.DoesNotExist:
+            return await self.send(text_data=json.dumps({
+                'error': 'User does not exist'
+            }))
         
         data['receiver'] = receiver_data
         data['sender'] = sender_data
@@ -58,5 +63,4 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_user_info(self, user_id):
         user_serialized_data = ShortUserSerializer(User.objects.get(id=user_id)).data
-        logger.error(json.dumps(user_serialized_data))
         return user_serialized_data

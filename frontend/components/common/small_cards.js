@@ -12,11 +12,13 @@ export default class Small_Cards extends HTMLElement {
         
         const game_id = this.getAttribute("data-game-id");
 
+        const id_who_invited_you = this.getAttribute("data-id_who_invited_you");
         const username_who_invited_you = this.getAttribute("data-username_who_invited_you");
         const avatar_who_invited_you = this.getAttribute("data-avatar_who_invited_you");
 
         const game_name = this.getAttribute("data-game-name");
 
+        const id_waiting_for = this.getAttribute("data-id_waiting_for");
         const username_waiting_for = this.getAttribute("data-username_waiting_for");
         const avatar_waiting_for = this.getAttribute("data-avatar_waiting_for");
 
@@ -104,6 +106,29 @@ export default class Small_Cards extends HTMLElement {
         if(small_card_slider != null) {
             const small_cards_small_bar = small_card_slider.querySelector(".small_cards_small_bar");
             small_cards_small_bar.addEventListener("animationend", () => {
+                Delete_Small_Card();
+            });
+        }
+
+        const cancel_btn = this.querySelector("button-component[data-text='Cancel']");
+        if(cancel_btn != null) {
+            cancel_btn.addEventListener("click", () => {
+                
+                
+                // sendNotification("cancel_game_invitation", this.headers[type].id);
+                const logged_in_user_id = localStorage.getItem("id");
+                console.log("logged_in_user_id: ", logged_in_user_id);
+                console.log("id_who_invited_you: ", id_who_invited_you);
+                console.log("id_waiting_for: ", id_waiting_for);
+                // const type = id_who_invited_you == logged_in_user_id ? "join_game" : "waiting_for_accept_game";
+                console.log("type: ", type);
+
+                if ( type == "join_game")
+                    sendNotification("cancel_game_invitation", id_who_invited_you, {game_id: this.headers[type].id});
+                else if (type == "waiting_for_accept_game")
+                    sendNotification("cancel_game_invitation", id_waiting_for, {game_id: this.headers[type].id});
+
+
                 Delete_Small_Card();
             });
         }

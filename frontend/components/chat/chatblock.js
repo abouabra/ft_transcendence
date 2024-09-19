@@ -4,6 +4,7 @@ export default class FriendSideMsg extends HTMLElement {
 
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/common.css'));
+		head.appendChild(createLink('/styles/common.css'));
 
 		const html_text = /*html*/`
 		<div  class="d-flex flex-row friend-message-bar w-100">
@@ -15,7 +16,7 @@ export default class FriendSideMsg extends HTMLElement {
 		<div class="d-flex flex-column w-75" style="margin:auto;">
 			<div class="d-flex flex-row justify-content-between">
 				<span class="p2_bold">Name</span>
-				<span class="p2_regular platinum_40_color time-message">12:42 PM</span>
+				<span class="p4_regular platinum_40_color time-message">12:42 PM</span>
 			</div>
 			<span class="p3_regular platinum_40_color">This is the freind message</span>
 		</div>

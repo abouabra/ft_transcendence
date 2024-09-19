@@ -1,5 +1,4 @@
 import AboutUS_TechCard from "../components/chat/chatblock.js";
-import AboutUS_TechCard from "../components/chat/chatblock.js";
 
 export default class Chat_Page extends HTMLElement {
 	constructor() {

@@ -2,26 +2,27 @@
 {
     border-radius: 15px;
 }
+
 .friend-message-container
 {
     border-radius: 15px 0 0 15px;
-    width: 400px;
+    width: 25%;
+    min-width: 200px;
 }
-.server-info
-{
-    text-align: center;
-    margin : auto;
-    margin-top: 300px;
-}
+
 button-component
 {
     margin: 0 auto
+    
+}
 
-}
-#create-button
+
+.message-container
 {
-    margin-bottom: 10px;
+    text-align: center;
+    gap:50px;
 }
+
 .search-input
 {
     position: relative;
@@ -60,3 +61,4 @@ button-component
     height: 52;
     border-bottom: 1px var(--platinum_40_percent) solid;
 }
+

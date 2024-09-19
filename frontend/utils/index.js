@@ -12,12 +12,14 @@ const routes = {
     "^/play/$": "play-page",
     "^/home/$": "home-page",
     "^/tournament/$": "tournament-page",
-    "^/chat/$": "chat-page",
     "^/leaderboard/$": "leaderboard-page",
     "^/shop/$": "shop-page",
     "^/notifications/$": "notifications-page",
     "^/profile/\\d+$": "profile-page",
     "^/settings/$": "settings-page",
+    
+    "^/chat/$": "chat-page",
+    "^/chat/create_server/$": "create-server-page",
 };
 
 // Update allowedRoutesWithoutLogin to use regex patterns as well

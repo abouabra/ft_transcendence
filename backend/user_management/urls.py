@@ -18,4 +18,5 @@ urlpatterns = [
     path('notifications_brief/', views.NotificationsBriefView.as_view(), name='notifications_brief'),
     path('notifications/', views.NotificationsView.as_view(), name='notifications'),
     path('friends_bar/', views.FriendsBarView.as_view(), name='friends_bar'),
+    path('accept_friend_request/<int:pk>/', views.AcceptFriendRequestView.as_view(), name='accept_friend_request'),
 ]

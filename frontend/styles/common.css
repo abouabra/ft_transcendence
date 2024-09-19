@@ -521,7 +521,7 @@ notifications-bar {
 
     transition: 0.5s ease;
 
-    width: 300px;
+    width: 350px;
         
     position: absolute;
     top: 60px;
@@ -556,11 +556,19 @@ notifications-bar {
     cursor: pointer;
 } 
 
+.notifications-bar-option-items-accept-btn {
+    width: 94px;
+    height: 30px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
 .notifications-bar-option-close {
     width: 25px;
     height: 25px;
     align-self: center;
     cursor: pointer;
+    margin-left: auto;
 }
 
 @keyframes notification_remove_animation {
@@ -715,13 +723,7 @@ user-bar {
     border: 3px solid var(--raisin_black_20_percent);
 }
 
-.online_status {
-    background-color: var(--green);
-}
 
-.offline_status {
-    background-color: var(--red);
-}
 
 
 
@@ -822,6 +824,12 @@ user-bar {
 
     .servers_bar_item:hover {
         background-color: transparent;
+    }
+
+
+    .notifications_bar_options
+    {
+        right: -48px;
     }
 }
 

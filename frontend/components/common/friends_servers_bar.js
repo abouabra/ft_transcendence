@@ -12,11 +12,17 @@ export default class Friends_Servers_Bar extends HTMLElement {
 			<servers-bar></servers-bar>
 		`;
 
-		
+		setInterval(() => {
+			this.innerHTML = /*html*/`
+				<friends-bar></friends-bar>
+				<servers-bar></servers-bar>
+			`;
+		}, 1000 * 60 * 5); // 5 minutes
 	}
 
+
 	set_n_elements(){
-		const containerHeight = document.querySelector('friends-servers-bar').offsetHeight;
+		const containerHeight = document.querySelector('friends-servers-bar').clientHeight;
 		const friendsBar = document.querySelector('friends-bar');
 		const serversBar = document.querySelector('servers-bar');
 		
@@ -34,8 +40,7 @@ export default class Friends_Servers_Bar extends HTMLElement {
 	}
 
 	connectedCallback() {
-
-		window.addEventListener("load", () => {
+		window.addEventListener("DOMContentLoaded", () => {
 			this.set_n_elements();
 		});
 

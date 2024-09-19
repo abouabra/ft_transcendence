@@ -293,3 +293,27 @@ class FriendsBarView(generics.GenericAPIView):
 
          
         return Response (data, status=status.HTTP_200_OK)
+    
+
+class AcceptFriendRequestView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ShortUserSerializer
+
+    def get(self, request, pk):
+        try:
+            sender = User.objects.get(id=pk)
+            request.user.friends.add(sender)
+            return Response(
+                {"detail": "Friend request accepted successfully"},
+                status=status.HTTP_200_OK,
+            )
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while accepting the friend request"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

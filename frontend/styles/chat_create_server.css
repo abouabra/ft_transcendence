@@ -6,9 +6,86 @@
     gap:100px;
 }
 
-.rules
+.p3_regular
 {
-    width: 400px;
-    height: 500px;
-    border-radius: 15px;
+    width: 250px;
+}
+.rol_text
+{
+    padding-left: 15px;
+}
+
+.cards
+{
+    width: 320px;
+    height: 400px;
+    border-radius: 13px;
+}
+
+.cards_1
+{
+    width: 320px;
+    height: 400px;
+    gap:15px;
+}
+
+.avatar_change
+{
+    height: 150px;
+    border-radius: 13px;
+}
+.server_name , .server_password , .server_visibility
+{
+    height: 48px;
+    border-radius: 13px;
+}
+
+input:focus
+{
+    outline: none;
+}
+input
+{
+    padding-left: 20px;
+    border: none;
+    appearance: none;
+    background-color: transparent;
+    color: white;
+    height: 48px;
+    width: 320px;
+    border-radius: 13px;
+}
+
+.form-select1
+{
+    padding-left: 20px;
+    border: none;
+    appearance: none;
+    background-color: transparent;
+    color: white;
+    width: 320px;
+    height: 48px;
+    border-radius: 13px;
+}
+
+select:focus
+{
+    border-color: red;
+    outline: none;
+}
+
+.cards_2
+{
+    width: 320px;
+    height: 400px;
+    border-radius: 13px;
+    gap:50px;
+}
+
+.qr_code
+{
+    background-color: aliceblue;
+    border-radius: 13px;
+    width: 256px;
+    height: 256px;
 }

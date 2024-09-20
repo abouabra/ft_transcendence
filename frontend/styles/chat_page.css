@@ -37,6 +37,12 @@
     border-radius: 15px;
 
 }
+.search-input input:focus
+{
+    outline: none;
+
+}
+
 .search-input img
 {
     width: 18px;

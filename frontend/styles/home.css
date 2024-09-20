@@ -8,7 +8,11 @@ home-page{
 home-slide-show {
     display: flex;
     position: relative;
-    max-width: fit-content;  /* Make the component fit its content width */
+    width: 850px;
+    height: 375px;
+    aspect-ratio: 850/375;
+    transform-origin: top left;
+    overflow: hidden;
 }
 
 
@@ -30,22 +34,67 @@ home-slide-show {
 
 
 .left-card {
-    left: 10%;
-    transform: scale(0.8) translateX(-50%);
-    z-index: 1;
+    transform: scale(0.8);
+    position: absolute;
+    left: 0;
+}
+
+.left-card-animation {
+    animation: left-card-animation 0.3s linear;
+}
+
+@keyframes left-card-animation {
+    0% {
+        left: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        left: 31%;
+        transform: scale(1) translateX(-50%);
+    }
 }
 
 .center-card {
-    z-index: 2;
-    transform: scale(1);
+    position: absolute;
+    z-index: 1;
+    transform: translateX(-50%);
+    left: 50%;
+}
+
+.center-card-animation {
+    animation: center-card-animation 0.3s linear;
+}
+
+@keyframes center-card-animation {
+    0% {
+        scale: 1;
+        left: 50%;
+    }
+    100% {
+        scale: 0.8;
+        left: 92%;
+    }
 }
 
 .right-card {
-    right: 10%;
-    transform: scale(0.8) translateX(50%);
-    z-index: 1;
+    transform: scale(0.8);
+    right: 0;
+    position: absolute;
 }
 
+
+.right-card-animation {
+    animation: right-card-animation 0.3s linear;
+}
+
+@keyframes right-card-animation {
+    0% {
+        right: 0;
+    }
+    100% {
+        right: 67%;
+    }
+}
 
 .slide-show-three-dots{
     display: flex;

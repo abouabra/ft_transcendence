@@ -15,7 +15,7 @@ export default class Home_Slide_Show extends HTMLElement {
 		
 
 		this.innerHTML = /*html*/ `
-				<div class="blur platinum_40_color_border slide-show-mini-card right-card">
+				<div class="blur platinum_40_color_border slide-show-mini-card right-card card-animation">
 					<img src="${this.data[this.index % 3].picture}" alt="${this.data[this.index % 3].name}" class="slide-show-mini-card-image">
 				</div>
 
@@ -27,7 +27,7 @@ export default class Home_Slide_Show extends HTMLElement {
 						${[0, 1, 2].map((i) => `<div class="slide-show-three-dots-dot ${i === (this.index % 3) ? "slide-show-three-dots-dot-active" : ""}"> </div>`).join("")}
 					</div>
 
-					<div class="d-flex flex-column justify-content-center" style="gap: 30px;">
+					<div class="center-card-body">
 
 						<div class="d-flex flex-column">
 							<span class="p3_regular" >Game Name</span>
@@ -46,55 +46,103 @@ export default class Home_Slide_Show extends HTMLElement {
 					</div>
 				</div>
 
-				<div class="blur platinum_40_color_border slide-show-mini-card left-card ">
+				<div class="blur platinum_40_color_border slide-show-mini-card left-card card-animation">
 					<img src="${this.data[(this.index + 2 ) % 3].picture}" alt="${this.data[(this.index + 2 ) % 3].name}" class="slide-show-mini-card-image">
 				</div>
 		`;
 
+		
 		const home_slide_show = document.querySelector("home-slide-show");
+		const home_slide_show_parent = home_slide_show.parentElement;
+
 		window.addEventListener("resize", () => {
 			const home_page = document.querySelector("home-page");
-			console.log("window innerWidth", window.innerWidth);
-			console.log("home_page clientWidth", home_page.clientWidth);
-
-
-			const slider_parent = home_slide_show.parentElement;
-			console.log("slider_parent clientWidth", slider_parent.clientWidth);
-
 
 			if(home_page.clientWidth < 843) {
 				const scale_ratio = home_page.clientWidth / 843;
-				console.log("scale_ratio", scale_ratio);
 				home_slide_show.style.scale = scale_ratio;
-				slider_parent.style.width = scale_ratio * 843 + "px";
-				slider_parent.style.height = scale_ratio * 372 + "px";
+				home_slide_show_parent.style.height = `${home_slide_show.clientHeight * scale_ratio}px`;
 
 			}
 		});
+
+		
+		
+
 
 
 		setInterval(() => {
 			const first_div = this.querySelector(".left-card");
 			const second_div = this.querySelector(".center-card");
 			const third_div = this.querySelector(".right-card");
-			
-			first_div.classList.add("left-card-animation");
-			second_div.classList.add("center-card-animation");
-			third_div.classList.add("right-card-animation");
-			setTimeout(() => {
-				first_div.classList.remove("left-card-animation");
-				second_div.classList.remove("center-card-animation");
-				third_div.classList.remove("right-card-animation");
-			}, 300);
+
+			let elem_swith = false;
+			if (first_div.style.animationName === "left-card-animation")
+			{
+				first_div.style.animationName = "right-card-animation";
+				elem_swith = true;
+			}
+			else
+			{
+				first_div.style.animationName = "left-card-animation";
+			}
+
+
+
+			if (third_div.style.animationName === "right-card-animation")
+			{
+				// elem_swith = true;
+
+				third_div.style.animationName = "left-card-animation";
+			}
+			else
+			{
+
+				third_div.style.animationName = "right-card-animation";
+			}
+
 			
 
-			this.update_data();
+
+
+			setTimeout(() => {
+
+				if(elem_swith)
+				{
+					let tmp = this.data[this.index % 3];
+					this.data[this.index % 3] = this.data[(this.index + 2) % 3];
+					this.data[(this.index + 2) % 3] = tmp
+				}
+				else
+				{
+					let tmp = this.data[this.index % 3];
+					this.data[this.index % 3] = this.data[(this.index + 1) % 3];
+					this.data[(this.index + 1) % 3] = tmp
+				}
+				this.index = (this.index + 1) % 3;
+
+
+				
+				this.update_data();
+			}, 250);
+
+
+			// second_div.classList.add("center-card-animation");
+			second_div.querySelector("img").classList.add("center-card-animation");
+			second_div.querySelector(".center-card-body").classList.add("center-card-animation");
+			
+			setTimeout(() => {
+				// second_div.classList.remove("center-card-animation");
+				second_div.querySelector("img").classList.remove("center-card-animation");
+				second_div.querySelector(".center-card-body").classList.remove("center-card-animation");
+			}, 400);
+			
+
 		}, 2000);
 	}
 
 	update_data()
 	{
-		this.index = (this.index + 1) % 3;
 		const right_card = this.querySelector(".right-card");
 		const center_card = this.querySelector(".center-card");
 		const slide_show_three_dots = this.querySelector(".slide-show-three-dots");
@@ -120,7 +168,10 @@ export default class Home_Slide_Show extends HTMLElement {
 		
 	}
 
-	connectedCallback() {}
+	connectedCallback() {
+		
+
+	}
 
 	disconnectedCallback() {}
 

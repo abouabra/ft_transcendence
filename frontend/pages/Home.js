@@ -7,14 +7,17 @@ export default class Home_Page extends HTMLElement {
 		head.appendChild(createLink('/styles/home.css'));
 
 		this.innerHTML = /* html */`
-			<h1> Home Page </h1>
-
-			<div class="d-flex w-100">
+			<div class="d-flex w-100 flex-wrap overflow-hidden">
 				<div class="d-flex">
 					<home-slide-show></home-slide-show>
 				</div>
+
+				<div class="d-flex" style="width: 200px; height: 300px; background-color: chocolate;">
+				</div>
 			</div>
 		`;
+
+		
 	}
 
 	connectedCallback() {}

@@ -39,18 +39,49 @@ home-slide-show {
     left: 0;
 }
 
-.left-card-animation {
-    animation: left-card-animation 0.3s linear;
+.card-animation {
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+
+    /* animation: left-card-animation 0.5s forwards; */
 }
 
 @keyframes left-card-animation {
     0% {
         left: 0;
-        transform: scale(0.8);
+        /* transform: scale(0.8); */
     }
     100% {
-        left: 31%;
-        transform: scale(1) translateX(-50%);
+        left: 68%;
+        /* transform: scale(1) translateX(-50%); */
+    }
+}
+
+
+.right-card {
+    transform: scale(0.8);
+    right: 0;
+    position: absolute;
+}
+
+@keyframes right-card-animation {
+    0% {
+        left: 68%;
+
+        opacity: 1;
+    }
+    /* 10% {
+        right: 0;
+        opacity: 0;
+    }
+    90% {
+        right: 67.5%;
+        opacity: 0;
+    } */
+
+    100% {
+        opacity: 1;
+        left: 0;
     }
 }
 
@@ -60,39 +91,25 @@ home-slide-show {
     transform: translateX(-50%);
     left: 50%;
 }
-
+.center-card-body{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+}
 .center-card-animation {
-    animation: center-card-animation 0.3s linear;
+    animation: center-card-animation 0.4s forwards;
 }
 
 @keyframes center-card-animation {
     0% {
-        scale: 1;
-        left: 50%;
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
     }
     100% {
-        scale: 0.8;
-        left: 92%;
-    }
-}
-
-.right-card {
-    transform: scale(0.8);
-    right: 0;
-    position: absolute;
-}
-
-
-.right-card-animation {
-    animation: right-card-animation 0.3s linear;
-}
-
-@keyframes right-card-animation {
-    0% {
-        right: 0;
-    }
-    100% {
-        right: 67%;
+        opacity: 1;
     }
 }
 

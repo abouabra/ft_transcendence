@@ -5,6 +5,11 @@ export default class Home_Leaderboard extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/home.css"));
 
+		makeRequest("/api/game/home_leaderboard/")
+		.then((data) => {
+			console.log(data);
+		});
+
 		this.index = 0;
 
 		this.data = [

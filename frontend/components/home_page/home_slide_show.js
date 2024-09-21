@@ -83,23 +83,14 @@ export default class Home_Slide_Show extends HTMLElement {
 				elem_swith = true;
 			}
 			else
-			{
 				first_div.style.animationName = "left-card-animation";
-			}
 
 
 
 			if (third_div.style.animationName === "right-card-animation")
-			{
-				// elem_swith = true;
-
 				third_div.style.animationName = "left-card-animation";
-			}
 			else
-			{
-
 				third_div.style.animationName = "right-card-animation";
-			}
 
 			
 
@@ -127,12 +118,10 @@ export default class Home_Slide_Show extends HTMLElement {
 			}, 250);
 
 
-			// second_div.classList.add("center-card-animation");
 			second_div.querySelector("img").classList.add("center-card-animation");
 			second_div.querySelector(".center-card-body").classList.add("center-card-animation");
 			
 			setTimeout(() => {
-				// second_div.classList.remove("center-card-animation");
 				second_div.querySelector("img").classList.remove("center-card-animation");
 				second_div.querySelector(".center-card-body").classList.remove("center-card-animation");
 			}, 400);
@@ -161,11 +150,7 @@ export default class Home_Slide_Show extends HTMLElement {
 
 		left_card.querySelector("img").src = this.data[(this.index + 2) % 3].picture;
 		left_card.querySelector("img").alt = this.data[(this.index + 2) % 3].name;
-
-		console.log("index", this.index);
-		
-
-		
+	
 	}
 
 	connectedCallback() {

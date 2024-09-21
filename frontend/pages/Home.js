@@ -7,13 +7,11 @@ export default class Home_Page extends HTMLElement {
 		head.appendChild(createLink('/styles/home.css'));
 
 		this.innerHTML = /* html */`
-			<div class="d-flex w-100 flex-wrap overflow-hidden">
+			<div class="d-flex w-100 flex-wrap overflow-hidden align-items-center justify-content-between" style="gap: 20px;">
 				<div class="d-flex">
 					<home-slide-show></home-slide-show>
 				</div>
-
-				<div class="d-flex" style="width: 200px; height: 300px; background-color: chocolate;">
-				</div>
+				<home-leaderboard></home-leaderboard>
 			</div>
 		`;
 

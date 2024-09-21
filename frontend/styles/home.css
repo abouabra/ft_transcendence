@@ -49,11 +49,9 @@ home-slide-show {
 @keyframes left-card-animation {
     0% {
         left: 0;
-        /* transform: scale(0.8); */
     }
     100% {
         left: 68%;
-        /* transform: scale(1) translateX(-50%); */
     }
 }
 
@@ -70,14 +68,6 @@ home-slide-show {
 
         opacity: 1;
     }
-    /* 10% {
-        right: 0;
-        opacity: 0;
-    }
-    90% {
-        right: 67.5%;
-        opacity: 0;
-    } */
 
     100% {
         opacity: 1;
@@ -133,4 +123,79 @@ home-slide-show {
 
 .slide-show-three-dots-dot-active {
     background-color: var(--primary_color);
+}
+
+
+home-leaderboard {
+    width: 400px;
+    height: 265px;
+
+
+    display: flex;
+    flex-direction: column;
+    border-radius: 17px;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--platinum_40_percent);
+	background-color: var(--raisin_black_20_percent);
+
+    padding: 18px 28px;
+    gap: 27px;
+}
+
+.forward-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 6px 10px;
+    border-radius: 100px;
+    background-color: var(--primary_color);
+    
+    gap: 10px;
+    height: 26px;
+    width: fit-content;
+
+    cursor: pointer;
+}
+
+.forward-button:hover {
+    opacity: 0.8;
+}
+
+.home-leaderboard-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.home-leaderboard-item:hover
+{
+    cursor: pointer;
+}
+
+.home-leaderboard-item:hover div span {
+    text-decoration: underline;
+}
+
+.home-leaderboard-list{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.home-leaderboard-list-animation {
+    animation: home-leaderboard-list-animation 0.3s forwards;
+}
+
+@keyframes home-leaderboard-list-animation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }

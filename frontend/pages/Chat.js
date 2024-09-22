@@ -1,4 +1,4 @@
-import AboutUS_TechCard from "../components/chat/chatblock.js";
+import ChatSideBar from "../components/chat/ChatSideBar.js";
 
 export default class Chat_Page extends HTMLElement {
 	constructor() {
@@ -9,18 +9,18 @@ export default class Chat_Page extends HTMLElement {
 		this.innerHTML = /* html */`
 			<div class="w-100 h-100 d-flex align-items-center">
 			<div class="d-flex w-100 platinum_40_color_border chat-container">
-				<div class="friend-message-container">
-					<div class="search-bar d-flex flex-column justify-content-center align-items-center">
+				<div class="side-message-container">
+					<div class="d-flex flex-column justify-content-center align-items-center">
 						<div class="search-input d-flex ">
-							<img src="/assets/images/common/Iconly/Light/Search_2.svg">
-							<input type="text" placeholder="Search">
+							<img src="/assets/images/common/Iconly/Light/Search.svg">
+							<input type="text" placeholder="Search" style="margin-right: 15px">
 						</div>
 					</div>
 					<div class="select-party d-flex justify-content-center w-100">
 							<span class="select-server p3_bold platinum_40_color">Servers</span>
 							<span class="select-direct p3_bold platinum_40_color">Direct</span>
 					</div>
-					<friend-side-msg></friend-side-msg>
+					<chat-side-bar></chat-side-bar>
 				</div>
 				<div class="message-container w-100 d-flex flex-column justify-content-center   align-items-center">
 					<div >
@@ -35,6 +35,7 @@ export default class Chat_Page extends HTMLElement {
 			</div>
 			</div>
 		`;
+
 	}
 
 	connectedCallback() {}

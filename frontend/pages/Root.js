@@ -17,13 +17,13 @@ import Play_Page from "./Play.js";
 import Home_Page from "./Home.js";
 import Tournament_Page from "./Tournament.js";
 import Chat_Page from "./Chat.js";
+import Create_Server_page from "./Chat_creat_server.js";
 import Leaderboard_Page from "./Leaderboard.js";
 import Shop_Page from "./Shop.js";
 import Notifications_Page from "./Notifications.js";
 import Profile_Page from "./Profile.js";
 import Settings_Page from "./Settings.js";
 import Small_Cards from "../components/common/small_cards.js";
-import Create_Server_page from "./Chat_creat_server.js";
 
 export default class Root_Page extends HTMLElement {
 	constructor() {

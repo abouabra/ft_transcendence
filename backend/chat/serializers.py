@@ -6,6 +6,7 @@ class ServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Server
         fields = "__all__"
+    
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:

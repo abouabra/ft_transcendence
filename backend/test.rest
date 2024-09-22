@@ -1,0 +1,7 @@
+POST https://bus-med.1337.ma/api/tickets/book
+Origin: https://bus-med.1337.ma
+Content-Type: application/json
+Cookie: csrftoken=2G089V8WdrIeSF2gkZCHRGIdesnyMqWP; le_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJsb2dpbiI6Im1iYWFubmkiLCJpYXQiOjE3MjcwMTM1MjIsImV4cCI6MTcyNzAyMDcyMn0.ZYGPIRuQWLHhSxSmJEu-2Rt6C2LgSmd70KUPVUcCPYs
+
+
+{"departure_id":213,"to_campus":false,"parada_id":"5","le_captcha":"0","le_captcha_token":"0"}

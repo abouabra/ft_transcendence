@@ -12,7 +12,11 @@ export default class Home_Page extends HTMLElement {
 					<home-slide-show></home-slide-show>
 				</div>
 				<home-leaderboard></home-leaderboard>
+				<home-active-games></home-active-games>
+				<home-time-played></home-time-played>
 			</div>
+
+			
 		`;
 
 		

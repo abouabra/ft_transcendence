@@ -71,7 +71,7 @@ side-bar {
     transition: 0.5s ease;
 
     position: absolute;
-    z-index: 1;
+    z-index: 9999;
     top: 50%;
     transform: translateY(-50%);
     left: 10px;

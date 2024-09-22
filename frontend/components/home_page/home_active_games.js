@@ -64,9 +64,9 @@ export default class Home_Active_Games extends HTMLElement {
 					<div class="d-flex w-100 flex-column justify-items-center align-items-center" style="max-width: 200px; gap: 5px;">
 						<span class="p4_bold platinum_40_color">${item.game_name}</span>
 						<div class="d-flex" style="gap: 5px;">
-							<span class="p4_bold">${item.player1.username}</span>
+							<span class="p4_bold" data-user-id=${item.player1.id}>${item.player1.username}</span>
 							<span class="p4_regular">vs</span>
-							<span class="p4_bold">${item.player2.username}</span>
+							<span class="p4_bold" data-user-id=${item.player1.id}>${item.player2.username}</span>
 						</div>
 						<span class="p4_bold platinum_40_color">${item.player1_score} - ${item.player2_score}</span>
 					</div>
@@ -75,8 +75,13 @@ export default class Home_Active_Games extends HTMLElement {
 			`;
 		});
 
-
-		
+		const all_users = this.querySelectorAll(".active-games-list-item div div .p4_bold");
+		all_users.forEach((user) => {
+			user.addEventListener("click", (e) => {
+				const user_id = user.getAttribute("data-user-id");
+				GoTo(`/profile/${user_id}`);
+			});
+		});
 	}
 
 	connectedCallback() {}

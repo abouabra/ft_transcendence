@@ -7,5 +7,12 @@ urlpatterns = [
     path('home_total_time/', views.HomeTotalTimeView.as_view(), name='home_total_time'),
 
     path("home_active_games/", views.HomeActiveGamesView.as_view(), name="home_active_games"),
+    
+    
+    
+    
+    
+    
+    
     path("generate/", views.GenerateRandomGameHistoryData.as_view(), name="generate"),
 ]

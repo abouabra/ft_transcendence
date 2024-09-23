@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "user_management",
     "chat",
     "game",
+    "tournaments",
 ]
 
 MIDDLEWARE = [

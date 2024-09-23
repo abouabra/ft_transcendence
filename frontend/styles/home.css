@@ -6,6 +6,11 @@ home-page{
     justify-content: space-between;
 }
 
+.home-page-main-container{
+    gap: 20px;
+    justify-content: center;
+}
+
 home-slide-show {
     display: flex;
     position: relative;
@@ -141,6 +146,7 @@ home-leaderboard {
 
     padding: 18px 28px;
     gap: 27px;
+    margin: auto;
 }
 
 .leaderboard_header{
@@ -224,6 +230,7 @@ home-time-played {
 
     justify-content: center;
     align-items: center;
+    margin: auto;
 }
 
 
@@ -269,6 +276,7 @@ home-active-games  {
     gap: 20px;
 
     align-items: center;
+    margin: auto;
 }
 
 .home-select {
@@ -332,4 +340,37 @@ home-active-games  {
 
 .active-games-list-animation {
     animation: active-games-list-animation 0.2s forwards;
+}
+
+
+
+home-active-tournaments  {
+    display: flex;
+    flex-direction: column;
+    
+    width: 100%;
+    max-width: 425px;
+    height: fit-content;
+    
+
+    border-radius: 17px;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--platinum_40_percent);
+    background-color: var(--raisin_black_20_percent);
+    
+    padding: 15px 30px;
+    gap: 20px;
+
+    align-items: center;
+    margin: auto;
+}
+
+.active-tournament-list
+{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    height: 326px;
 }

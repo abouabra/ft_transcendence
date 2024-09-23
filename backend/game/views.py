@@ -6,6 +6,8 @@ from rest_framework.pagination import PageNumberPagination
 from .models import Game_History, GameStats
 import logging
 from .utils import getUserData
+from rest_framework import generics, permissions, status
+
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +71,7 @@ class HomeTotalTimeView(generics.GenericAPIView):
             "road_fighter": road_fighter_total_time,
             "total_time": total_time,
         }, status=status.HTTP_200_OK)
+
 
 class HomeActiveGamesView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)

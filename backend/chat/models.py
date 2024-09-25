@@ -3,14 +3,16 @@ from django.contrib.postgres.fields import ArrayField # NOTE: Use this for Postg
 
 # Create your models here.
 class Server(models.Model):
-    name = models.CharField(max_length=255)
+    # direct value to take = iduser 1 + iduser2 sorted so we know the communicated party
+    name = models.CharField(max_length=255) 
     avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/server_avatars/default.jpg")
-    
+
     VISISBILITY_CHOICES = (
         ("public", "Public"),
         ("private", "Private"),
         ("protected", "Protected"),
     )
+
     visibility = models.CharField(choices=VISISBILITY_CHOICES, max_length=255, default="public")
     password = models.CharField(max_length=255, blank=True, null=True)
     

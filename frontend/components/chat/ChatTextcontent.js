@@ -3,9 +3,10 @@ export default class ChatSideBar extends HTMLElement {
 		super();
 		
 		const head = document.head || document.getElementsByTagName("head")[0];
-		head.appendChild(createLink('/styles/chat_page.css'));
-		
+		// head.appendChild(createLink('/styles/chat_page.css'));
 	}
+
+
 	render_page(data)
 		{
 			this.innerHTML = /* html */`
@@ -16,13 +17,9 @@ export default class ChatSideBar extends HTMLElement {
 								${
 									item.status === "online" ? /* html */`
 										<div class="user_search_bar_item_icon_status online_status" style="top:unset; bottom:0"></div>
-										` :``
-								}
-								${
-									item.status === "offline" ? /* html */`
+										` : /* html */`
 										<div class="user_search_bar_item_icon_status offline_status" style="top:unset; bottom:0"></div>
-									`:
-									``
+									`
 								}
 								<img class="rounded-circle" style="width: 48px; height: 48px;"
 								alt="${item.name}" src="${item.avatar}">
@@ -45,40 +42,7 @@ export default class ChatSideBar extends HTMLElement {
 	connectedCallback() {}
 
 	disconnectedCallback() {}
-	attributeChangedCallback(name, oldValue, newValue) {
-		console.log(`name: ${name}\nold: ${oldValue}\n new: ${newValue}`)
-
-		makeRequest('/api/chat/get_server_data/').then((body)=>{
-			let data = []
-			if (name === 'type')
-		{
-			if (newValue === "Direct")
-			{
-				for(let i = 0; i < body.length; i++)
-				{
-					if (body[i].visibility === "Protected")
-						data.push(body[i])
-				}
-				this.render_page(data);
-			}
-			else if (newValue === "Server")
-			{
-				for(let i = 0; i < body.length; i++)
-				{
-					if (body[i].visibility !== "Protected")
-					{
-						body[i].status = "none"
-						data.push(body[i])
-					}
-				}
-				this.render_page(data);
-			}
-		}
-		})
-	}
-	static get observedAttributes() {
-		return ["type"];
-	}
+	attributeChangedCallback(name, oldValue, newValue) {}
 }
 
 customElements.define("chat-side-bar", ChatSideBar);

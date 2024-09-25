@@ -1,0 +1,20 @@
+.chat-container
+{
+    border-radius: 15px;
+    height: 90%;
+    overflow: hidden;
+}
+
+.chat-header
+{
+    background-color: #d64b3a;
+    width: 100%;
+    height: 65px;
+    padding: 0 20px;
+}
+img
+{
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}

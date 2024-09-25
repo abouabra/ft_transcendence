@@ -40,7 +40,6 @@ async function makeRequest(url, method = "GET", data = null) {
 
 	try {
 		let response = await fetch(fullUrl, options);
-
 		// If unauthorized, try refreshing the token and retrying
 		if (response.status === 401) {
 			await refreshAccessToken();

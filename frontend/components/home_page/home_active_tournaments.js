@@ -47,6 +47,14 @@ export default class Home_Active_Tournaments extends HTMLElement {
 				this.render_data(data);
 			});
 		});
+
+
+
+		const forward_button = this.querySelector(".forward-button");
+		forward_button.addEventListener("click", (e) => {
+			const expanded_active_games_container = document.querySelector(".expanded-active-tournaments-container");
+			expanded_active_games_container.style.display = "flex";
+		});
 	}
 
 	render_data(data)

@@ -167,7 +167,7 @@ export default class Home_Slide_Show extends HTMLElement {
 				home_slide_show.style.scale = scale_ratio;
 				home_slide_show_parent.style.height = `${home_slide_show.clientHeight * scale_ratio}px`;
 			}
-		}, 100);
+		}, 250);
 
 	}
 

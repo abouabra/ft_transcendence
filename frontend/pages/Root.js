@@ -30,6 +30,7 @@ import Home_Time_Played from "../components/home_page/home_time_played.js";
 import Home_Active_Games from "../components/home_page/home_active_games.js";
 import Home_Active_Tournaments from "../components/home_page/home_active_tournaments.js";
 import Expanded_Home_Active_Games from "../components/home_page/expanded_home_active_games.js";
+import Expanded_Home_Active_Tournaments from "../components/home_page/expanded_home_active_tournaments.js";
 
 export default class Root_Page extends HTMLElement {
 	constructor() {

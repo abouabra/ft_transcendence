@@ -22,6 +22,9 @@ export default class Home_Page extends HTMLElement {
 				<expanded-home-active-games></expanded-home-active-games>
 			</div>
 
+			<div class="expanded-active-tournaments-container">
+				<expanded-home-active-tournaments></expanded-home-active-tournaments>
+			</div>
 			
 		`;	
 	}

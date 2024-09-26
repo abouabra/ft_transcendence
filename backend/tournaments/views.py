@@ -2,7 +2,8 @@ from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from .models import Tournament_Bracket, Tournament_History, TournamentStats
-# Create your views here.
+from rest_framework.pagination import PageNumberPagination
+from .serializers import TournamentBracketSerializer, TournamentHistorySerializer, TournamentStatsSerializer
 
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -46,10 +47,27 @@ class HomeActiveTournamentsView(generics.GenericAPIView):
         return Response(active_tournaments_data, status=status.HTTP_200_OK)
         
 
+class HomeExpandedActiveTournamentsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 5
 
+    def get(self, request):
+        query_params = request.query_params
+        if "game_name" in query_params and query_params["game_name"] != "":
+            game_name = query_params["game_name"]
+            active_games = Tournament_History.objects.filter(game_name=game_name).order_by('-created_at')
+        else:
+            active_games = Tournament_History.objects.order_by('-created_at')
 
-
-
+        page = self.paginate_queryset(active_games)
+        if page is not None:
+            serializer = TournamentHistorySerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = TournamentHistorySerializer(active_games, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 

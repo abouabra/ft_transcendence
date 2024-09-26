@@ -6,6 +6,8 @@ urlpatterns = [
     
     path("home_active_tournaments/", views.HomeActiveTournamentsView.as_view(), name="home_active_tournaments"),
 
+    path("home_expanded_active_tournaments/", views.HomeExpandedActiveTournamentsView.as_view(), name="home_expanded_active_tournaments"),
+
 
     path("generate/", views.GenerateRandomTournamentHistoryData.as_view(), name="generate"),
 ]

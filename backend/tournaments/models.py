@@ -63,6 +63,7 @@ class Tournament_History(models.Model):
 
     total_number_of_players = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=255, default="Waiting for players")
 
     def __str__(self):
         return f"{self.name} - {self.game_name} - {self.visibility} - {self.total_number_of_players} players"

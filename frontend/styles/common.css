@@ -763,15 +763,15 @@ user-bar {
     friends-servers-bar {
         position: unset;
         flex-direction: row;
-        height: 70px;
-        min-height: 70px;
+        height: fit-content;
+        min-height: 83px;
         width: 100vw;
         min-width: 100vw;
         transform: unset;
         margin: 0px;
         padding: 0px;
         overflow: unset;
-        overflow-x: scroll;
+        overflow-x: auto;
         justify-content: flex-start;
     }
 

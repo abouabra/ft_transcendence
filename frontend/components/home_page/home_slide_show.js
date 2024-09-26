@@ -55,6 +55,7 @@ export default class Home_Slide_Show extends HTMLElement {
 		const home_slide_show = document.querySelector("home-slide-show");
 		const home_slide_show_parent = home_slide_show.parentElement;
 
+		
 		window.addEventListener("resize", () => {
 			const home_page = document.querySelector("home-page");
 
@@ -154,7 +155,19 @@ export default class Home_Slide_Show extends HTMLElement {
 	}
 
 	connectedCallback() {
-		
+
+
+		const home_page = document.querySelector("home-page");
+		const home_slide_show = document.querySelector("home-slide-show");
+		const home_slide_show_parent = home_slide_show.parentElement;
+
+		setTimeout(() => {
+			if(home_page.clientWidth < 843) {
+				const scale_ratio = home_page.clientWidth / 843;
+				home_slide_show.style.scale = scale_ratio;
+				home_slide_show_parent.style.height = `${home_slide_show.clientHeight * scale_ratio}px`;
+			}
+		}, 100);
 
 	}
 

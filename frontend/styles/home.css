@@ -19,6 +19,10 @@ home-slide-show {
     aspect-ratio: 850/375;
     transform-origin: top left;
     overflow: hidden;
+    
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
 }
 
 
@@ -373,7 +377,8 @@ home-active-tournaments  {
     width: 100%;
     align-items: center;
     gap: 10px;
-    height: 326px;
+    min-height: 326px;
+    height: fit-content;
 }
 
 .expanded-active-games-container {
@@ -449,6 +454,9 @@ expanded-home-active-games {
     align-items: center;
     border-radius: 15px;
     border: 1px solid var(--platinum_40_percent);
+    
+    min-height: 326px;
+    height: fit-content;
 }
 
 

@@ -11,7 +11,7 @@ export default class ChatSideBar extends HTMLElement {
 			this.innerHTML = /* html */`
 				${ data.map((item) => {
 						return /* html */ `
-						<div  class="d-flex flex-row side-message-bar align-items-center">
+						<div  class="d-flex flex-row side-message-bar align-items-center" id=${item.name}>
 							<div class="position-relative">
 								${
 									item.status === "online" ? /* html */`
@@ -39,6 +39,18 @@ export default class ChatSideBar extends HTMLElement {
 					}).join("")
 				}
 				`;
+			const clicked_block = this.getElementsByClassName("side-message-bar");
+			console.log(`length = ${clicked_block.length}`)
+			for (let i = 0; i < clicked_block.length; i++)
+			{
+				let targeted = clicked_block[i];
+				console.log(`target = ${targeted}`)
+				targeted.addEventListener('click', ()=>{
+					console.log('clickeddedededededede')
+					GoTo(`/chat/${targeted.id}`)
+				})
+			}
+
 		}
 
 
@@ -56,7 +68,7 @@ export default class ChatSideBar extends HTMLElement {
 			{
 				for(let i = 0; i < body.length; i++)
 				{
-					if (body[i].visibility === "Protected")
+					if (body[i].visibility === "protected")
 						data.push(body[i])
 				}
 				this.render_page(data);
@@ -65,7 +77,7 @@ export default class ChatSideBar extends HTMLElement {
 			{
 				for(let i = 0; i < body.length; i++)
 				{
-					if (body[i].visibility !== "Protected")
+					if (body[i].visibility !== "protected")
 					{
 						body[i].status = "none"
 						data.push(body[i])

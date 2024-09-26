@@ -1,4 +1,6 @@
 import ChatSideBar from "../components/chat/ChatSideBar.js";
+import ChatBody from "../components/chat/ChatBody.js";
+
 
 export default class Chat_Page extends HTMLElement {
 	constructor() {
@@ -37,7 +39,9 @@ export default class Chat_Page extends HTMLElement {
 					</div>
 				`
 				: /* html*/ `
-					<chat-body></chat-body>
+					<div class="message-container w-100">
+						<chat-body></chat-body>
+					</div>
 				`}
 			</div>
 		</div>
@@ -50,7 +54,9 @@ export default class Chat_Page extends HTMLElement {
 
 		Direct.addEventListener('click', ()=>{
 			if (Bar.getAttribute('type') !== "Direct")
+			{
 				Bar.setAttribute('type', 'Direct')
+			}
 		})
 		Server.addEventListener('click', ()=>{
 			if (Bar.getAttribute('type') !== "Server")

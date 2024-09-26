@@ -32,6 +32,15 @@ export default class Home_Active_Games extends HTMLElement {
 		
 			<div class="active-games-list"></div>
 		`;
+		
+		const forward_button = this.querySelector(".forward-button");
+		forward_button.addEventListener("click", (e) => {
+			const expanded_active_games_container = document.querySelector(".expanded-active-games-container");
+			expanded_active_games_container.style.display = "flex";
+		});
+
+
+
 
 		const active_games_list = this.querySelector(".active-games-list");
 

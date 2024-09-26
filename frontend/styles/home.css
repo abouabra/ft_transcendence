@@ -310,6 +310,7 @@ home-active-games  {
     justify-content: space-between;
     align-items: center;
 }
+
 .active-games-list-item-avatar{
     width: 48px;
     height: 48px;
@@ -373,4 +374,147 @@ home-active-tournaments  {
     align-items: center;
     gap: 10px;
     height: 326px;
+}
+
+.expanded-active-games-container {
+    display: none;
+
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 17px;
+    
+    justify-content: center;
+    align-items: center;
+}
+@keyframes expanded-home-active-games-animation {
+    0% {
+        opacity: 0;
+        scale: 0.8;
+    }
+    100% {
+        opacity: 1;
+        scale: 1;
+    }
+    
+}
+
+expanded-home-active-games {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 770px;
+    height: fit-content;
+
+    border-radius: 17px;
+    /* backdrop-filter: blur(20px); */
+    border: 1px solid var(--platinum_40_percent);
+    background-color: black;
+    
+    padding: 20px;
+    gap: 20px;
+
+    overflow: hidden;
+    align-items: center;
+
+    animation: expanded-home-active-games-animation 0.3s forwards;
+}
+
+.expanded-games-x-button-container{
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+
+
+
+
+
+    border-radius: 50%;
+    background-color: var(--primary_color);
+    
+    
+    cursor: pointer;
+}
+
+.expanded-active-games-list-item {
+    display: flex;
+    padding: 5px;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 15px;
+    border: 1px solid var(--platinum_40_percent);
+}
+
+
+.active-games-duration-games {
+    font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 6px;
+
+    transform: rotate(90deg);
+
+    width: 5px;
+    height: 10px;
+}
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+
+.pagination-item-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 3px;
+    border: 1px solid var(--platinum_40_percent);
+    background-color: var(--platinum_40);
+    cursor: pointer;
+}
+
+.pagination-item-arrow:hover{
+    opacity: 0.8;
+}
+
+
+.pagination-item {
+    color: var(--platinum_40);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 3px;
+    border: 1px solid var(--platinum_40_percent);
+    cursor: pointer;
+    background-color: var(--platinum);
+    color: var(--raisin_black);
+}
+
+.pagination-item:hover{
+    opacity: 0.8;
+}
+
+.pagination-active{
+    background-color: var(--primary_color);
+    color: var(--platinum);
+}
+
+.active-games-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
 }

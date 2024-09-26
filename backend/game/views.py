@@ -7,6 +7,7 @@ from .models import Game_History, GameStats
 import logging
 from .utils import getUserData
 from rest_framework import generics, permissions, status
+from .serializers import GameStatsSerializer, GameHistorySerializer
 
 
 logger = logging.getLogger(__name__)
@@ -98,7 +99,49 @@ class HomeActiveGamesView(generics.GenericAPIView):
             })
         
         return Response(active_games_data, status=status.HTTP_200_OK)
+    
+class HomeExpandedActiveGamesView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 5
+
+    def get(self, request):
+        query_params = request.query_params
+        if "game_name" in query_params and query_params["game_name"] != "":
+            game_name = query_params["game_name"]
+            active_games = Game_History.objects.filter(game_name=game_name).order_by('-game_date')
+        else:
+            active_games = Game_History.objects.order_by('-game_date')
+
+        page = self.paginate_queryset(active_games)
+        if page is not None:
+            serializer = GameHistorySerializer(page, many=True)
+            for game in serializer.data:
+                game["player1"] = getUserData(request, game["player1"])
+                game["player2"] = getUserData(request, game["player2"])
+                game_type_index = [game[0] for game in Game_History.GAMES_TYPES].index(game["game_type"])
+                game["game_type"] = Game_History.GAMES_TYPES[game_type_index][1]
+                game["game_duration"] = f"{game['game_duration'] // 60}:{str(game['game_duration'] % 60).zfill(2)}"
+                game["player1"]["current_elo"] = GameStats.objects.get(user_id=game["player1"]["id"], game_name=game["game_name"]).current_elo
+                game["player2"]["current_elo"] = GameStats.objects.get(user_id=game["player2"]["id"], game_name=game["game_name"]).current_elo
+            return self.get_paginated_response(serializer.data)
         
+        serializer = GameHistorySerializer(active_games, many=True)
+        for game in serializer.data:
+                game["player1"] = getUserData(request, game["player1"])
+                game["player2"] = getUserData(request, game["player2"])
+                game_type_index = [game[0] for game in Game_History.GAMES_TYPES].index(game["game_type"])
+                game["game_type"] = Game_History.GAMES_TYPES[game_type_index][1]
+                game["game_duration"] = f"{game['game_duration'] // 60}:{str(game['game_duration'] % 60).zfill(2)}"
+                game["player1"]["current_elo"] = GameStats.objects.get(user_id=game["player1"]["id"], game_name=game["game_name"]).current_elo
+                game["player2"]["current_elo"] = GameStats.objects.get(user_id=game["player2"]["id"], game_name=game["game_name"]).current_elo
+        return self.get_paginated_response(serializer.data)
+    
+
+
+
+
 
 
 

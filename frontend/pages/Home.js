@@ -17,6 +17,11 @@ export default class Home_Page extends HTMLElement {
 				<home-time-played></home-time-played>
 			</div>
 
+
+			<div class="expanded-active-games-container">
+				<expanded-home-active-games></expanded-home-active-games>
+			</div>
+
 			
 		`;	
 	}

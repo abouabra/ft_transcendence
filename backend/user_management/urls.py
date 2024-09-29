@@ -10,6 +10,7 @@ urlpatterns = [
 
     path('me/', views.MeView.as_view(), name='me'),
     path('user/<int:pk>/', views.UserView.as_view(), name='user'),
+    path('full_user/<int:pk>/', views.FullUserView.as_view(), name='user'),
     path('search/', views.SearchUsersView.as_view(), name='search_users'),
 
     path('unread_notifications/', views.UnreadNotificationsView.as_view(), name='unread_notifications_count'),

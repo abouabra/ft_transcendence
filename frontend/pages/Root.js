@@ -24,6 +24,13 @@ import Profile_Page from "./Profile.js";
 import Settings_Page from "./Settings.js";
 import Small_Cards from "../components/common/small_cards.js";
 import Create_Server_page from "./Chat_creat_server.js";
+import Home_Slide_Show from "../components/home_page/home_slide_show.js";
+import Home_Leaderboard from "../components/home_page/home_leaderboard.js";
+import Home_Time_Played from "../components/home_page/home_time_played.js";
+import Home_Active_Games from "../components/home_page/home_active_games.js";
+import Home_Active_Tournaments from "../components/home_page/home_active_tournaments.js";
+import Expanded_Home_Active_Games from "../components/home_page/expanded_home_active_games.js";
+import Expanded_Home_Active_Tournaments from "../components/home_page/expanded_home_active_tournaments.js";
 
 export default class Root_Page extends HTMLElement {
 	constructor() {

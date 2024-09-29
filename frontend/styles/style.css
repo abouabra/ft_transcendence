@@ -16,6 +16,8 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+	transition: unset;
+
 }
 
 a {
@@ -56,6 +58,8 @@ a:hover{
 	font-size: 20px;
 	text-transform: uppercase;
 }
+
+
 
 .p1_regular {
 	font-family: "Poppins", sans-serif;
@@ -347,4 +351,3 @@ body {
     object-fit: cover; /* Ensure the video covers the entire area */
     transform: translate(-50%, -50%); /* Center the video */
 }
-

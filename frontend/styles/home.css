@@ -1,0 +1,582 @@
+home-page{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.home-page-main-container{
+    gap: 20px;
+    justify-content: center;
+}
+
+home-slide-show {
+    display: flex;
+    position: relative;
+    width: 850px;
+    height: 375px;
+    aspect-ratio: 850/375;
+    transform-origin: top left;
+    overflow: hidden;
+    
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+}
+
+
+.slide-show-mini-card {
+    display: flex;
+    padding: 11px;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 30px;
+    gap: 20px;
+}
+
+.slide-show-mini-card-image {
+    width: 250px;
+    height: 350px;
+    border-radius: 30px;
+}
+
+
+
+.left-card {
+    transform: scale(0.8);
+    position: absolute;
+    left: 0;
+}
+
+.card-animation {
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+
+    /* animation: left-card-animation 0.5s forwards; */
+}
+
+@keyframes left-card-animation {
+    0% {
+        left: 0;
+    }
+    100% {
+        left: 68%;
+    }
+}
+
+
+.right-card {
+    transform: scale(0.8);
+    right: 0;
+    position: absolute;
+}
+
+@keyframes right-card-animation {
+    0% {
+        left: 68%;
+
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 1;
+        left: 0;
+    }
+}
+
+.center-card {
+    position: absolute;
+    z-index: 1;
+    transform: translateX(-50%);
+    left: 50%;
+}
+.center-card-body{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+}
+.center-card-animation {
+    animation: center-card-animation 0.4s forwards;
+}
+
+@keyframes center-card-animation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.slide-show-three-dots{
+    display: flex;
+    gap: 4px;
+    width: fit-content;
+    height: fit-content;
+
+    position: absolute;
+    top: 18px;
+    right: 32px;
+}
+
+.slide-show-three-dots-dot {
+    width: 28px;
+    height: 6px;
+    border-radius: 24px;
+    background-color: var(--platinum_40_percent);
+}
+
+.slide-show-three-dots-dot-active {
+    background-color: var(--primary_color);
+}
+
+
+home-leaderboard {
+    width: 400px;
+    height: 265px;
+
+
+    display: flex;
+    flex-direction: column;
+    border-radius: 17px;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--platinum_40_percent);
+	background-color: var(--raisin_black_20_percent);
+
+    padding: 18px 28px;
+    gap: 27px;
+    margin: auto;
+}
+
+.leaderboard_header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.forward-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 6px 10px;
+    border-radius: 100px;
+    background-color: var(--primary_color);
+    
+    gap: 10px;
+    height: 26px;
+    width: fit-content;
+
+    cursor: pointer;
+}
+
+.forward-button:hover {
+    opacity: 0.8;
+}
+
+.home-leaderboard-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.home-leaderboard-item:hover
+{
+    cursor: pointer;
+}
+
+.home-leaderboard-item:hover div span {
+    text-decoration: underline;
+}
+
+.home-leaderboard-list{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.home-leaderboard-list-animation {
+    animation: home-leaderboard-list-animation 0.3s forwards;
+}
+
+@keyframes home-leaderboard-list-animation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+home-time-played {
+    display: flex;
+    flex-direction: column;
+    
+    width: 290px;
+    height: 400px;
+    border-radius: 17px;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--platinum_40_percent);
+    background-color: var(--raisin_black_20_percent);
+    
+    padding: 34px 19px;
+    gap: 30px;
+
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+
+.home-time-played-image{
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.home-total-time-container {
+    width: 200px;
+    height: 200px;
+
+
+    overflow: hidden;
+}
+.home-total-time-image {
+    width: auto;
+    height: 370px;
+    object-fit: cover;
+    position: absolute;
+}
+
+
+
+
+
+home-active-games  {
+    display: flex;
+    flex-direction: column;
+    
+    width: 100%;
+    max-width: 400px;
+    height: 400px;
+
+    border-radius: 17px;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--platinum_40_percent);
+    background-color: var(--raisin_black_20_percent);
+    
+    padding: 15px 30px;
+    gap: 20px;
+
+    align-items: center;
+    margin: auto;
+}
+
+.home-select {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+
+    background-color: transparent;
+    border: 1px solid var(--platinum_40_percent);
+    color: var(--platinum_40_percent);
+
+    height: 20px;
+    border-radius: 6px;
+    padding: 0 5px;
+}
+
+
+.active-games-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+}
+
+.active-games-list-item{
+    display: flex;
+    padding: 5px;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.active-games-list-item-avatar{
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.active-games-list-item div div .p4_bold:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+
+@keyframes active-games-list-animation {
+    0% {
+        opacity: 1;
+        scale: 1;
+    }
+    50% {
+        opacity: 0;
+        scale: 0.8;
+    }
+    100% {
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+.active-games-list-animation {
+    animation: active-games-list-animation 0.2s forwards;
+}
+
+
+
+home-active-tournaments  {
+    display: flex;
+    flex-direction: column;
+    
+    width: 100%;
+    max-width: 425px;
+    height: fit-content;
+    
+
+    border-radius: 17px;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--platinum_40_percent);
+    background-color: var(--raisin_black_20_percent);
+    
+    padding: 15px 30px;
+    gap: 20px;
+
+    align-items: center;
+    margin: auto;
+}
+
+.active-tournament-list
+{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    min-height: 326px;
+    height: fit-content;
+}
+
+.expanded-active-games-container {
+    display: none;
+
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 17px;
+    
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes expanded-home-active-games-animation {
+    0% {
+        opacity: 0;
+        scale: 0.8;
+    }
+    100% {
+        opacity: 1;
+        scale: 1;
+    }
+    
+}
+
+expanded-home-active-games {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 770px;
+    height: fit-content;
+
+    border-radius: 17px;
+    /* backdrop-filter: blur(20px); */
+    border: 1px solid var(--platinum_40_percent);
+    background-color: black;
+    
+    padding: 20px;
+    gap: 20px;
+
+    overflow: hidden;
+    align-items: center;
+
+    animation: expanded-home-active-games-animation 0.3s forwards;
+}
+
+.expanded-games-x-button-container{
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+
+
+
+
+
+    border-radius: 50%;
+    background-color: var(--primary_color);
+    
+    
+    cursor: pointer;
+}
+
+.expanded-active-games-list-item {
+    display: flex;
+    padding: 5px;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 15px;
+    border: 1px solid var(--platinum_40_percent);
+}
+
+
+
+
+.active-games-duration-games {
+    font-family: "Poppins", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+	font-size: 6px;
+
+    transform: rotate(90deg);
+
+    width: 5px;
+    height: 10px;
+}
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+
+.pagination-item-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 3px;
+    border: 1px solid var(--platinum_40_percent);
+    background-color: var(--platinum_40);
+    cursor: pointer;
+}
+
+.pagination-item-arrow:hover{
+    opacity: 0.8;
+}
+
+
+.pagination-item {
+    color: var(--platinum_40);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 3px;
+    border: 1px solid var(--platinum_40_percent);
+    cursor: pointer;
+    background-color: var(--platinum);
+    color: var(--raisin_black);
+}
+
+.pagination-item:hover{
+    opacity: 0.8;
+}
+
+.pagination-active{
+    background-color: var(--primary_color);
+    color: var(--platinum);
+}
+
+.active-games-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+}
+
+.expanded-tournaments-x-button-container{
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+
+
+
+
+
+    border-radius: 50%;
+    background-color: var(--primary_color);
+    
+    
+    cursor: pointer;
+}
+
+.expanded-active-tournaments-container {
+    display: none;
+
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 17px;
+    
+    justify-content: center;
+    align-items: center;
+}
+
+expanded-home-active-tournaments {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 770px;
+    height: fit-content;
+
+    border-radius: 17px;
+    /* backdrop-filter: blur(20px); */
+    border: 1px solid var(--platinum_40_percent);
+    background-color: black;
+    
+    padding: 20px;
+    gap: 20px;
+
+    overflow: hidden;
+    align-items: center;
+
+    animation: expanded-home-active-games-animation 0.3s forwards;
+}

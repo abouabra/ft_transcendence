@@ -1,5 +1,5 @@
 # Use the official Redis image from the Docker Hub
-FROM redis:latest
+FROM redis:8.0-M01
 
 # Copy custom redis.conf if you have one (optional)
 # COPY ./redis.conf /usr/local/etc/redis/redis.conf

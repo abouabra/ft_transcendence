@@ -2,7 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, NotificationSerializer, ShortUserSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken,  AccessToken
 import logging
 from .serializers import LoginSerializer
 from .decorators import check_if_logged_in
@@ -20,6 +20,31 @@ class IsAuthenticatedView(generics.GenericAPIView):
 
     def get(self, request):
         return Response({"detail": "You are authenticated"}, status=status.HTTP_200_OK)
+
+
+class VerifyToken(generics.GenericAPIView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = ShortUserSerializer
+
+    def post(self, request):
+        try:
+            token = request.data.get("token")
+            if not token:
+                return Response(
+                    {"detail": "Token is required"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            access_token = AccessToken(token)
+
+            user = User.objects.get(id=access_token["user_id"])
+
+            return Response(self.serializer_class(user).data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+
+            return Response(
+                {"detail": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
 
 class RefreshTokenView(generics.GenericAPIView):

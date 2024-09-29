@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-VAULT_DIR = os.path.join(BASE_DIR, os.pardir, "vault")
+VAULT_DIR = os.path.join(BASE_DIR, os.pardir, os.pardir, "vault")
 
 # Read the environment variables from the .env file
 env = environ.Env()
@@ -66,9 +66,6 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "user_management",
-    "chat",
-    "game",
-    "tournaments",
 ]
 
 MIDDLEWARE = [
@@ -185,7 +182,7 @@ with open(os.path.join(VAULT_DIR,"public.key"), "rb") as key_file:
     )
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,

@@ -1,4 +1,9 @@
-const BACKEND_DOMAIN = "http://" + window.location.hostname + ":8000";
+const USER_MANAGEMENT_DOMAIN = "http://" + window.location.hostname + ":8000";
+const CHAT_DOMAIN = "http://" + window.location.hostname + ":8001";
+const GAME_DOMAIN = "http://" + window.location.hostname + ":8002";
+const TOURNAMENT_DOMAIN = "http://" + window.location.hostname + ":8003";
+
+
 
 const routes = {
     404: "not-found-page",

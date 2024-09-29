@@ -1,5 +1,5 @@
 async function refreshAccessToken() {
-	const fullUrl = `${BACKEND_DOMAIN}/api/auth/token/refresh/`;
+	const fullUrl = `${USER_MANAGEMENT_DOMAIN}/api/auth/token/refresh/`;
 
 	const headers = new Headers({
 		"Content-Type": "application/json",
@@ -24,7 +24,19 @@ async function refreshAccessToken() {
 const TOAST_URLS = ["/api/auth/is_authenticated/", "/api/auth/token/refresh/"];
 
 async function makeRequest(url, method = "GET", data = null) {
-	const fullUrl = `${BACKEND_DOMAIN}${url}`;
+	let fullUrl = "";
+	
+	if (url.startsWith("/api/auth/"))
+		fullUrl = `${USER_MANAGEMENT_DOMAIN}`;
+	else if (url.startsWith("/api/chat/"))
+		fullUrl = `${CHAT_DOMAIN}`;
+	else if (url.startsWith("/api/game/"))
+		fullUrl = `${GAME_DOMAIN}`;
+	else if (url.startsWith("/api/tournaments/"))
+		fullUrl = `${TOURNAMENT_DOMAIN}`;
+
+	fullUrl += url;
+
 
 	const headers = new Headers({
 		"Content-Type": "application/json",

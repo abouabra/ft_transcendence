@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-VAULT_DIR = os.path.join(BASE_DIR, os.pardir, os.pardir, "vault")
+VAULT_DIR = "/vault"
 
 # Read the environment variables from the .env file
 env = environ.Env()
@@ -21,7 +21,6 @@ environ.Env.read_env(env_file)
 
 ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
 
-# AUTH_USER_MODEL = "user_management.User"
 
 # define the environment variables
 SECRET_KEY=env("SECRET_KEY")
@@ -116,8 +115,8 @@ DATABASES = {
         'NAME': env("POSTGRES_DB"),
         'USER': env("POSTGRES_USER"),
         'PASSWORD': env("POSTGRES_PASSWORD"),
-        'HOST': '127.0.0.1',
-        'PORT': '5432', 
+        'HOST': 'chat_db_container',
+        'PORT': '5434', 
     }
 }
 

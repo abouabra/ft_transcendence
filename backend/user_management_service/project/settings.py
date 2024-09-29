@@ -8,9 +8,9 @@ from cryptography.hazmat.primitives import serialization
 
 logger = logging.getLogger(__name__)
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
-VAULT_DIR = os.path.join(BASE_DIR, os.pardir, os.pardir, "vault")
+VAULT_DIR = "/vault"
 
 # Read the environment variables from the .env file
 env = environ.Env()
@@ -116,7 +116,7 @@ DATABASES = {
         'NAME': env("POSTGRES_DB"),
         'USER': env("POSTGRES_USER"),
         'PASSWORD': env("POSTGRES_PASSWORD"),
-        'HOST': '127.0.0.1',
+        'HOST': 'user_management_db_container',
         'PORT': '5432', 
     }
 }
@@ -244,7 +244,7 @@ CORS_ALLOWED_ORIGINS = [
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # Replace with your Redis container IP/hostname if using Docker
+        'LOCATION': 'redis://redis_container:6379/1',  # Replace with your Redis container IP/hostname if using Docker
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -257,7 +257,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],  # Use Redis container IP if in Docker
+            "hosts": [('redis_container', 6379)],  # Use Redis container IP if in Docker
         },
     },
 }

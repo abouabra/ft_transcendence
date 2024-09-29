@@ -4,7 +4,7 @@ export COMPOSE_PROJECT_PATH=$(CURDIR)
 all: build
 
 build: ascci
-	@mkdir -p $(CURDIR)/volumes/db_data/redis_data/ $(CURDIR)/volumes/db_data/user_management_db_data/
+	@mkdir -p $(CURDIR)/volumes/db_data/redis_data/ $(CURDIR)/volumes/db_data/user_management_db_data/ $(CURDIR)/volumes/db_data/chat_db_data/
 	@docker compose -f docker-compose.yml up -d --build
 
 start: ascci
@@ -20,6 +20,7 @@ fclean: ascci
 	@docker compose -f docker-compose.yml down -v
 	@docker system prune -af
 	@rm -rf $(CURDIR)/volumes/db_data/
+
 
 re: clean build
 rebuild: fclean build

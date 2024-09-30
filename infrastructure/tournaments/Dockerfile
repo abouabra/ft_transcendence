@@ -1,7 +1,11 @@
 FROM python:3.12.6-alpine3.20
 
-RUN apk update && apk add postgresql-dev
+RUN apk update && apk add --no-cache postgresql-client
 
 WORKDIR /app
 
-CMD ["/bin/sh", "-c", "pip install -r requirements.txt && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8003"]
+COPY requirements.txt /tmp/
+
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+ENTRYPOINT ["/app/entrypoint.sh"]

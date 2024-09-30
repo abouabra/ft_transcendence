@@ -21,33 +21,9 @@ environ.Env.read_env(env_file)
 
 ALLOWED_HOSTS = ['*']
 
-# AUTH_USER_MODEL = "user_management.User"
-
 # define the environment variables
 SECRET_KEY=env("SECRET_KEY")
 DEBUG=env("DEBUG", default=False)
-
-INTRA_UID = env('INTRA_UID')
-INTRA_SECRET = env('INTRA_SECRET')
-INTRA_CALLBACK_URI = env('INTRA_CALLBACK_URI')
-INTRA_TOKEN_URL = env('INTRA_TOKEN_URL')
-INTRA_AUTH_URL = env('INTRA_AUTH_URL')
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_PORT = env('EMAIL_PORT')
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False  # Gmail uses TLS, not SSL
-EMAIL_HOST_USER =  env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # https://myaccount.google.com/apppasswords
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  
-
-# To generate a self-signed certificate
-# openssl req -x509 -newkey rsa:4096 -keyout domain.key -out domain.crt -sha256 -days 3650 -nodes -subj "/C=MA/ST=Tanger-Tetouan-Al Hoceima/L=Martil/O=1337/OU=1337MED/CN=ft_transcendence"
-
-# to generate private key and public key for JWT RSA256
-# openssl genrsa -out private.key 2048
-# openssl rsa -in private.key -outform PEM -pubout -out public.key
 
 
 
@@ -171,71 +147,9 @@ REST_FRAMEWORK = {
 }
 
 
-with open(os.path.join(VAULT_DIR,"private.key"), "rb") as key_file:
-    PRIVATE_KEY = serialization.load_pem_private_key(
-        key_file.read(), password=None, backend=default_backend()
-    )
-
-with open(os.path.join(VAULT_DIR,"public.key"), "rb") as key_file:
-    PUBLIC_KEY = serialization.load_pem_public_key(
-        key_file.read(), backend=default_backend()
-    )
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
-    "UPDATE_LAST_LOGIN": False,
-
-    # "ALGORITHM": "HS256",
-    # "SIGNING_KEY": SECRET_KEY,
-    # "VERIFYING_KEY": "",
-
-    "ALGORITHM": "RS256",
-    "SIGNING_KEY": PRIVATE_KEY,
-    "VERIFYING_KEY": PUBLIC_KEY,
-
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-
-
-    "AUDIENCE": None,
-    "ISSUER": None,
-    "JSON_ENCODER": None,
-    "JWK_URL": None,
-    "LEEWAY": 0,
-
-
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_TYPE_CLAIM": "token_type",
-    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
-
-    "JTI_CLAIM": "jti",
-
-    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
-    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
-    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
-    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
-    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
-    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
-}
-
 # CORS settings
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://0.0.0.0:3000",
-    "http://127.0.0.1:3000",
-    
-    "http://0.0.0.0:8000",
     "http://127.0.0.1:8000",
 ]
 

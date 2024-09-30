@@ -3,24 +3,39 @@ version: '3'
 services:
   nginx:
     image: transcendence:nginx_image
-    container_name: nginx_container
+    container_name: nginx-container
     build: ./infrastructure/nginx/
     ports:
       - 443:443
     volumes:
-      - frontend:/app
       - vault_data:/vault
     networks:
       - transcendence_net
     depends_on:
       - user_management
       - chat
+      - game
+      - tournaments
     restart: always
+
+  frontend:
+    image: transcendence:frontend_image
+    container_name: frontend-container
+    build: ./infrastructure/frontend/
+    ports:
+      - 3000:3000
+    volumes:
+      - frontend:/app
+      - vault_data:/vault
+    networks:
+      - transcendence_net
+    restart: always
+
 
 
   user_management:
     image: transcendence:user_management_image
-    container_name: user_management_container
+    container_name: user-management-container
     build: ./infrastructure/user_management/
     ports:
       - 8000:8000
@@ -36,7 +51,7 @@ services:
 
   user_management_db:
     image: transcendence:user_management_db_image
-    container_name: user_management_db_container
+    container_name: user-management-db-container
     build: ./infrastructure/user_management_db/
     ports:
       - 5432:5432
@@ -52,7 +67,7 @@ services:
 
   chat:
     image: transcendence:chat_image
-    container_name: chat_container
+    container_name: chat-container
     build: ./infrastructure/chat/
     ports:
       - 8001:8001
@@ -68,7 +83,7 @@ services:
 
   chat_db:
     image: transcendence:chat_db_image
-    container_name: chat_db_container
+    container_name: chat-db-container
     build: ./infrastructure/chat_db/
     ports:
       - 5434:5434
@@ -81,9 +96,75 @@ services:
     restart: always
 
 
+
+  game:
+    image: transcendence:game_image
+    container_name: game-container
+    build: ./infrastructure/game/
+    ports:
+      - 8002:8002
+    volumes:
+      - game_data:/app
+      - vault_data:/vault
+    networks:
+      - transcendence_net
+    depends_on:
+      - game_db
+      - redis
+    restart: always
+
+  game_db:
+    image: transcendence:game_db_image
+    container_name: game-db-container
+    build: ./infrastructure/game_db/
+    ports:
+      - 5435:5435
+    volumes:
+      - game_db_data:/var/lib/postgresql/data
+    networks:
+      - transcendence_net
+    env_file:
+      - vault/.env
+    restart: always
+
+
+
+  tournaments:
+    image: transcendence:tournaments_image
+    container_name: tournaments-container
+    build: ./infrastructure/tournaments/
+    ports:
+      - 8003:8003
+    volumes:
+      - tournaments_data:/app
+      - vault_data:/vault
+    networks:
+      - transcendence_net
+    depends_on:
+      - tournaments_db
+      - redis
+    restart: always
+
+  tournaments_db:
+    image: transcendence:tournaments_db_image
+    container_name: tournaments-db-container
+    build: ./infrastructure/tournaments_db/
+    ports:
+      - 5436:5436
+    volumes:
+      - tournaments_db_data:/var/lib/postgresql/data
+    networks:
+      - transcendence_net
+    env_file:
+      - vault/.env
+    restart: always
+
+
+
+
   redis:
     image: transcendence:redis_image
-    container_name: redis_container
+    container_name: redis-container
     build: ./infrastructure/redis/
     ports:
       - "6379:6379"
@@ -117,23 +198,6 @@ volumes:
       device: ${COMPOSE_PROJECT_PATH}/frontend/assets/
       o: bind
 
-  user_management_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${COMPOSE_PROJECT_PATH}/backend/user_management_service/
-      o: bind
-  
-  chat_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${COMPOSE_PROJECT_PATH}/backend/chat_service/
-      o: bind
-
-
-
-
 
 
   vault_data:
@@ -145,7 +209,12 @@ volumes:
 
 
 
-
+  user_management_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${COMPOSE_PROJECT_PATH}/backend/user_management_service/
+      o: bind
 
   user_management_db_data:
     driver: local
@@ -154,6 +223,15 @@ volumes:
       device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/user_management_db_data
       o: bind
   
+
+
+  chat_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${COMPOSE_PROJECT_PATH}/backend/chat_service/
+      o: bind
+
   chat_db_data:
     driver: local
     driver_opts:
@@ -163,6 +241,37 @@ volumes:
 
 
 
+  game_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${COMPOSE_PROJECT_PATH}/backend/game_service/
+      o: bind
+
+  game_db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/game_db_data
+      o: bind
+
+
+
+  tournaments_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${COMPOSE_PROJECT_PATH}/backend/tournaments_service/
+      o: bind
+
+  tournaments_db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/tournaments_db_data
+      o: bind
+
+
 
   redis_data:
     driver: local
@@ -170,6 +279,9 @@ volumes:
       type: none
       device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/redis_data
       o: bind
+
+
+
 
 networks:
   transcendence_net:

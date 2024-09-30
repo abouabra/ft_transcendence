@@ -115,7 +115,7 @@ DATABASES = {
         'NAME': env("POSTGRES_DB"),
         'USER': env("POSTGRES_USER"),
         'PASSWORD': env("POSTGRES_PASSWORD"),
-        'HOST': 'chat_db_container',
+        'HOST': 'chat-db-container',
         'PORT': '5434', 
     }
 }
@@ -243,7 +243,7 @@ CORS_ALLOWED_ORIGINS = [
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # Replace with your Redis container IP/hostname if using Docker
+        'LOCATION': 'redis://redis-container:6379/1',  # Replace with your Redis container IP/hostname if using Docker
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -256,7 +256,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],  # Use Redis container IP if in Docker
+            "hosts": [('redis-container', 6379)],  # Use Redis container IP if in Docker
         },
     },
 }

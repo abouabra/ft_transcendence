@@ -32,7 +32,7 @@ class UserManagementJWTAuthentication(JWTAuthentication):
 
         try:
             # Send the token to the user_management_service for validation
-            response = requests.post("http://127.0.0.1:8000/api/auth/verify_token/", data={"token": token})
+            response = requests.post("http://user-management-container:8000/api/auth/verify_token/", data={"token": token})
 
             if response.status_code != 200:
                 raise AuthenticationFailed("Invalid token")

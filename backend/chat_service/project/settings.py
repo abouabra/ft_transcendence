@@ -19,7 +19,7 @@ environ.Env.read_env(env_file)
 
 
 
-ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # define the environment variables

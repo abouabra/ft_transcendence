@@ -19,7 +19,7 @@ environ.Env.read_env(env_file)
 
 
 
-ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'user_management_container', 'chat_container']
 
 AUTH_USER_MODEL = "user_management.User"
 
@@ -188,10 +188,6 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
 
-    # "ALGORITHM": "HS256",
-    # "SIGNING_KEY": SECRET_KEY,
-    # "VERIFYING_KEY": "",
-
     "ALGORITHM": "RS256",
     "SIGNING_KEY": PRIVATE_KEY,
     "VERIFYING_KEY": PUBLIC_KEY,
@@ -234,10 +230,14 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://0.0.0.0:3000",
     "http://127.0.0.1:3000",
-    
+
     "http://0.0.0.0:8000",
     "http://127.0.0.1:8000",
+    
+    "http://chat_container:8001",
+    "http://user_management_container:8000"
 ]
+
 
 
 # Redis settings

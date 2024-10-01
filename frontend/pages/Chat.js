@@ -15,7 +15,7 @@ export default class Chat_Page extends HTMLElement {
 				<div class="side-message-container">
 					<div class="d-flex flex-column justify-content-center align-items-center">
 						<div class="search-input d-flex ">
-							<img src="/assets/images/common/Iconly/Light/Search.svg">
+							<img  class="images_chat" src="/assets/images/common/Iconly/Light/Search.svg">
 							<input type="text" placeholder="Search" style="margin-right: 15px">
 						</div>
 					</div>
@@ -23,7 +23,7 @@ export default class Chat_Page extends HTMLElement {
 							<span class="select-server p3_bold platinum_40_color" id="server-chat">Servers</span>
 							<span class="select-direct p3_bold platinum_40_color" id="direct-chat">Direct</span>
 					</div>
-					<chat-side-bar type='Direct' class="Bar"></chat-side-bar>
+					<chat-side-bar type='' class="Bar"></chat-side-bar>
 				</div>
 				${ pathname == "/chat/" ?
 				/* html*/ `
@@ -41,6 +41,7 @@ export default class Chat_Page extends HTMLElement {
 				: /* html*/ `
 					<div class="message-container w-100">
 						<chat-body></chat-body>
+						<input id="send-msg-bar1" placeholder="enter your message">
 					</div>
 				`}
 			</div>
@@ -62,12 +63,30 @@ export default class Chat_Page extends HTMLElement {
 			if (Bar.getAttribute('type') !== "Server")
 				Bar.setAttribute('type', 'Server')
 		})
+		// const inputbr = document.querySelector('#send-msg-bar1');
+		const inputbr = document.getElementById('send-msg-bar1');
+		if (inputbr)
+		{
+			inputbr.addEventListener('change', () => {
+				let body = {
+					'content':inputbr.value,
+					'sender_id': window.localStorage.getItem('id'),
+					'server_name':window.location.pathname.substring(6)
+				}
+				inputbr.value = ''
+				makeRequest('/api/chat/setmessage/', 'POST', body)
+			});
+		}
 
 	}
 	
-	connectedCallback() {}
+	connectedCallback() {
+	}
 
-	disconnectedCallback() {}
+	disconnectedCallback() {
+		this.removeEventListener('click',()=>{})
+		this.removeEventListener('change',()=>{})
+	}
 
 	attributeChangedCallback(name, oldValue, newValue) {}
 }

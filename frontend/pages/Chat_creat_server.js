@@ -11,52 +11,59 @@ export default class Create_Server_page extends HTMLElement {
 		
 		this.innerHTML = /* html */`
 		<div class="w-100 h-100 d-flex align-items-center">
-		<div class="creation-container d-flex w-100 justify-content-center align-items-center platinum_40_color_border">
-		<div class="cards platinum_40_color_border d-flex flex-column align-items-center">
-		<span class="header_h2">Rules</span>
-		<div class="w-75">
-		<ul>
-		<li class="p2_regular">Visibility Options:</li>
-		<ul>
-		<li class="p2_regular">Public: Anyone can join the Server without restrictions.</li>
-		<li class="p2_regular">Private: member must enter the server's password to join.</li>
-		</ul>
-		</ul>
-		</div>
-		</div>
-		<div class="cards_1 d-flex flex-column align-items-center">
-		<div class="avatar_change d-flex flex-column justify-content-center align-items-center platinum_40_color_border">
-		<span id="text_avatar">Click to change</span>
-		<span id="text_avatar">Server avatar</span>
-		<span id="text_avatar">150x150 image required</span>
-		</div>
-		<div class="server_name platinum_40_color_border  d-flex flex-column justify-content-center align-items-center">
-		<input class="create_server_input" id= "name" type="text" placeholder="Name">
-		</div>
-		<div class="server_visibility platinum_40_color_border position-relative">
-		<select class="form-select1">
-		<option value="1">Public</option>
-		<option value="2">Private</option>
-		</select>
-		<i class="arrowdown position-absolute bottom-50"></i>
-		</div>
-		<div class="server_password platinum_40_color_border justify-content-center align-items-center">
-		<input class="create_server_input" id='pass' type="password" placeholder="Password">
-		</div>
-		<button-component class="button_submit" data-text="Create Server" onclick="GoTo('/chat/create_server/')"></button-component>
-		</div>
-		<div class="cards_2 platinum_40_color_border d-flex flex-column align-items-center ">
-		<span class="header_h2 ">Invite Link</span>
-		<div class="qr_code"></div>
-		</div>
-		</div>
+			<div class="loader-container  w-100 justify-content-center align-items-center">
+				<div class="loader">
+				</div>
+			</div>
+			<div class="creation-container  w-100 justify-content-center align-items-center platinum_40_color_border">
+					<div class="cards platinum_40_color_border  flex-column align-items-center">
+						<span class="header_h2">Rules</span>
+						<div class="w-75">
+							<ul>
+								<li class="p2_regular">Visibility Options:</li>
+								<ul>
+									<li class="p2_regular">Public: Anyone can join the Server without restrictions.</li>
+									<li class="p2_regular">Private: member must enter the server's password to join.</li>
+								</ul>
+							</ul>
+						</div>
+					</div>
+					<div class="cards_1  flex-column align-items-center">
+						<div class="avatar_change d-flex flex-column justify-content-center align-items-center platinum_40_color_border">
+							<span id="text_avatar">Click to change</span>
+							<span id="text_avatar">Server avatar</span>
+							<span id="text_avatar">150x150 image required</span>
+						</div>
+						<div class="server_name platinum_40_color_border  d-flex flex-column justify-content-center align-items-center">
+							<input class="create_server_input" id= "name" type="text" placeholder="Name">
+						</div>
+						<div class="server_visibility platinum_40_color_border position-relative">
+							<select class="form-select1">
+							<option value="1">Public</option>
+							<option value="2">Private</option>
+							</select>
+							<i class="arrowdown position-absolute bottom-50"></i>
+						</div>
+						<div class="server_password platinum_40_color_border justify-content-center align-items-center">
+							<input class="create_server_input" id='pass' type="password" placeholder="Password">
+						</div>
+						<button-component class="button_submit" data-text="Create Server" id="serverbutton"></button-component>
+					</div>
+			</div>
+			<div class="cards_2 flex-column justify-content-center align-items-center w-100 h-100 platinum_40_color_border">
+				<div class="platinum_40_color_border d-flex flex-column align-items-center card2_content">
+					<span class="header_h2 ">Invite Link</span>
+					<div class="qr_code"><img src="/assets/images/servers_qr_codes/default_qr_code.png">
+					</div>
+				</div>
+			</div>
 		</div>
 		`;
 		
 		const selectElement = this.querySelector(".form-select1");
 		const update_avatar = this.querySelector('.avatar_change')
 		const password_element = this.querySelector('.server_password')
-		const submit_click = this.getElementsByClassName('button_submit')[0]
+		const submit_click = this.querySelector('#serverbutton')
 		const name_tag = this.querySelector('#name')
 		const password_tag = this.querySelector('#pass')
 		let file_name = "default.jpg"
@@ -67,13 +74,9 @@ export default class Create_Server_page extends HTMLElement {
 			console.log(value);
 			
 			if (value == 2)
-			{
 				password_element.style.display = "flex";
-			}
 			else
-			{
 				password_element.style.display = "none";
-			}
 		});
 		update_avatar.addEventListener('click', ()=>{
 			const fileInput = document.createElement('input');
@@ -96,8 +99,16 @@ export default class Create_Server_page extends HTMLElement {
 			reader.readAsDataURL(file);
 		});
 	});
+
+
+
 	submit_click.addEventListener('click', ()=>
 	{
+		if (!name_tag.value)
+		{
+			showToast("error", "Server Name can't be empty");
+			return
+		}
 		let visibility = "public"
 		if (selectElement.value === 2)
 			visibility = "private"
@@ -109,21 +120,29 @@ export default class Create_Server_page extends HTMLElement {
 			"password":password_tag.value,
 			"id":localStorage.getItem('id'),
 			"img":base64,
-			"type":"Server"
+			"type":"Server",
+			"qr_code":`/assets/images/server_avatars/default.jpg`
 		}
+		let loader_container = this.getElementsByClassName("loader-container")[0]
+		let creation_container = this.getElementsByClassName("creation-container")[0]
+		let card2 = this.querySelector(".cards_2");
+
+		loader_container.style.display = 'flex'
+		creation_container.style.opacity = 0.5
+
 		makeRequest('/api/chat/create_server/', 'POST', body)
 		.then(data =>{
-			render_page(data);
-			showToast("success", "Server Created Successfully")
-			GoTo(`/chat/${data.name}`)
+			loader_container.style.display = 'none'
+			creation_container.classList.add('pointer_enable')
+			creation_container.classList.remove("platinum_40_color_border")
+			card2.style.display = 'flex'
 		})
 		.catch(error => {
+			creation_container.style.opacity = 1
+			loader_container.style.display = 'none'
+			console.log(error)
 			showToast("error", error);
 		});
-		// console.log(`name = ${name_tag.value}`);
-		// console.log(`status ${selectElement.value}`);
-		// console.log(`password = ${password_tag.value}`);
-		// console.log(`img ${base64}`);
 
 	});
 }

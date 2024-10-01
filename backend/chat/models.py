@@ -6,6 +6,7 @@ class Server(models.Model):
     # direct value to take = iduser 1 + iduser2 sorted so we know the communicated party
     name = models.CharField(max_length=255) 
     avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/server_avatars/default.jpg")
+    qr_code = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/servers_qr_codes/default_qr_code.png")
 
     VISISBILITY_CHOICES = (
         ("public", "Public"),
@@ -34,7 +35,7 @@ class Server(models.Model):
     
 
 class Message(models.Model):
-    server = models.ForeignKey(Server, on_delete=models.CASCADE)
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='server_message')
     sender_id = models.IntegerField()
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)

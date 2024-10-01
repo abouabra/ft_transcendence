@@ -11,7 +11,7 @@ export default class ChatSideBar extends HTMLElement {
 			this.innerHTML = /* html */`
 				${ data.map((item) => {
 						return /* html */ `
-						<div  class="d-flex flex-row side-message-bar align-items-center" id=${item.name}>
+						<div  class="d-flex flex-row side-message-bar align-items-center ${item.visibility}" id=${item.server_name}>
 							<div class="position-relative">
 								${
 									item.status === "online" ? /* html */`
@@ -40,14 +40,15 @@ export default class ChatSideBar extends HTMLElement {
 				}
 				`;
 			const clicked_block = this.getElementsByClassName("side-message-bar");
-			console.log(`length = ${clicked_block.length}`)
 			for (let i = 0; i < clicked_block.length; i++)
 			{
 				let targeted = clicked_block[i];
 				console.log(`target = ${targeted}`)
 				targeted.addEventListener('click', ()=>{
-					console.log('clickeddedededededede')
-					GoTo(`/chat/${targeted.id}`)
+					if(targeted.className.includes('protected'))
+						GoTo(`/chat/direct/${targeted.id}`)
+					else
+						GoTo(`/chat/server/${targeted.id}`)
 				})
 			}
 
@@ -63,29 +64,29 @@ export default class ChatSideBar extends HTMLElement {
 		makeRequest('/api/chat/get_server_data/').then((body)=>{
 			let data = []
 			if (name === 'type')
-		{
-			if (newValue === "Direct")
 			{
-				for(let i = 0; i < body.length; i++)
+				if (newValue === "Direct")
 				{
-					if (body[i].visibility === "protected")
-						data.push(body[i])
-				}
-				this.render_page(data);
-			}
-			else if (newValue === "Server")
-			{
-				for(let i = 0; i < body.length; i++)
-				{
-					if (body[i].visibility !== "protected")
+					for(let i = 0; i < body.length; i++)
 					{
-						body[i].status = "none"
-						data.push(body[i])
+						if (body[i].visibility === "protected")
+							data.push(body[i])
 					}
+					this.render_page(data);
 				}
-				this.render_page(data);
+				else if (newValue === "Server")
+				{
+					for(let i = 0; i < body.length; i++)
+					{
+						if (body[i].visibility !== "protected")
+						{
+							body[i].status = "none"
+							data.push(body[i])
+						}
+					}
+					this.render_page(data);
+				}
 			}
-		}
 		})
 	}
 	static get observedAttributes() {

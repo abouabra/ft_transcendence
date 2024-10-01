@@ -1,5 +1,5 @@
 # Use the official PostgreSQL image
-FROM postgres:latest
+FROM postgres:16
 
 
 # Run PostgreSQL server

@@ -12,8 +12,7 @@ class ServerSerializer(serializers.ModelSerializer):
             Server.objects.get(name=data['name'])
             raise serializers.ValidationError(f"server {data['name']} already created")
         except Server.DoesNotExist:
-            pass
-        return data
+            return data 
 
 class ServerChatSerializer(serializers.ModelSerializer):
     class Meta:

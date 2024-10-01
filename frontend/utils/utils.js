@@ -45,6 +45,10 @@ async function makeRequest(url, method = "GET", data = null) {
 			await refreshAccessToken();
 			return await makeRequest(url, method, data); // Retry with incremented depth
 		}
+		if (response.status >= 400) 
+			throw new Error(response.data);
+
+
 
 		// Parse JSON response
 		const jsonResponse = await response.json();
@@ -58,6 +62,8 @@ async function makeRequest(url, method = "GET", data = null) {
 
 		return jsonResponse;
 	} catch (error) {
+		throw new Error(error);
+	
 		// Handle error response
 		const errorResponse = {
 			response_code: 500,

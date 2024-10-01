@@ -6,7 +6,7 @@ wait_for_db() {
     local db_port="$2"
     
     echo "Waiting for database at $db_host:$db_port to be ready..."
-    while ! pg_isready -h "$db_host" -p "$db_port" -U "$POSTGRES_USER"; do
+    while ! pg_isready -h "$db_host" -p "$db_port" -U "$USER_MANAGEMENT_POSTGRES_USER"; do
         sleep 2
     done
     echo "Database is ready!"
@@ -26,7 +26,7 @@ fi
 # Check if a superuser exists, if not, create one using environment variables
 if [ "$(python manage.py shell -c 'from user_management.models import User; print(User.objects.filter(is_superuser=True).exists())')" = "False" ]; then
     echo "Creating superuser..."
-    python manage.py shell -c "from user_management.models import User; User.objects.create_superuser('${DJANGO_SUPERUSER_USERNAME}', '${DJANGO_SUPERUSER_EMAIL}', '${DJANGO_SUPERUSER_PASSWORD}')"
+    python manage.py shell -c "from user_management.models import User; User.objects.create_superuser('${USER_MANAGEMENT_SUPERUSER_USERNAME}', '${USER_MANAGEMENT_SUPERUSER_EMAIL}', '${USER_MANAGEMENT_SUPERUSER_PASSWORD}')"
 else
     echo "Superuser already exists. Skipping creation."
 fi

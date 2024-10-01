@@ -24,8 +24,8 @@ ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = "user_management.User"
 
 # define the environment variables
-SECRET_KEY=env("SECRET_KEY")
-DEBUG=env("DEBUG", default=False)
+SECRET_KEY=env("USER_MANAGEMENT_SECRET_KEY")
+DEBUG=env("USER_MANAGEMENT_DEBUG", default=False)
 
 INTRA_UID = env('INTRA_UID')
 INTRA_SECRET = env('INTRA_SECRET')
@@ -113,9 +113,9 @@ ASGI_APPLICATION = "project.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("POSTGRES_DB"),
-        'USER': env("POSTGRES_USER"),
-        'PASSWORD': env("POSTGRES_PASSWORD"),
+        'NAME': env("USER_MANAGEMENT_POSTGRES_DB"),
+        'USER': env("USER_MANAGEMENT_POSTGRES_USER"),
+        'PASSWORD': env("USER_MANAGEMENT_POSTGRES_PASSWORD"),
         'HOST': 'user-management-db-container',
         'PORT': '5432', 
     }

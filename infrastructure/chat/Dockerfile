@@ -8,4 +8,6 @@ COPY requirements.txt /tmp/
 
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
+EXPOSE 8001
+
 ENTRYPOINT ["/app/entrypoint.sh"]

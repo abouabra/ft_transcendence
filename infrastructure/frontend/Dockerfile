@@ -1,5 +1,14 @@
 FROM node:22-alpine
 
+WORKDIR /tmp
+
+COPY package.json .
+
+RUN npm install
+
 WORKDIR /app
 
-CMD ["/bin/sh", "-c", "npm install && node server.js"]
+EXPOSE 3000
+
+ENTRYPOINT ["node"]
+CMD [ "server.js" ]

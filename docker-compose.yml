@@ -22,8 +22,8 @@ services:
     image: transcendence:frontend_image
     container_name: frontend-container
     build: ./infrastructure/frontend/
-    ports:
-      - 3000:3000
+    # ports:
+    #   - 3000:3000
     volumes:
       - frontend:/app
       - vault_data:/vault
@@ -37,8 +37,8 @@ services:
     image: transcendence:user_management_image
     container_name: user-management-container
     build: ./infrastructure/user_management/
-    ports:
-      - 8000:8000
+    # ports:
+    #   - 8000:8000
     volumes:
       - user_management_data:/app
       - vault_data:/vault
@@ -47,14 +47,16 @@ services:
     depends_on:
       - user_management_db
       - redis
+    env_file:
+      - vault/.env
     restart: always
 
   user_management_db:
     image: transcendence:user_management_db_image
     container_name: user-management-db-container
     build: ./infrastructure/user_management_db/
-    ports:
-      - 5432:5432
+    # ports:
+    #   - 5432:5432
     volumes:
       - user_management_db_data:/var/lib/postgresql/data
     networks:
@@ -69,8 +71,8 @@ services:
     image: transcendence:chat_image
     container_name: chat-container
     build: ./infrastructure/chat/
-    ports:
-      - 8001:8001
+    # ports:
+    #   - 8001:8001
     volumes:
       - chat_data:/app
       - vault_data:/vault
@@ -79,14 +81,16 @@ services:
     depends_on:
       - chat_db
       - redis
+    env_file:
+      - vault/.env
     restart: always
 
   chat_db:
     image: transcendence:chat_db_image
     container_name: chat-db-container
     build: ./infrastructure/chat_db/
-    ports:
-      - 5434:5434
+    # ports:
+    #   - 5434:5434
     volumes:
       - chat_db_data:/var/lib/postgresql/data
     networks:
@@ -101,8 +105,8 @@ services:
     image: transcendence:game_image
     container_name: game-container
     build: ./infrastructure/game/
-    ports:
-      - 8002:8002
+    # ports:
+    #   - 8002:8002
     volumes:
       - game_data:/app
       - vault_data:/vault
@@ -111,14 +115,16 @@ services:
     depends_on:
       - game_db
       - redis
+    env_file:
+      - vault/.env
     restart: always
 
   game_db:
     image: transcendence:game_db_image
     container_name: game-db-container
     build: ./infrastructure/game_db/
-    ports:
-      - 5435:5435
+    # ports:
+    #   - 5435:5435
     volumes:
       - game_db_data:/var/lib/postgresql/data
     networks:
@@ -133,8 +139,8 @@ services:
     image: transcendence:tournaments_image
     container_name: tournaments-container
     build: ./infrastructure/tournaments/
-    ports:
-      - 8003:8003
+    # ports:
+    #   - 8003:8003
     volumes:
       - tournaments_data:/app
       - vault_data:/vault
@@ -143,14 +149,16 @@ services:
     depends_on:
       - tournaments_db
       - redis
+    env_file:
+      - vault/.env
     restart: always
 
   tournaments_db:
     image: transcendence:tournaments_db_image
     container_name: tournaments-db-container
     build: ./infrastructure/tournaments_db/
-    ports:
-      - 5436:5436
+    # ports:
+    #   - 5436:5436
     volumes:
       - tournaments_db_data:/var/lib/postgresql/data
     networks:
@@ -166,8 +174,8 @@ services:
     image: transcendence:redis_image
     container_name: redis-container
     build: ./infrastructure/redis/
-    ports:
-      - "6379:6379"
+    # ports:
+    #   - "6379:6379"
     volumes:
       - redis_data:/data
     networks:

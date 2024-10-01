@@ -13,7 +13,7 @@ wait_for_db() {
 }
 
 
-wait_for_db "chat-db-container" "5433"
+wait_for_db "chat-db-container" "5434"
 
 # Check if there are unapplied migrations and apply them if needed
 if [ "$(python manage.py showmigrations --plan | grep '\[ \]')" ]; then

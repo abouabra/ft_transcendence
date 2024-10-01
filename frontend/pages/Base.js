@@ -33,7 +33,7 @@ export default class Base_Page extends HTMLElement {
 
 		
 		if(!window.notification_socket) {
-			window.notification_socket = new WebSocket(`ws://${window.location.hostname}:8000/ws/notifications/`);
+			window.notification_socket = new WebSocket(`wss://${window.location.hostname}/ws/notifications/`);
 		}
 
 		window.notification_socket.onopen = (event) => {

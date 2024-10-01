@@ -22,8 +22,8 @@ environ.Env.read_env(env_file)
 ALLOWED_HOSTS = ['*']
 
 # define the environment variables
-SECRET_KEY=env("SECRET_KEY")
-DEBUG=env("DEBUG", default=False)
+SECRET_KEY=env("TOURNAMENTS_SECRET_KEY")
+DEBUG=env("TOURNAMENTS_DEBUG", default=False)
 
 
 
@@ -89,9 +89,9 @@ ASGI_APPLICATION = "project.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("POSTGRES_DB"),
-        'USER': env("POSTGRES_USER"),
-        'PASSWORD': env("POSTGRES_PASSWORD"),
+        'NAME': env("TOURNAMENTS_POSTGRES_DB"),
+        'USER': env("TOURNAMENTS_POSTGRES_USER"),
+        'PASSWORD': env("TOURNAMENTS_POSTGRES_PASSWORD"),
         'HOST': 'tournaments-db-container',
         'PORT': '5436', 
     }

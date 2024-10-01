@@ -6,7 +6,7 @@ wait_for_db() {
     local db_port="$2"
     
     echo "Waiting for database at $db_host:$db_port to be ready..."
-    while ! pg_isready -h "$db_host" -p "$db_port" -U "$POSTGRES_USER"; do
+    while ! pg_isready -h "$db_host" -p "$db_port" -U "$GAME_POSTGRES_USER"; do
         sleep 2
     done
     echo "Database is ready!"
@@ -27,7 +27,7 @@ fi
 # Check if a superuser exists, if not, create one using environment variables
 if [ "$(python manage.py shell -c 'from django.contrib.auth import get_user_model; User = get_user_model(); print(User.objects.filter(is_superuser=True).exists())')" = "False" ]; then
     echo "Creating superuser..."
-    python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('${DJANGO_SUPERUSER_USERNAME}', '${DJANGO_SUPERUSER_EMAIL}', '${DJANGO_SUPERUSER_PASSWORD}')"
+    python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('${GAME_SUPERUSER_USERNAME}', '${GAME_SUPERUSER_EMAIL}', '${GAME_SUPERUSER_PASSWORD}')"
 else
     echo "Superuser already exists. Skipping creation."
 fi

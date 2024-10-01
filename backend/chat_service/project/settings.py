@@ -21,8 +21,8 @@ ALLOWED_HOSTS = ['*']
 
 
 # define the environment variables
-SECRET_KEY=env("SECRET_KEY")
-DEBUG=env("DEBUG", default=False)
+SECRET_KEY=env("CHAT_SECRET_KEY")
+DEBUG=env("CHAT_DEBUG", default=False)
 
 
 # Application definition
@@ -87,9 +87,9 @@ ASGI_APPLICATION = "project.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("POSTGRES_DB"),
-        'USER': env("POSTGRES_USER"),
-        'PASSWORD': env("POSTGRES_PASSWORD"),
+        'NAME': env("CHAT_POSTGRES_DB"),
+        'USER': env("CHAT_POSTGRES_USER"),
+        'PASSWORD': env("CHAT_POSTGRES_PASSWORD"),
         'HOST': 'chat-db-container',
         'PORT': '5434', 
     }

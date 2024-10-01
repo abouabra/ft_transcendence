@@ -24,8 +24,8 @@ ALLOWED_HOSTS = ['*']
 # AUTH_USER_MODEL = "user_management.User"
 
 # define the environment variables
-SECRET_KEY=env("SECRET_KEY")
-DEBUG=env("DEBUG", default=False)
+SECRET_KEY=env("GAME_SECRET_KEY")
+DEBUG=env("GAME_DEBUG", default=False)
 
 
 # Application definition
@@ -90,9 +90,9 @@ ASGI_APPLICATION = "project.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("POSTGRES_DB"),
-        'USER': env("POSTGRES_USER"),
-        'PASSWORD': env("POSTGRES_PASSWORD"),
+        'NAME': env("GAME_POSTGRES_DB"),
+        'USER': env("GAME_POSTGRES_USER"),
+        'PASSWORD': env("GAME_POSTGRES_PASSWORD"),
         'HOST': 'game-db-container',
         'PORT': '5435',
     }

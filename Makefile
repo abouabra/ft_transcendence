@@ -22,6 +22,13 @@ fclean: ascci
 	@rm -rf $(CURDIR)/volumes/db_data/
 
 
+test: 
+	@docker compose -f docker-compose.yml down -v
+	@rm -rf $(CURDIR)/volumes/db_data/
+	@mkdir -p $(CURDIR)/volumes/db_data/redis_data/ $(CURDIR)/volumes/db_data/user_management_db_data/ $(CURDIR)/volumes/db_data/chat_db_data/ $(CURDIR)/volumes/db_data/game_db_data/ $(CURDIR)/volumes/db_data/tournaments_db_data/
+	@docker compose -f docker-compose.yml up -d --build
+
+
 re: clean build
 rebuild: fclean build
 restart: stop start

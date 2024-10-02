@@ -147,9 +147,4 @@ package-lock.json
 volumes/
 
 # Ignore .env file containing credentials, API keys, and other sensitive information
-.*env
-
-domain.key
-domain.crt
-private.key
-public.key
+vault/

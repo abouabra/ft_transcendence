@@ -1,6 +1,5 @@
 from pathlib import Path
 from datetime import timedelta
-import environ
 import os
 import logging
 from cryptography.hazmat.backends import default_backend
@@ -12,34 +11,28 @@ logger = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).resolve().parent.parent
 VAULT_DIR = "/vault"
 
-# Read the environment variables from the .env file
-env = environ.Env()
-env_file = os.path.join(VAULT_DIR, ".env")
-environ.Env.read_env(env_file)
-
-
 
 ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = "user_management.User"
 
 # define the environment variables
-SECRET_KEY=env("USER_MANAGEMENT_SECRET_KEY")
-DEBUG=env("USER_MANAGEMENT_DEBUG", default=False)
+SECRET_KEY=os.getenv("SECRET_KEY")
+DEBUG=os.getenv("DEBUG")
 
-INTRA_UID = env('INTRA_UID')
-INTRA_SECRET = env('INTRA_SECRET')
-INTRA_CALLBACK_URI = env('INTRA_CALLBACK_URI')
-INTRA_TOKEN_URL = env('INTRA_TOKEN_URL')
-INTRA_AUTH_URL = env('INTRA_AUTH_URL')
+INTRA_UID = os.getenv('INTRA_UID')
+INTRA_SECRET = os.getenv('INTRA_SECRET')
+INTRA_CALLBACK_URI = os.getenv('INTRA_CALLBACK_URI')
+INTRA_TOKEN_URL = os.getenv('INTRA_TOKEN_URL')
+INTRA_AUTH_URL = os.getenv('INTRA_AUTH_URL')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False  # Gmail uses TLS, not SSL
-EMAIL_HOST_USER =  env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # https://myaccount.google.com/apppasswords
+EMAIL_HOST_USER =  os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') # https://myaccount.google.com/apppasswords
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  
 
 # To generate a self-signed certificate
@@ -113,9 +106,9 @@ ASGI_APPLICATION = "project.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("USER_MANAGEMENT_POSTGRES_DB"),
-        'USER': env("USER_MANAGEMENT_POSTGRES_USER"),
-        'PASSWORD': env("USER_MANAGEMENT_POSTGRES_PASSWORD"),
+        'NAME': os.getenv("USER_MANAGEMENT_POSTGRES_DB"),
+        'USER': os.getenv("USER_MANAGEMENT_POSTGRES_USER"),
+        'PASSWORD': os.getenv("USER_MANAGEMENT_POSTGRES_PASSWORD"),
         'HOST': 'user-management-db-container',
         'PORT': '5432', 
     }

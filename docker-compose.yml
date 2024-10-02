@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.7'
 
 services:
   nginx:
@@ -48,6 +48,7 @@ services:
       - user_management_db
       - redis
     env_file:
+      - vault/.user_management_env
       - vault/.env
     restart: always
 
@@ -62,7 +63,7 @@ services:
     networks:
       - transcendence_net
     env_file:
-      - vault/.env
+      - vault/.user_management_env
     restart: always
 
 
@@ -75,13 +76,13 @@ services:
       - 8001:8001
     volumes:
       - chat_data:/app
-      - vault_data:/vault
     networks:
       - transcendence_net
     depends_on:
       - chat_db
       - redis
     env_file:
+      - vault/.chat_env
       - vault/.env
     restart: always
 
@@ -96,7 +97,7 @@ services:
     networks:
       - transcendence_net
     env_file:
-      - vault/.env
+      - vault/.chat_env
     restart: always
 
 
@@ -109,13 +110,13 @@ services:
       - 8002:8002
     volumes:
       - game_data:/app
-      - vault_data:/vault
     networks:
       - transcendence_net
     depends_on:
       - game_db
       - redis
     env_file:
+      - vault/.game_env
       - vault/.env
     restart: always
 
@@ -130,7 +131,7 @@ services:
     networks:
       - transcendence_net
     env_file:
-      - vault/.env
+      - vault/.game_env
     restart: always
 
 
@@ -143,13 +144,13 @@ services:
       - 8003:8003
     volumes:
       - tournaments_data:/app
-      - vault_data:/vault
     networks:
       - transcendence_net
     depends_on:
       - tournaments_db
       - redis
     env_file:
+      - vault/.tournaments_env
       - vault/.env
     restart: always
 
@@ -164,7 +165,7 @@ services:
     networks:
       - transcendence_net
     env_file:
-      - vault/.env
+      - vault/.tournaments_env
     restart: always
 
 

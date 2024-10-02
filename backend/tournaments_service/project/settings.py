@@ -1,6 +1,5 @@
 from pathlib import Path
 from datetime import timedelta
-import environ
 import os
 import logging
 from cryptography.hazmat.backends import default_backend
@@ -10,20 +9,12 @@ logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-VAULT_DIR = os.path.join(BASE_DIR, os.pardir, os.pardir, "vault")
-
-# Read the environment variables from the .env file
-env = environ.Env()
-env_file = os.path.join(VAULT_DIR, ".env")
-environ.Env.read_env(env_file)
-
-
 
 ALLOWED_HOSTS = ['*']
 
 # define the environment variables
-SECRET_KEY=env("TOURNAMENTS_SECRET_KEY")
-DEBUG=env("TOURNAMENTS_DEBUG", default=False)
+SECRET_KEY=os.getenv("SECRET_KEY")
+DEBUG=os.getenv("DEBUG", default=False)
 
 
 
@@ -89,9 +80,9 @@ ASGI_APPLICATION = "project.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("TOURNAMENTS_POSTGRES_DB"),
-        'USER': env("TOURNAMENTS_POSTGRES_USER"),
-        'PASSWORD': env("TOURNAMENTS_POSTGRES_PASSWORD"),
+        'NAME': os.getenv("TOURNAMENTS_POSTGRES_DB"),
+        'USER': os.getenv("TOURNAMENTS_POSTGRES_USER"),
+        'PASSWORD': os.getenv("TOURNAMENTS_POSTGRES_PASSWORD"),
         'HOST': 'tournaments-db-container',
         'PORT': '5436', 
     }

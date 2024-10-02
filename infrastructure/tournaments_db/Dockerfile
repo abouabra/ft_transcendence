@@ -1,15 +1,9 @@
 # Use the official PostgreSQL image
 FROM postgres:16.4
 
-
 EXPOSE 5436
-
-ENV POSTGRES_PASSWORD=${TOURNAMENTS_POSTGRES_PASSWORD}
-
 
 COPY init_db.sh /docker-entrypoint-initdb.d/init_db.sh
 RUN chmod +x /docker-entrypoint-initdb.d/init_db.sh
 
-
-# Run PostgreSQL server
 CMD ["postgres", "-c", "listen_addresses=0.0.0.0", "-c", "max_connections=100", "-p", "5436"]

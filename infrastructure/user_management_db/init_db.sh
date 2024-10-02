@@ -9,7 +9,7 @@ done
 # Check if the user exists
 if ! psql -U postgres -t -c "SELECT 1 FROM pg_roles WHERE rolname='$USER_MANAGEMENT_POSTGRES_USER';" | grep -q 1; then
   echo "Creating user $USER_MANAGEMENT_POSTGRES_USER..."
-  psql -U postgres -c "CREATE USER $USER_MANAGEMENT_POSTGRES_USER WITH PASSWORD '$USER_MANAGEMENT_POSTGRES_PASSWORD';"
+  psql -U postgres -c "CREATE USER $USER_MANAGEMENT_POSTGRES_USER WITH PASSWORD '$USER_MANAGEMENT_POSTGRES_PASSWORD' CREATEDB;"
 else
   echo "User $USER_MANAGEMENT_POSTGRES_USER already exists."
 fi

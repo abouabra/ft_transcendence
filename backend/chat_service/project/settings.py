@@ -1,6 +1,5 @@
 from pathlib import Path
 from datetime import timedelta
-import environ
 import os
 import logging
 from cryptography.hazmat.backends import default_backend
@@ -10,19 +9,13 @@ logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-VAULT_DIR = "/vault"
-
-# Read the environment variables from the .env file
-env = environ.Env()
-env_file = os.path.join(VAULT_DIR, ".env")
-environ.Env.read_env(env_file)
 
 ALLOWED_HOSTS = ['*']
 
 
 # define the environment variables
-SECRET_KEY=env("CHAT_SECRET_KEY")
-DEBUG=env("CHAT_DEBUG", default=False)
+SECRET_KEY=os.getenv("SECRET_KEY")
+DEBUG=os.getenv("DEBUG", default=False)
 
 
 # Application definition
@@ -87,9 +80,9 @@ ASGI_APPLICATION = "project.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("CHAT_POSTGRES_DB"),
-        'USER': env("CHAT_POSTGRES_USER"),
-        'PASSWORD': env("CHAT_POSTGRES_PASSWORD"),
+        'NAME': os.getenv("CHAT_POSTGRES_DB"),
+        'USER': os.getenv("CHAT_POSTGRES_USER"),
+        'PASSWORD': os.getenv("CHAT_POSTGRES_PASSWORD"),
         'HOST': 'chat-db-container',
         'PORT': '5434', 
     }

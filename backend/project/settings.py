@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "user_management",
     "chat",
+    "game",
+    "tournaments",
 ]
 
 MIDDLEWARE = [

@@ -16,13 +16,12 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-
 class JoinedServersView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ServerSerializer
 
     def get(self, request):
-        all_servers = Server.objects.filter(members__contains=[request.user.id])
+        all_servers = Server.objects.filter(members__contains=[request.user.id], visibility__in=['public', 'private'])
         servers_data = self.serializer_class(all_servers, many=True).data
         
         return Response(servers_data, status=status.HTTP_200_OK)

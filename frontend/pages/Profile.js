@@ -8,15 +8,13 @@ export default class Profile_Page extends HTMLElement {
 
 		const user_id = window.location.pathname.split("/")[2];
 
-		makeRequest(`/api/auth/user/${user_id}/`)
+		makeRequest(`/api/auth/full_user/${user_id}/`)
 		.then((data) => {
 			this.render_data(data);
 		})
 		.catch((error) => {
 			showToast("error", error);
-		});		
-
-		
+		});
 	}
 
 	render_data(data)

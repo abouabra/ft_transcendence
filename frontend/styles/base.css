@@ -17,6 +17,7 @@ base-page {
 
     width: 75%;
     height: 90%;
+    max-width: 1440px;
 
     /* background-color: chocolate; */
 }

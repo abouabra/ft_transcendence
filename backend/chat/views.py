@@ -182,4 +182,8 @@ class SetMessageView(generics.GenericAPIView):
         print(data)
         return Response({"detail": "Message Created Successfully"}, status.HTTP_201_CREATED)
 
+class roomview(generics.GenericAPIView):
 
+
+    def get(self, request, room_name):
+        pass

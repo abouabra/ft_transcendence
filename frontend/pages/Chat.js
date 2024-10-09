@@ -5,9 +5,22 @@ import ChatBody from "../components/chat/ChatBody.js";
 export default class Chat_Page extends HTMLElement {
 	constructor() {
 		super();
-		
+
+		const socket = new WebSocket('ws://localhost:8000/chat/f1');
 		const pathname = window.location.pathname;
+		if(pathname === "/chat/")
+		{
+
+		}
+		else
+		{
+
+		}
 		const head = document.head || document.getElementsByTagName("head")[0];
+
+
+
+
 		head.appendChild(createLink('/styles/chat_page.css'));
 		this.innerHTML = /* html */`
 		<div class="w-100 h-100 d-flex align-items-center">
@@ -34,7 +47,7 @@ export default class Chat_Page extends HTMLElement {
 						</div>
 						<div class="d-flex flex-column" style="gap:10px">
 							<button-component data-text="Create Server" onclick="GoTo('/chat/create_server/')"></button-component>
-							<button-component data-text="Browse Servers" data-type="no-bg"></button-component>
+							<button-component data-text="Browse Servers" data-type="no-bg" onclick="GoTo('/chat/browse_chat/')"></button-component>
 						</div>
 					</div>
 				`
@@ -68,18 +81,26 @@ export default class Chat_Page extends HTMLElement {
 		if (inputbr)
 		{
 			inputbr.addEventListener('change', () => {
-				let body = {
-					'content':inputbr.value,
-					'sender_id': window.localStorage.getItem('id'),
-					'server_name':window.location.pathname.substring(6)
+				const d = new Date();
+				let date = ` ${d.getHours()}:${d.getMinutes()}${d.getHours() >= 12 ? 'PM' : 'AM'}`
+				let data = {
+					"avatar": localStorage.getItem('avatar'),
+					"username": localStorage.getItem('username'),
+					"content": inputbr.value,
+					"timestamp": date
 				}
+				socket.send(JSON.stringify({
+					"message":inputbr.value,
+					"user_id":localStorage.getItem("id"),
+					"server_name":window.location.pathname.substring('/chat/').substring(13)}))
 				inputbr.value = ''
-				makeRequest('/api/chat/setmessage/', 'POST', body)
+				document.getElementsByTagName("chat-body")[0].append_message(data)
 			});
 		}
 
+		
 	}
-	
+
 	connectedCallback() {
 	}
 

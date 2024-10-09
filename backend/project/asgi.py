@@ -14,16 +14,7 @@ application = ProtocolTypeRouter({
     "http": default_asgi_application,
     "websocket": AllowedHostsOriginValidator(
         AuthMiddlewareStack(
-            URLRouter(
-                user_management.routing.websocket_urlpatterns,
-            )
-        )
-    ),
-    "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
-            URLRouter(
-                user_management.routing.websocket_urlpatterns,
-            )
+            URLRouter(chat.routing.websocket_urlpatterns)
         )
     )
 })

@@ -17,6 +17,7 @@ import Play_Page from "./Play.js";
 import Home_Page from "./Home.js";
 import Tournament_Page from "./Tournament.js";
 import Chat_Page from "./Chat.js";
+import Chat_Browse from "./Chat_browse_server.js";
 import Create_Server_page from "./Chat_creat_server.js";
 import Leaderboard_Page from "./Leaderboard.js";
 import Shop_Page from "./Shop.js";

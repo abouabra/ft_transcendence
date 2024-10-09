@@ -43,12 +43,11 @@ export default class ChatSideBar extends HTMLElement {
 			for (let i = 0; i < clicked_block.length; i++)
 			{
 				let targeted = clicked_block[i];
-				console.log(`target = ${targeted}`)
 				targeted.addEventListener('click', ()=>{
 					if(targeted.className.includes('protected'))
-						GoTo(`/chat/direct/${targeted.id}`)
+						GoTo(`/chat/${targeted.id}`)
 					else
-						GoTo(`/chat/server/${targeted.id}`)
+						GoTo(`/chat/${targeted.id}`)
 				})
 			}
 
@@ -59,8 +58,6 @@ export default class ChatSideBar extends HTMLElement {
 
 	disconnectedCallback() {}
 	attributeChangedCallback(name, oldValue, newValue) {
-		console.log(`name: ${name}\nold: ${oldValue}\n new: ${newValue}`)
-
 		makeRequest('/api/chat/get_server_data/').then((body)=>{
 			let data = []
 			if (name === 'type')

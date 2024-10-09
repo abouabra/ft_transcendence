@@ -19,8 +19,10 @@ const routes = {
     "^/settings/$": "settings-page",
     
     "^/chat/create_server/$": "create-server-page",
-    "^/chat/(server|direct)/[^\/]+$": "chat-page",
     "^/chat/$": "chat-page",
+    "^/chat/[^\/]+$": "chat-page",
+    "^/chat/browse_chat/$": "chat-browse",
+
 };
 
 // Update allowedRoutesWithoutLogin to use regex patterns as well

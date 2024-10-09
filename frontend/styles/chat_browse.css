@@ -1,0 +1,83 @@
+.browse-container
+{
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+.server_description
+{
+    height: 90%;
+    width: 100%;
+    display: flex;
+    gap:20px;
+    flex-direction: column;
+}
+.server_content
+{
+    display: flex;
+    flex-direction: row;
+    height: 150px;
+    border-radius: 15px;
+    border: 1px solid var(--platinum_40_percent);
+    overflow: hidden;
+}
+.infoblock
+{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.block1
+{
+    width: 25%;
+}
+.block2
+{
+    width: 15%;
+}
+.block3
+{
+    width: 15%;
+}
+.searchserver
+{
+    border: 1px solid var(--platinum_40_percent);
+    border-radius: 15px;
+    height: 50px;
+    width: 350px;
+    position: relative;
+}
+.searchinput
+{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    color: var(--platinum);
+    width: 90%;
+    height: 100%;
+    padding: 13px;
+}
+.searchinput:focus-visible
+{
+    outline: none!important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+}
+.search_logo
+{
+    position: absolute;
+    right: 3%;
+    top:20%
+}

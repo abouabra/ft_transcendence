@@ -96,7 +96,7 @@ class GetServerDataView(generics.GenericAPIView):
                 online = userdata['status']
                 try:
                     message = Server.objects.get(pk=user_id).server_message.all()
-                    message = message[len(message)-1]
+                    message = message[-1]
                     latest_message = message.content
                     latest_timestamp = message.timestamp.strftime("%H:%M%p")
                 except Server.DoesNotExist:
@@ -167,22 +167,3 @@ class GetMessageDataView(generics.GenericAPIView):
             }
             return Response(data, status.HTTP_200_OK)
         return Response({'error':'invalide queryparam'}, status=status.HTTP_400_BAD_REQUEST)
- 
-class SetMessageView(generics.GenericAPIView):
-
-    def post(self, request):
-        serializer = MessageSerializer(data=request.data)
-        data = serializer.data
-        print(data)
-        print(data)
-        print(data)
-        print(data)
-        print(data)
-        print(data)
-        return Response({"detail": "Message Created Successfully"}, status.HTTP_201_CREATED)
-
-class roomview(generics.GenericAPIView):
-
-
-    def get(self, request, room_name):
-        pass

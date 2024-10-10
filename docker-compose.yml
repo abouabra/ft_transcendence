@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  user_management_db:
+    image: transcendence:user_management_db_image
+    container_name: user_management_db_container
+    build: ./infrastructure/user_management_db/
+    ports:
+      - 5432:5432
+    volumes:
+      - user_management_db_data:/var/lib/postgresql/data
+    networks:
+      - transcendence_net
+    env_file:
+      - vault/.env
+    restart: always
+  
+  redis:
+    image: transcendence:redis_image
+    container_name: redis_container
+    build: ./infrastructure/redis/
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - transcendence_net
+    env_file:
+      - vault/.env
+    restart: always
+
+
+volumes:
+  user_management_db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/user_management_db_data
+      o: bind
+
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/redis_data
+      o: bind
+
+networks:
+  transcendence_net:
+    driver: bridge

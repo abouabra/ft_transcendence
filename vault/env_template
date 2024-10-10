@@ -1,0 +1,31 @@
+# This file contains the environment variables for the project
+
+# Django settings
+SECRET_KEY=
+DEBUG=
+
+# INTRA API settings
+INTRA_UID=
+INTRA_SECRET=
+INTRA_CALLBACK_URI=
+INTRA_TOKEN_URL=
+INTRA_AUTH_URL=
+
+
+# Email settings
+EMAIL_HOST=
+EMAIL_PORT=
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+
+# Database settings postgresql
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DB=
+
+
+# Redis settings
+REDIS_HOST=
+REDIS_PORT=
+REDIS_DB=
+REDIS_PASSWORD=

@@ -46,7 +46,12 @@ async function makeRequest(url, method = "GET", data = null) {
 			return await makeRequest(url, method, data); // Retry with incremented depth
 		}
 		if (response.status >= 400) 
-			throw new Error(response.data);
+		{
+			let ok = await response.json()
+			let error = ok.non_field_errors[0]
+			throw new Error(error);
+		}
+
 
 
 

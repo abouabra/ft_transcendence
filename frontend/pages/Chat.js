@@ -6,16 +6,9 @@ export default class Chat_Page extends HTMLElement {
 	constructor() {
 		super();
 
-		const socket = new WebSocket('ws://localhost:8000/chat/f1');
+		
 		const pathname = window.location.pathname;
-		if(pathname === "/chat/")
-		{
 
-		}
-		else
-		{
-
-		}
 		const head = document.head || document.getElementsByTagName("head")[0];
 
 
@@ -54,7 +47,6 @@ export default class Chat_Page extends HTMLElement {
 				: /* html*/ `
 					<div class="message-container w-100">
 						<chat-body></chat-body>
-						<input id="send-msg-bar1" placeholder="enter your message">
 					</div>
 				`}
 			</div>
@@ -77,26 +69,7 @@ export default class Chat_Page extends HTMLElement {
 				Bar.setAttribute('type', 'Server')
 		})
 		// const inputbr = document.querySelector('#send-msg-bar1');
-		const inputbr = document.getElementById('send-msg-bar1');
-		if (inputbr)
-		{
-			inputbr.addEventListener('change', () => {
-				const d = new Date();
-				let date = ` ${d.getHours()}:${d.getMinutes()}${d.getHours() >= 12 ? 'PM' : 'AM'}`
-				let data = {
-					"avatar": localStorage.getItem('avatar'),
-					"username": localStorage.getItem('username'),
-					"content": inputbr.value,
-					"timestamp": date
-				}
-				socket.send(JSON.stringify({
-					"message":inputbr.value,
-					"user_id":localStorage.getItem("id"),
-					"server_name":window.location.pathname.substring('/chat/').substring(13)}))
-				inputbr.value = ''
-				document.getElementsByTagName("chat-body")[0].append_message(data)
-			});
-		}
+		
 
 		
 	}

@@ -56,7 +56,29 @@ class CreateServerView(generics.GenericAPIView):
             return Response({
                     "success": "Server Created Successfully"
                 }, status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetServerListView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        final_data = []
+        server = Server.objects.filter(visibility__in=["public", "private"])
+        servers = ServerSerializer(server,many=True)
+        for item in servers.data:
+            member = item['members']
+            visibility = item['visibility']
+            server_name = item['name']
+            avatar = item['avatar']
+            final_data.append({
+                "server_name":server_name,
+                "visibility":visibility,
+                "avatar":avatar,
+                "member":member
+            })
+        return Response(final_data, status.HTTP_201_CREATED)
+    
+    
 
 class GetServerDataView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -77,7 +99,12 @@ class GetServerDataView(generics.GenericAPIView):
         final_data = []
         servers = Server.objects.filter(members__contains=[request.user.id])
         serializer = ServerSerializer(servers, many=True)
-        for server in serializer.data:
+
+        array = serializer.data
+        if (request.query_params and request.query_params['server']):
+            array = [ item for item in serializer.data if item['name'] == request.query_params["server"]]
+
+        for server in array:
             member = server['members']
             member.remove(request.user.id)
             visibility = server['visibility']
@@ -96,18 +123,22 @@ class GetServerDataView(generics.GenericAPIView):
                 online = userdata['status']
                 try:
                     message = Server.objects.get(pk=user_id).server_message.all()
-                    message = message[-1]
-                    latest_message = message.content
-                    latest_timestamp = message.timestamp.strftime("%H:%M%p")
+                    if (len(message) > 0):
+                        message = message[len(message)-1]
+                        latest_message = message.content
+                        latest_timestamp = message.timestamp.strftime("%H:%M%p")
                 except Server.DoesNotExist:
                     print('emptyyyyyyyyyyyy')
             else:
                 avatar = server['avatar']
                 username = server_name
-                message = Server.objects.get(pk=user_id).server_message.all()
-                if (message):
-                    latest_message= message[len(message)-1].content
-                    latest_timestamp = message[len(message)-1].timestamp.strftime("%H:%M%p")
+                try:
+                    message = Server.objects.get(pk=user_id).server_message.all()
+                    if (len(message) > 0):
+                        latest_message= message[len(message)-1].content
+                        latest_timestamp = message[len(message)-1].timestamp.strftime("%H:%M%p")
+                except Server.DoesNotExist:
+                    print('emptyyyyyyyyyyyy')
 
                 else:
                     latest_message = ''

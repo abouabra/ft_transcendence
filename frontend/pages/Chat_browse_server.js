@@ -4,6 +4,39 @@ export default class Chat_Browse extends HTMLElement {
 		super();
         const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_browse.css'));
+
+
+
+        let user_data = ''
+        makeRequest(`/api/chat/get_serverlist/`, 'GET')
+        .then(data =>{
+            for(let i =0; i < data.length;i++)
+            {
+                user_data += /* html*/`
+                <div class="server_content">
+                <div class="infoblock">
+                    <img src="/assets/images/server_avatars/f1.jpeg">
+                    <div class="d-flex flex-column block1">
+                        <span class="p1_bold">Name</span>
+                        <span class="header_h3">${data[i].server_name}</span>
+                    </div>
+                    <div class="d-flex flex-column align-items-center block2">
+                        <span class="p1_bold">member</span>
+                        <span class="header_h3">${data[i].member.length}</span>
+                    </div>
+                    <div class="d-flex flex-column block3">
+                        <span class="p1_bold">visibility</span>
+                        <span class="header_h3">${data[i].visibility}</span>
+                    </div>
+                    <div>
+                        <button-component data-text="join" onclick="GoTo('/chat/${data[i].server_name}')"></button-component>
+                    </div>
+                </div>
+            </div>
+                `
+            }
+
+
 		this.innerHTML = /* html */`
         
         <section class="browse-container">
@@ -15,32 +48,14 @@ export default class Chat_Browse extends HTMLElement {
                     </div>
                     <button-component data-text="Create" onclick="GoTo('/chat/create_server/')"></button-component>
                 </div>
-                <div class="server_content">
-                    <div class="infoblock">
-                        <img src="/assets/images/server_avatars/f1.jpeg">
-                        <div class="d-flex flex-column block1">
-                            <span class="p1_bold">Name</span>
-                            <span class="header_h3">server Maghribi</span>
-                        </div>
-                        <div class="d-flex flex-column align-items-center block2">
-                            <span class="p1_bold">member</span>
-                            <span class="header_h3">32</span>
-                        </div>
-                        <div class="d-flex flex-column block3">
-                            <span class="p1_bold">visibility</span>
-                            <span class="header_h3">Public</span>
-                        </div>
-                        <div>
-                            <button-component data-text="join" onclick="GoTo('/chat/f1/')"></button-component>
-                        </div>
-                    </div>
-                </div>
+                ${user_data}
+                
             </div>
         </section>
         
         `
+     })
 	}
-
 	connectedCallback() {
 	}
 

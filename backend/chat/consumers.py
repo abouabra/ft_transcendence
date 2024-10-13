@@ -25,6 +25,7 @@ class ChatConsumer(WebsocketConsumer):
         print("------------------------------")
         print("------------------------------")
         text_data_json = json.loads(text_data)
+        print(text_data_json)
         message = text_data_json["message"]
         server_name = text_data_json["server_name"]
         user_id = text_data_json["user_id"]

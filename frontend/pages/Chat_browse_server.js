@@ -29,31 +29,41 @@ export default class Chat_Browse extends HTMLElement {
                         <span class="header_h3">${data[i].visibility}</span>
                     </div>
                     <div>
-                        <button-component data-text="join" onclick="GoTo('/chat/${data[i].server_name}')"></button-component>
+                        <button-component class="join_server" data-text="join"></button-component>
                     </div>
                 </div>
             </div>
                 `
             }
-
-
-		this.innerHTML = /* html */`
-        
-        <section class="browse-container">
+            
+            
+            this.innerHTML = /* html */`
+            
+            <section class="browse-container">
             <div class="server_description">
-                <div class="d-flex flex-row justify-content-between">
-                    <div class="searchserver">
-                        <input type="text" placeholder="Search for Server" class="searchinput">
-                        <img  class="search_logo" src="/assets/images/common/Iconly/Light/Search.svg">
-                    </div>
-                    <button-component data-text="Create" onclick="GoTo('/chat/create_server/')"></button-component>
-                </div>
-                ${user_data}
-                
+            <div class="d-flex flex-row justify-content-between">
+            <div class="searchserver">
+            <input type="text" placeholder="Search for Server" class="searchinput">
+            <img  class="search_logo" src="/assets/images/common/Iconly/Light/Search.svg">
             </div>
-        </section>
-        
-        `
+            <button-component data-text="Create" onclick="GoTo('/chat/create_server/')"></button-component>
+            </div>
+            ${user_data}
+            
+            </div>
+            </section>
+            
+            `
+            let joinbtn = this.querySelectorAll(".join_server")
+            console.log(joinbtn)
+            // joinbtn.addEventListener('click', ()=>{
+            //     if (data[i].visibility === "private")
+            //     {
+
+            //     }
+            //     else
+            //         GoTo('/chat/${data[i].server_name}')
+            // })
      })
 	}
 	connectedCallback() {

@@ -99,7 +99,7 @@ class GetServerDataView(generics.GenericAPIView):
         final_data = []
         servers = Server.objects.filter(members__contains=[request.user.id])
         serializer = ServerSerializer(servers, many=True)
-
+        
         array = serializer.data
         if (request.query_params and request.query_params['server']):
             array = [ item for item in serializer.data if item['name'] == request.query_params["server"]]
@@ -113,36 +113,23 @@ class GetServerDataView(generics.GenericAPIView):
             username = 0
             avatar = 0
             online = 'offline'
-            latest_message = 0
-            latest_timestamp = 0
+            latest_message = ''
+            try:
+                latest_message_data = MessageSerializer(Message.objects.filter(server=Server.objects.get(name=server_name)).last()).data
+                latest_message = latest_message_data["content"]
+                latest_timestamp= latest_message_data["timestamp"]
+            except Server.DoesNotExist:
+                    print('emptyyyyyyyyyyyy')
             if (server['visibility'] == 'protected'):
                 userdata =  getUserData(request,member[0])
                 avatar = userdata['avatar']
                 user_id = userdata['id']
                 username = userdata['username']
                 online = userdata['status']
-                try:
-                    message = Server.objects.get(pk=user_id).server_message.all()
-                    if (len(message) > 0):
-                        message = message[len(message)-1]
-                        latest_message = message.content
-                        latest_timestamp = message.timestamp.strftime("%H:%M%p")
-                except Server.DoesNotExist:
-                    print('emptyyyyyyyyyyyy')
             else:
+                member = member
                 avatar = server['avatar']
                 username = server_name
-                try:
-                    message = Server.objects.get(pk=user_id).server_message.all()
-                    if (len(message) > 0):
-                        latest_message= message[len(message)-1].content
-                        latest_timestamp = message[len(message)-1].timestamp.strftime("%H:%M%p")
-                except Server.DoesNotExist:
-                    print('emptyyyyyyyyyyyy')
-
-                else:
-                    latest_message = ''
-                    latest_timestamp = ''
 
 
             data = {
@@ -191,10 +178,6 @@ class GetMessageDataView(generics.GenericAPIView):
                     data.append(body)
             except Server.DoesNotExist:
                 return Response({'error':'invalide queryparam'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            body = {
-                'server_name':server_name,
-                'avatar':avatar
-            }
+
             return Response(data, status.HTTP_200_OK)
         return Response({'error':'invalide queryparam'}, status=status.HTTP_400_BAD_REQUEST)

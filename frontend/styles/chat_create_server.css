@@ -40,6 +40,9 @@
     border-radius: 50%;
     text-align: center;
     cursor: pointer;
+    background-size:cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .server_name , .server_password , .server_visibility

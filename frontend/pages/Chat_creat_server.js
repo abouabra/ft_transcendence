@@ -94,7 +94,8 @@ export default class Create_Server_page extends HTMLElement {
 			});
 			reader.onload = function (e) {
 				update_avatar.style.backgroundImage = `url(${e.target.result})`;
-				base64 = e.target.result;				
+				update_avatar
+				base64 = e.target.result;
 			};
 			reader.readAsDataURL(file);
 		});

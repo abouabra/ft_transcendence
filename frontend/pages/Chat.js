@@ -13,7 +13,6 @@ export default class Chat_Page extends HTMLElement {
 
 
 
-
 		head.appendChild(createLink('/styles/chat_page.css'));
 		this.innerHTML = /* html */`
 		<div class="w-100 h-100 d-flex align-items-center">
@@ -29,7 +28,7 @@ export default class Chat_Page extends HTMLElement {
 							<span class="select-server p3_bold platinum_40_color" id="server-chat">Servers</span>
 							<span class="select-direct p3_bold platinum_40_color" id="direct-chat">Direct</span>
 					</div>
-					<chat-side-bar type='' class="Bar"></chat-side-bar>
+					<chat-side-bar type='Direct' class="Bar"></chat-side-bar>
 				</div>
 				${ pathname == "/chat/" ?
 				/* html*/ `

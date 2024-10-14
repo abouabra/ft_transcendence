@@ -6,6 +6,7 @@
     padding: 0 20px;
     height: 65px;
     background-color: var(--primary_color);
+    padding: 10px;
 }
 
 .server-description
@@ -52,10 +53,12 @@
 
 .message-block
 {
+    width: fit-content;
     text-align: start;
     border: 1px solid var(--platinum_40_percent);
     border-radius: 15px;
     padding: 15px;
+    line-break: anywhere;
 }
 .name-time
 {
@@ -68,11 +71,6 @@
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-}
-.message-container
-{
-    position: relative;
-
 }
 
 #send-msg-bar1{
@@ -102,15 +100,12 @@
     align-items: center;
     gap:20px;
     text-align: start;
-    position: absolute;
     width: 98%;
     height: 44px;
     border: 1px solid var(--platinum_40_percent);
     border-radius: 60px;
-    bottom: 0;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
+    margin: 10px;
+    padding: 10px;
 }
 
 .send_icone{
@@ -118,4 +113,15 @@
     width: 30px;
     height: 30px;
     rotate: 45deg;
+}
+.messagetext
+{
+    width: 100%;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+.chatbodymain{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }

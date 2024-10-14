@@ -4,12 +4,13 @@ export default class ChatSideBar extends HTMLElement {
 		
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_page.css'));
-		
+		this.promise_data = makeRequest('/api/chat/get_server_data/')
 	}
 	render_page(data)
 		{
 			this.innerHTML = /* html */`
 				${ data.map((item) => {
+						console.log(item)
 						return /* html */ `
 						<div  class="d-flex flex-row side-message-bar align-items-center ${item.visibility}" id=${item.server_name}>
 							<div class="position-relative">
@@ -44,10 +45,7 @@ export default class ChatSideBar extends HTMLElement {
 			{
 				let targeted = clicked_block[i];
 				targeted.addEventListener('click', ()=>{
-					if(targeted.className.includes('protected'))
-						GoTo(`/chat/${targeted.id}`)
-					else
-						GoTo(`/chat/${targeted.id}`)
+					GoTo(`/chat/${targeted.id}`)
 				})
 			}
 
@@ -57,34 +55,33 @@ export default class ChatSideBar extends HTMLElement {
 	connectedCallback() {}
 
 	disconnectedCallback() {}
-	attributeChangedCallback(name, oldValue, newValue) {
-		makeRequest('/api/chat/get_server_data/').then((body)=>{
-			let data = []
-			if (name === 'type')
+	async attributeChangedCallback(name, oldValue, newValue) {
+		let body = await this.promise_data
+		let data = []
+		if (name === 'type')
+		{
+			if (newValue === "Direct")
 			{
-				if (newValue === "Direct")
+				for(let i = 0; i < body.length; i++)
 				{
-					for(let i = 0; i < body.length; i++)
-					{
-						if (body[i].visibility === "protected")
-							data.push(body[i])
-					}
-					this.render_page(data);
+					if (body[i].visibility === "protected")
+						data.push(body[i])
 				}
-				else if (newValue === "Server")
-				{
-					for(let i = 0; i < body.length; i++)
-					{
-						if (body[i].visibility !== "protected")
-						{
-							body[i].status = "none"
-							data.push(body[i])
-						}
-					}
-					this.render_page(data);
-				}
+				this.render_page(data);
 			}
-		})
+			else if (newValue === "Server")
+			{
+				for(let i = 0; i < body.length; i++)
+				{
+					if (body[i].visibility !== "protected")
+					{
+						body[i].status = "none"
+						data.push(body[i])
+					}
+				}
+				this.render_page(data);
+			}
+		}
 	}
 	static get observedAttributes() {
 		return ["type"];

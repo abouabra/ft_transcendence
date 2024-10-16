@@ -96,6 +96,27 @@ function handle_action(action, id, data = null) {
 		console.log("Cancel game invitation", id);
 		Delete_Small_Card();
 	}
-	
+	else if (action == "reveal_opponent")
+	{
+		const roller = document.querySelector('.avatar-roller');
+		const opponentAvatar = document.getElementById('opponentAvatar');
+		const statusText = document.getElementById('statusText');
+
+		// Start slowing down the animation
+		roller.classList.add('slowing');
+		
+		setTimeout(() => {
+			// Stop the animation
+			roller.classList.remove('slowing');
+			roller.classList.add('stopped');
+			
+			// Show opponent's avatar
+			opponentAvatar.src = data.avatar;
+			opponentAvatar.classList.add('visible');
+			
+			// Update status text
+			statusText.textContent = data.username;
+		}, 3000); // Adjust this time to match the slowing animation duration
+	}
 
 }

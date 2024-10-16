@@ -32,8 +32,7 @@ export default class Play_Page extends HTMLElement {
 
 		`;
 
-		// this.render_first_stage();
-		this.match_making();
+		this.render_first_stage();
 	}
 
 	render_first_stage()
@@ -112,9 +111,53 @@ export default class Play_Page extends HTMLElement {
 		
 	}
 
+
+
+
 	construct_a_game() {
 		console.log(this.selected_game, this.selected_mode);
-		if(this.selected_mode = "ranked") {
+		if(this.selected_mode == "ranked") {
+			window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+
+			window.game_socket.onopen = () => {
+				console.log("Connected to the game server");
+
+				window.game_socket.send(JSON.stringify({
+					type: "join_game",
+					user_id: parseInt(localStorage.getItem("id")),
+					game_name: this.selected_game,
+					mode: this.selected_mode,
+				}));
+			};
+
+			window.game_socket.onclose = function (event) {
+				console.log("Game socket closed");
+			};
+	
+			window.game_socket.onerror = function (event) {
+				console.log("Game socket error");
+			};
+	
+			window.game_socket.onmessage = function (event) {
+				const data = JSON.parse(event.data);
+				console.log("Game socket message: ", data);
+
+				if(data.type == "start_game") 
+				{
+					const current_id = localStorage.getItem("id");
+					const opponent_id = data.player1 == current_id ? data.player2 : data.player1;
+					makeRequest(`/api/auth/user/${opponent_id}/`).then((response) => {
+						handle_action("reveal_opponent", opponent_id, response);
+						
+						setTimeout(() => {
+							console.log("Game started between", data.player1, "and", data.player2);
+						}, 3000);
+					});
+				}
+
+			};
+
+
 			this.match_making();
 		}
 	}
@@ -153,7 +196,7 @@ export default class Play_Page extends HTMLElement {
 					</div>
 				</div>
 				
-				<button-component data-text="Cancel" id="match-making-cancel"></button-component>
+				<button-component data-text="Cancel" id="cancel-match-making"></button-component>
 
 			</div>
 		`;
@@ -191,9 +234,6 @@ export default class Play_Page extends HTMLElement {
         ];
 
         const roller = document.querySelector('.avatar-roller');
-        const opponentAvatar = document.getElementById('opponentAvatar');
-        const statusText = document.getElementById('statusText');
-        let opponent_user = null;
 
         function createAvatarElements() {
             avatars.forEach(createAndAppendAvatar);
@@ -209,39 +249,26 @@ export default class Play_Page extends HTMLElement {
         }
 
         createAvatarElements();
-
-        // Simulating WebSocket opponent data reception
-        function receiveOpponentData(data) {
-            opponent_user = data;
-            showOpponent();
-        }
-
-        function showOpponent() {
-            // Start slowing down the animation
-            roller.classList.add('slowing');
-            
-            setTimeout(() => {
-                // Stop the animation
-                roller.classList.remove('slowing');
-                roller.classList.add('stopped');
-                
-                // Show opponent's avatar
-                opponentAvatar.src = opponent_user.avatar;
-                opponentAvatar.classList.add('visible');
-                
-                // Update status text
-                statusText.textContent = `${opponent_user.name}`;
-            }, 3000); // Adjust this time to match the slowing animation duration
-        }
-
+        
         // For demonstration purposes, let's trigger the opponent matching after 5 seconds
-        setTimeout(() => {
-            receiveOpponentData({
-                name: "John Doe",
-                avatar: "/assets/images/avatars/abouabra.jpg"
-            });
-        }, 5000);
+        // setTimeout(() => {
+        //     receiveOpponent({
+        //         name: "John Doe",
+        //         avatar: "/assets/images/avatars/abouabra.jpg"
+        //     });
+        // }, 5000);
+
+
+		const cancel_match_making = this.querySelector("#cancel-match-making");
+		cancel_match_making.addEventListener("click", () => {
+			window.game_socket.close();
+			this.render_first_stage();
+		});
 	}
+
+
+	
+
 
 	
 

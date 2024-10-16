@@ -5,9 +5,17 @@ export default class Notifications_Bar extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/common.css"));
 
+
+		this.innerHTML = /*html*/ `
+			<div class="notifications_bar_icon">
+				<img src="/assets/images/common/Iconly/Light/Notification.svg" alt="search" class="notifications_bar_icon_img">
+				<div class="notifications_bar_status hide">
+					<span class="p5_regular">0</span>	
+				</div> 
+			</div>
+		`;
 		makeRequest("/api/auth/notifications_brief/")
 		.then((data) => {
-
 			this.innerHTML = /*html*/ `
 				<div class="notifications_bar_icon">
 					<img src="/assets/images/common/Iconly/Light/Notification.svg" alt="search" class="notifications_bar_icon_img">

@@ -231,7 +231,7 @@ export default class Play_Page extends HTMLElement {
                 
                 // Update status text
                 statusText.textContent = `${opponent_user.name}`;
-            }, 2000); // Adjust this time to match the slowing animation duration
+            }, 3000); // Adjust this time to match the slowing animation duration
         }
 
         // For demonstration purposes, let's trigger the opponent matching after 5 seconds

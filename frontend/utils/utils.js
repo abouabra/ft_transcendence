@@ -47,6 +47,11 @@ async function makeRequest(url, method = "GET", data = null) {
 			return await makeRequest(url, method, data); // Retry with incremented depth
 		}
 
+		if (response.status >= 400 && response.status != 404) {
+			error = await response.json();
+			throw new Error(error);
+		}
+
 		// Parse JSON response
 		const jsonResponse = await response.json();
 		jsonResponse.response_code = response.status;

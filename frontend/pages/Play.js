@@ -11,52 +11,41 @@ export default class Play_Page extends HTMLElement {
 
 		this.first_stage_data = [
 			{img: "/assets/images/landing_page/pong-video-game.gif", text: "Pong 1972", game_name: "pong"},
-			{img: "/assets/images/landing_page/pong-video-game-2.gif", text: "Road Fighter 1984", game_name: "road_fighter"},
 			{img: "/assets/images/landing_page/pong-video-game-3.gif", text: "Space Invaders 1978", game_name: "space_invaders"},
 		]
 
 		this.second_stage_data = [
 			{text: "Player vs Player Online", mode: "ranked"},
-			{text: "Player vs AI", mode: "ai"},
 			{text: "Player vs Player Local", mode: "local"},
 		]
-
-
-		this.innerHTML = /* html */`
-		
-			<div class="cards_container">
-			</div>
-
-			<button-component data-text="Back" id="play-page-go-back"></button-component>
-
-
-		`;
 
 		this.render_first_stage();
 	}
 
 	render_first_stage()
 	{
-		const go_back_btn = this.querySelector("#play-page-go-back");
-		go_back_btn.style.opacity = "0";
-
-		const cards_container = this.querySelector(".cards_container");
-		cards_container.innerHTML = /* html */`
-			${this.first_stage_data.map((item) => {
-				return /* html */`
-					<div class="play-game-card blur platinum_40_color_border" data-game-name="${item.game_name}">
-						<img src="${item.img}" alt="${item.text}" class="play-game-card-image">
-						<div class="d-flex flex-column play-game-text-btn">
-							<span class="header_h3 play-game-text">${item.text}</span>
-							
-							<div class="d-flex w-100">
-								<button-component data-text="Choose"></button-component>
+		
+		this.innerHTML = /* html */`
+			<div class="cards_container">
+				${this.first_stage_data.map((item) => {
+					return /* html */`
+						<div class="play-game-card blur platinum_40_color_border" data-game-name="${item.game_name}">
+							<img src="${item.img}" alt="${item.text}" class="play-game-card-image">
+							<div class="d-flex flex-column play-game-text-btn">
+								<span class="header_h3 play-game-text">${item.text}</span>
+								
+								<div class="d-flex w-100">
+									<button-component data-text="Choose"></button-component>
+								</div>
 							</div>
 						</div>
-					</div>
-				`
-			}).join("")}
+					`
+				}).join("")}
+			</div>
+			<button-component data-text="Back" id="play-page-go-back"></button-component>
 		`;
+		const go_back_btn = this.querySelector("#play-page-go-back");
+		go_back_btn.style.opacity = "0";
 
 		const all_cards = this.querySelectorAll(".play-game-card");
 		all_cards.forEach((card) => {
@@ -116,17 +105,22 @@ export default class Play_Page extends HTMLElement {
 
 	construct_a_game() {
 		console.log(this.selected_game, this.selected_mode);
+
+		
 		if(this.selected_mode == "ranked") {
 			window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
 
 			window.game_socket.onopen = () => {
-				console.log("Connected to the game server");
+				console.log("Game socket opened | Connected to the game server");
 
 				window.game_socket.send(JSON.stringify({
 					type: "join_game",
-					user_id: parseInt(localStorage.getItem("id")),
+					user: {
+						username: localStorage.getItem("username"),
+						avatar: localStorage.getItem("avatar"),
+						id: parseInt(localStorage.getItem("id")),
+					},
 					game_name: this.selected_game,
-					mode: this.selected_mode,
 				}));
 			};
 
@@ -145,14 +139,14 @@ export default class Play_Page extends HTMLElement {
 				if(data.type == "start_game") 
 				{
 					const current_id = localStorage.getItem("id");
-					const opponent_id = data.player1 == current_id ? data.player2 : data.player1;
-					makeRequest(`/api/auth/user/${opponent_id}/`).then((response) => {
-						handle_action("reveal_opponent", opponent_id, response);
-						
-						setTimeout(() => {
-							console.log("Game started between", data.player1, "and", data.player2);
-						}, 3000);
-					});
+					const opponent = data.player1.id == current_id ? data.player2 : data.player1;
+					
+					handle_action("reveal_opponent", opponent.id, opponent);
+					
+					setTimeout(() => {
+						console.log("Game started between", data.player1.id, "and", data.player2.id);
+						GoTo(`/play/game/${data.game_room_id}`);
+					}, 3000);
 				}
 
 			};
@@ -160,13 +154,24 @@ export default class Play_Page extends HTMLElement {
 
 			this.match_making();
 		}
+
+
+		else if(this.selected_mode == "local") {		
+			makeRequest("/api/game/construct_local_game/", "POST", {
+				game_name: this.selected_game,
+				mode: "local",
+				user_id: parseInt(localStorage.getItem("id")),
+			}).then((data) => {
+				GoTo(`/play/game/${data.game_room_id}`);
+			});
+		}
 	}
 
 	match_making() {
 		const current_user_data = {};
 		current_user_data.username = localStorage.getItem("username");
 		current_user_data.avatar = localStorage.getItem("avatar");
-		current_user_data.id = localStorage.getItem("id");
+		current_user_data.id = parseInt(localStorage.getItem("id"));
 
 		this.innerHTML = /* html */`
 			<div class="match-making-user-vs-user">
@@ -249,18 +254,14 @@ export default class Play_Page extends HTMLElement {
         }
 
         createAvatarElements();
-        
-        // For demonstration purposes, let's trigger the opponent matching after 5 seconds
-        // setTimeout(() => {
-        //     receiveOpponent({
-        //         name: "John Doe",
-        //         avatar: "/assets/images/avatars/abouabra.jpg"
-        //     });
-        // }, 5000);
 
-
-		const cancel_match_making = this.querySelector("#cancel-match-making");
+		const cancel_match_making = document.getElementById("cancel-match-making");
 		cancel_match_making.addEventListener("click", () => {
+			window.game_socket.send(JSON.stringify({
+				type: "cancel_match_making",
+				user: current_user_data,
+				game_name: this.selected_game,
+			}));
 			window.game_socket.close();
 			this.render_first_stage();
 		});

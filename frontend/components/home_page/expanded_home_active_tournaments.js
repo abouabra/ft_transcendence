@@ -93,7 +93,7 @@ export default class Expanded_Home_Active_Tournaments extends HTMLElement {
 			this.current_page = 1;
 			const items_per_page = 3;  // You have 3 pagination items
 			this.max_page_number = Math.ceil(response.count / response.results.length);
-	
+		
 			// Helper to update pagination items display
 			
 	

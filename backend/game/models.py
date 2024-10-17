@@ -54,7 +54,7 @@ class Game_History(models.Model):
     player1_elo_change = models.IntegerField(default=0)
     player2_elo_change = models.IntegerField(default=0)
     
-    winner = models.IntegerField()
+    winner = models.IntegerField(default=0)
     
     game_date = models.DateTimeField(auto_now_add=True)
     game_duration = models.IntegerField(default=0)

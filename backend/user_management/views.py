@@ -175,6 +175,25 @@ class UserView(generics.GenericAPIView):
                 {"detail": "Error encountered while fetching the user"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+        
+class UserByUserNameView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ShortUserSerializer
+    
+    def get(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+            return Response(self.serializer_class(user).data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while fetching the user"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 class FullUserView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)

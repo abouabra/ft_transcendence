@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 from rest_framework.pagination import PageNumberPagination
 from .models import Game_History, GameStats
 import logging
-from .utils import getUserData
+from .utils import getUserData, generate_id
 from rest_framework import generics, permissions, status
-from .serializers import GameStatsSerializer, GameHistorySerializer
+from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer
 
 
 logger = logging.getLogger(__name__)
@@ -81,9 +81,9 @@ class HomeActiveGamesView(generics.GenericAPIView):
         query_params = request.query_params
         if "game_name" in query_params and query_params["game_name"] != "":
             game_name = query_params["game_name"]
-            active_games = Game_History.objects.filter(game_name=game_name).order_by('-game_date')[:4]
+            active_games = Game_History.objects.filter(game_name=game_name, winner=0).order_by('-game_date')[:4]
         else:
-            active_games = Game_History.objects.order_by('-game_date')[:4]
+            active_games = Game_History.objects.filter(winner=0).order_by('-game_date')[:4]
 
         active_games_data = []
         for game in active_games:
@@ -138,6 +138,71 @@ class HomeExpandedActiveGamesView(generics.GenericAPIView):
                 game["player2"]["current_elo"] = GameStats.objects.get(user_id=game["player2"]["id"], game_name=game["game_name"]).current_elo
         return self.get_paginated_response(serializer.data)
     
+
+
+class ConstructLocalGameHistoryData(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        player_1 = request.data["user_id"]
+        player_2 = getUserData(request, username="local_user")["id"]
+        game_name = request.data["game_name"]
+        game_type = "local"
+
+        game_obj = Game_History.objects.create(
+            player1=player_1,
+            player2=player_2,
+            game_name=game_name,
+            game_type=game_type,
+        )
+        game_obj.save()
+
+        return Response({
+            "game_room_id": game_obj.id,
+        }, status=status.HTTP_201_CREATED)
+
+
+class GetGameInfo(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ShortGameHistorySerializer
+
+    def get(self, request, pk):
+        try:
+            game_obj = Game_History.objects.get(id=pk)
+            game_info = ShortGameHistorySerializer(game_obj).data
+            game_info["player1"] = getUserData(request, game_info["player1"])
+            game_info["player2"] = getUserData(request, game_info["player2"])
+        
+            return Response(game_info, status=status.HTTP_200_OK)
+        except Game_History.DoesNotExist:
+            return Response({"detail": "Game Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while fetching the game"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,0 +1,72 @@
+game-page{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    
+    gap: 30px;
+}
+
+.game-page-header{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+    width: 100%;
+    padding: 20px;
+    
+    border-radius: 15px;
+
+    flex-wrap: wrap;
+}
+
+.game-page-body{
+    display: flex;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    
+    justify-content: center;
+    align-items: center;
+}
+
+.game-page-user-data-container
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.game-page-user-data-image{
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.game-page-user-data{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 85px;
+}
+
+.game-page-header-center{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.game-page-user-data .header_h3:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.game-page-user-data-image:hover{
+    cursor: pointer;
+    opacity: 0.8;
+}

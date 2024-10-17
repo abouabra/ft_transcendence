@@ -46,7 +46,8 @@ export default class Side_Bar extends HTMLElement {
 		const current_path = window.location.pathname;
 
 		elements.forEach((element) => {
-			if (element.getAttribute("data-link") === current_path) {
+			if (current_path.includes(element.getAttribute("data-link")))
+			{
 				elements.forEach((element) => {
 					element.classList.remove("active_side_bar_item");
 				});

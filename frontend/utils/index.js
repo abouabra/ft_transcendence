@@ -9,7 +9,6 @@ const routes = {
     
     "^/base/$": "base-page",
 
-    "^/play/$": "play-page",
     "^/home/$": "home-page",
     "^/tournament/$": "tournament-page",
     "^/leaderboard/$": "leaderboard-page",
@@ -20,6 +19,9 @@ const routes = {
     
     "^/chat/$": "chat-page",
     "^/chat/create_server/$": "create-server-page",
+
+    "^/play/$": "play-page",
+    "^/play/game/[^/]+$" : "game-page",
 };
 
 // Update allowedRoutesWithoutLogin to use regex patterns as well

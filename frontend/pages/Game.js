@@ -1,3 +1,5 @@
+import { Player } from '/assets/games/space_invaders/js/Player.js';
+import { Setup } from '/assets/games/space_invaders/js/Setup.js';
 
 export default class Game_Page extends HTMLElement {
 	constructor() {
@@ -67,7 +69,39 @@ export default class Game_Page extends HTMLElement {
 				</div>
 			</div>
 
-			<div class="game-page-body platinum_40_color_border">
+			<div class="game-page-body platinum_40_color_border" id="game-canvas">
+				
+
+
+				<div class="game-page-stats-container">
+					<div class="game-page-stats-part">
+						<img src="/assets/games/space_invaders/ui/heart.svg" alt="heart" style="width: 16px;"></img>
+						<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_health">
+							<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 100%"><span>100</span></div>
+						</div>
+					</div>
+
+					<div class="game-page-stats-part">
+						<img src="/assets/games/space_invaders/ui/rocket.svg" alt="rocket" style="width: 16px;"></img>
+						<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_boost">
+							<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"><span>100</span></div>
+						</div>
+					</div>
+
+					<div class="game-page-stats-part">
+						<img src="/assets/games/space_invaders/ui/damage.svg" alt="damage" style="width: 16px;"></img>
+						<span id="powerup_damage"> x 1 </span>
+					</div>
+
+					<div class="game-page-stats-part">
+						<img src="/assets/games/space_invaders/ui/speed.svg" alt="speed" style="width: 16px;" ></img>
+						<span id="powerup_speed"> x 1 </span>
+					</div>
+				</div>
+
+
+
+
 			</div>
 		`;
 
@@ -110,7 +144,9 @@ export default class Game_Page extends HTMLElement {
 		setInterval(updateTimer, 1000);
 
 
-
+		const player = new Player();
+		const setup = new Setup(player);
+		player.setSetup(setup);
 
 	}
 

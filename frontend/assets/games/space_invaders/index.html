@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<title>Space Invaders</title>
+	</head>
+	<body>
+		<div id="canvas">
+			<div class="stats_container">
+				<div class="health_part">
+                    <img src="/assets/ui/heart.svg" alt="heart" style="width: 16px;"></img>
+                    <div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_health">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 100%"><span>100</span></div>
+                    </div>
+				</div>
+
+                <div class="health_part">
+                    <img src="/assets/ui/rocket.svg" alt="rocket" style="width: 16px;"></img>
+                    <div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_boost">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"><span>100</span></div>
+                    </div>
+				</div>
+
+                <div class="health_part">
+                    <img src="/assets/ui/damage.svg" alt="damage" style="width: 16px;"></img>
+                    <span id="powerup_damage"> x 1 </span>
+				</div>
+
+                <div class="health_part">
+                    <img src="/assets/ui/speed.svg" alt="speed" style="width: 16px;" ></img>
+                    <span id="powerup_speed"> x 1 </span>
+				</div>
+
+			</div>
+		</div>
+		<script src="js/main.js" type="module"></script>
+		<script src="js_lib/jquery-3.5.1.slim.min.js"></script>
+		<script src="js_lib/bootstrap.bundle.min.js"></script>
+	</body>
+</html>

@@ -88,13 +88,13 @@ class GameConsumer(AsyncWebsocketConsumer):
             logger.error(f'len of match making queue: {len(PLAYERS[game_name])}')
             player1, player2 = PLAYERS[game_name].values()
             
-            match_history = await self.create_match_history(game_obj)
+            match_history = await self.create_match_history(player1.user_id, player2.user_id, game_name)
             game_obj = Game_Room(match_history.id ,game_name, player1, player2)
             game_obj.match_history = match_history
 
             GAME_ROOMS[game_obj.id] = game_obj
 
-            await self.start_game(game_obj)
+            await self.start_game(GAME_ROOMS[game_obj.id])
 
 
     async def start_game(self, game_obj):
@@ -128,12 +128,8 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
     @database_sync_to_async
-    def create_match_history(self, game_obj):
-        p1 = game_obj.player1.user_id
-        p2 = game_obj.player2.user_id
-        game_name= game_obj.game_name
-        game_type= "ranked"
-        game =  Game_History.objects.create(player1=p1, player2=p2, game_name=game_name, game_type=game_type)
+    def create_match_history(self, user_1_id, user_2_id, game_name):
+        game =  Game_History.objects.create(player1=user_1_id, player2=user_2_id, game_name=game_name, game_type="ranked")
         logger.error(f'created a match history: {game}')
         
         return game

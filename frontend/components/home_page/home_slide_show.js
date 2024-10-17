@@ -59,7 +59,7 @@ export default class Home_Slide_Show extends HTMLElement {
 		window.addEventListener("resize", () => {
 			const home_page = document.querySelector("home-page");
 
-			if(home_page.clientWidth < 843) {
+			if(home_page && home_page.clientWidth < 843) {
 				const scale_ratio = home_page.clientWidth / 843;
 				home_slide_show.style.scale = scale_ratio;
 				home_slide_show_parent.style.height = `${home_slide_show.clientHeight * scale_ratio}px`;

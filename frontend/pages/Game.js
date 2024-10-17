@@ -26,9 +26,20 @@ export default class Game_Page extends HTMLElement {
 		
 	}	
 
+
 	render_data(data)
 	{
 		console.log(data);
+		const current_id = parseInt(localStorage.getItem("id"));
+		
+		if(data.player2.id == current_id)
+		{
+			let tmp = data.player2;
+			data.player2 = data.player1;
+			data.player1 = tmp;
+		}
+
+
 		this.innerHTML = /* html */`
 			<div class="game-page-header platinum_40_color_border blur">
 				<div class="game-page-user-data-container" data-user-id="${data.player1.id}">
@@ -38,8 +49,6 @@ export default class Game_Page extends HTMLElement {
 						<span class="header_h3">${data.player1.username}</span>
 					</div>
 				</div>
-			
-
 
 				<div class="game-page-header-center">
 					<div class="game-page-user-data">
@@ -57,8 +66,6 @@ export default class Game_Page extends HTMLElement {
 						<span class="header_h3" id="game-page-user-2-score">0</span>
 					</div>
 				</div>
-
-
 				
 				<div class="game-page-user-data-container" data-user-id="${data.player2.id}">
 					<div class="game-page-user-data">
@@ -69,40 +76,7 @@ export default class Game_Page extends HTMLElement {
 				</div>
 			</div>
 
-			<div class="game-page-body platinum_40_color_border" id="game-canvas">
-				
-
-
-				<div class="game-page-stats-container">
-					<div class="game-page-stats-part">
-						<img src="/assets/games/space_invaders/ui/heart.svg" alt="heart" style="width: 16px;"></img>
-						<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_health">
-							<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 100%"><span>100</span></div>
-						</div>
-					</div>
-
-					<div class="game-page-stats-part">
-						<img src="/assets/games/space_invaders/ui/rocket.svg" alt="rocket" style="width: 16px;"></img>
-						<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_boost">
-							<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"><span>100</span></div>
-						</div>
-					</div>
-
-					<div class="game-page-stats-part">
-						<img src="/assets/games/space_invaders/ui/damage.svg" alt="damage" style="width: 16px;"></img>
-						<span id="powerup_damage"> x 1 </span>
-					</div>
-
-					<div class="game-page-stats-part">
-						<img src="/assets/games/space_invaders/ui/speed.svg" alt="speed" style="width: 16px;" ></img>
-						<span id="powerup_speed"> x 1 </span>
-					</div>
-				</div>
-
-
-
-
-			</div>
+			<div class="game-page-body platinum_40_color_border" id="game-canvas"> </div>
 		`;
 
 		const all_users = this.querySelectorAll(".game-page-user-data-container");
@@ -143,11 +117,49 @@ export default class Game_Page extends HTMLElement {
 
 		setInterval(updateTimer, 1000);
 
+		if(data.game_name == "space_invaders")
+		{
+			this.space_invaders();
+		}
+
+	}
+
+	space_invaders()
+	{
+		const game_canvas = this.querySelector("#game-canvas");
+		game_canvas.innerHTML = /* html */`
+			<div class="game-page-stats-container">
+				<div class="game-page-stats-part">
+					<img src="/assets/games/space_invaders/ui/heart.svg" alt="heart" style="width: 16px;"></img>
+					<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_health">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 100%"><span>100</span></div>
+					</div>
+				</div>
+
+				<div class="game-page-stats-part">
+					<img src="/assets/games/space_invaders/ui/rocket.svg" alt="rocket" style="width: 16px;"></img>
+					<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_boost">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"><span>100</span></div>
+					</div>
+				</div>
+
+				<div class="game-page-stats-part">
+					<img src="/assets/games/space_invaders/ui/damage.svg" alt="damage" style="width: 16px;"></img>
+					<span id="powerup_damage"> x 1 </span>
+				</div>
+
+				<div class="game-page-stats-part">
+					<img src="/assets/games/space_invaders/ui/speed.svg" alt="speed" style="width: 16px;" ></img>
+					<span id="powerup_speed"> x 1 </span>
+				</div>
+			</div>
+		`;
+
+
 
 		const player = new Player();
 		const setup = new Setup(player);
 		player.setSetup(setup);
-
 	}
 
 	connectedCallback() {}

@@ -160,7 +160,6 @@ class PowerUps {
     }
 
     update() {
-        console.log(this.all_powerups.length);
         this.all_powerups.forEach(powerUp => powerUp.update());
         
         if(this.all_powerups.length < this.numberOfPowerUps){

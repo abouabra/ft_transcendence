@@ -328,8 +328,6 @@ class Player {
         this.bullets.forEach(bullet => {
             for (let i = 0; i < this.setup.worldObjects.length; i++) {
                 if (this.detectCollision(bullet.mesh, this.setup.worldObjects[i])) {
-                    console.log('Bullet hit');
-                    
                     const powerUp = this.setup.powerUPs.all_powerups.find(powerUp => powerUp.mesh === this.setup.worldObjects[i]);
                     if (powerUp) {
                         powerUp.takeDamage(this.damage);

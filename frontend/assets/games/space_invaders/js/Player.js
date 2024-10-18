@@ -1,6 +1,7 @@
 import {THREE, GLTFLoader} from '/assets/games/space_invaders/js/three-defs.js';
 import {EngineThrustEffect} from '/assets/games/space_invaders/js/Particles.js';
 import { Bullet } from '/assets/games/space_invaders/js/Bullet.js';
+
 class Player {
     constructor() {
         this.geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -47,7 +48,7 @@ class Player {
 
         this.bullets = []; // Store bullets
         this.bulletTimeout = 0; // Timeout for bullet shooting
-        this.bulletDelay = 0.1; // Delay between bullets (0.1 seconds)
+        this.bulletDelay = 0.1; // Delay between bullets
     }
 
     createCrosshair() {
@@ -91,6 +92,9 @@ class Player {
             this.setup.scene.add(this.mesh);
             
             this.thrustEffect = new EngineThrustEffect(this.setup.scene, this);
+
+            // this.setup.objectsToCheck.push(this.mesh);
+
         });
 
         this.setup.scene.add(this.crosshair);
@@ -111,6 +115,16 @@ class Player {
 
         // Update crosshair position
         this.updateCrosshairPosition();
+
+        // limit bullet array to only have 20 bullets 
+        if (this.bullets.length > 20) {
+            for (let i = 0; i < this.bullets.length - 20; i++) {
+                this.bullets[i].destroy();
+            }
+            this.bullets = this.bullets.slice(this.bullets.length - 20, this.bullets.length);
+        }
+
+
 
         this.bullets = this.bullets.filter(bullet => bullet.update(deltaTime));
         this.bulletTimeout -= deltaTime;
@@ -167,7 +181,7 @@ class Player {
 
             // Check for intersections
             const intersects = this.raycaster.intersectObjects(this.setup.objectsToCheck, false);
-            
+
             if (intersects.length > 0) {
                 this.crosshair.material.color.set(0xff0000); // Red when pointing at an object
             } else {
@@ -187,7 +201,8 @@ class Player {
 
         const left_bullet = new Bullet(this);
         const right_bullet = new Bullet(this, true);
-        this.bullets.push(left_bullet, right_bullet);
+        this.bullets.push(left_bullet);
+        this.bullets.push(right_bullet);
     }
 
 
@@ -304,6 +319,7 @@ class Player {
     Die() {
         this.setup.scene.remove(this.mesh);
         this.isAlive = false;
+        console.log("Player died");
     }
 
 
@@ -325,17 +341,48 @@ class Player {
             }
         }
 
+        if(this.detectCollision(this.mesh, this.setup.opponent.mesh)){
+            this.Die();
+            this.setup.opponent.die();
+        }
+
         this.bullets.forEach(bullet => {
             for (let i = 0; i < this.setup.worldObjects.length; i++) {
                 if (this.detectCollision(bullet.mesh, this.setup.worldObjects[i])) {
+                    console.log('Bullet hit');
+                    
                     const powerUp = this.setup.powerUPs.all_powerups.find(powerUp => powerUp.mesh === this.setup.worldObjects[i]);
                     if (powerUp) {
                         powerUp.takeDamage(this.damage);
                     }
+
+                    if(this.setup.worldObjects[i] === this.setup.opponent.mesh){
+                        this.setup.opponent.takeDamage(this.damage);
+                    }
+
                     bullet.destroy();
                 }
             }
+
+            if(this.detectCollision(bullet.mesh, this.setup.opponent.mesh)){
+                this.setup.opponent.takeDamage(this.damage);
+                bullet.destroy();
+            }
         });
+    }
+
+    send_ws_data()
+    {
+        const data = {
+            type: "si_receive_data_from_client",
+            user_id: parseInt(localStorage.getItem("id")),
+            game_id: parseInt(localStorage.getItem("game_id")),
+            position: this.position,
+            quaternion: this.quaternion,
+
+        };
+
+        this.setup.ws.send(JSON.stringify(data));
     }
 
 

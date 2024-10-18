@@ -36,6 +36,9 @@ class Player():
         self.game_name = game_name
         self.ws_obj = ws_obj
 
+        self.position = None
+        self.quaternion = None
+
     def __str__(self):
         return f"{self.user_id}"
     
@@ -51,7 +54,11 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        pass
+        # search for the player in the PLAYERS dict and remove them
+        for game_name in PLAYERS:
+            if self.scope['user'].id in PLAYERS[game_name]:
+                del PLAYERS[game_name][self.scope['user'].id]
+                break
 
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
@@ -77,8 +84,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             game_name = text_data_json["game_name"]
             del PLAYERS[game_name][user_id]
 
-        elif type == 'game_move':
-            await self.process_move(text_data_json)
+        elif type == 'si_receive_data_from_client':
+            await self.si_receive_data_from_client(text_data_json)
 
 
     async def add_to_queue(self, player, game_name):
@@ -123,9 +130,15 @@ class GameConsumer(AsyncWebsocketConsumer):
         pass
 
 
-    async def space_invaders_move(self, text_data_json):
-        pass
-
+    async def si_receive_data_from_client(self, text_data_json):
+        player = PLAYERS['space_invaders'][text_data_json["user_id"]]
+        game = GAME_ROOMS[text_data_json['game_id']]
+        
+        player2 = game.player2 if game.player1.user_id == player.user_id else game.player1
+        
+        text_data_json['type'] = 'si_receive_data_from_server'
+        
+        player2.ws_obj.send(text_data=json.dumps(text_data_json))
 
     @database_sync_to_async
     def create_match_history(self, user_1_id, user_2_id, game_name):

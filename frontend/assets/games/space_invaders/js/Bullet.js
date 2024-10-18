@@ -6,7 +6,7 @@ class Bullet {
         this.setup = player.setup;
         // Bullet geometry (oval shape)
         this.geometry = new THREE.SphereGeometry(0.1, 16, 8); // Small sphere-like shape
-        
+
         // Bullet color initially set to red
         this.material = new THREE.MeshBasicMaterial({ color: 0xfd5408 });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -24,10 +24,9 @@ class Bullet {
         // Adjust gun offset based on camera perspective
         let adjustedGunOffset = this.adjustGunOffsetForCamera(baseGunOffset, cameraOffset);
 
-        
         // Apply rotation to the offset
         adjustedGunOffset.applyQuaternion(player.mesh.quaternion);
-        
+
        // Set initial position based on player's position and rotated gun offset
         this.mesh.position.copy(player.position).add(adjustedGunOffset);        
         
@@ -38,7 +37,7 @@ class Bullet {
         // Add bullet to the scene
         player.setup.scene.add(this.mesh);
         // Time-to-live (TTL) for the bullet
-        this.ttl = 5; // The bullet will disappear after 5 seconds
+        this.ttl = 2; // The bullet will disappear after 5 seconds
     }
 
     adjustGunOffsetForCamera(baseOffset, cameraOffset) {
@@ -86,6 +85,8 @@ class Bullet {
     // Function to destroy the bullet
     destroy() {
         this.player.setup.scene.remove(this.mesh);
+        this.player.setup.objectsToCheck = this.player.setup.objectsToCheck.filter(obj => obj !== this.mesh);
+        this.player.setup.worldObjects = this.player.setup.worldObjects.filter(obj => obj !== this.mesh);
     }
 
 }

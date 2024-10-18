@@ -1,14 +1,16 @@
 import { Player } from '/assets/games/space_invaders/js/Player.js';
+import { Opponent } from '/assets/games/space_invaders/js/Opponent.js';
 import { Setup } from '/assets/games/space_invaders/js/Setup.js';
 
 export default class Game_Page extends HTMLElement {
 	constructor() {
 		super();
-		
+
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/game_page.css'));
 
 		const game_id = window.location.pathname.split("/")[3];
+		localStorage.setItem("game_id", game_id);
 
 		makeRequest(`/api/game/get_game_info/${game_id}`)
 		.then((data) => {
@@ -154,12 +156,25 @@ export default class Game_Page extends HTMLElement {
 				</div>
 			</div>
 		`;
-
-
-
+				
 		const player = new Player();
-		const setup = new Setup(player);
+		const opponent = new Opponent();
+
+		const setup = new Setup(player, opponent);
+
 		player.setSetup(setup);
+		opponent.setSetup(setup);
+
+		window.game_socket.onmessage = function (event) {
+			const data = JSON.parse(event.data);
+			console.log("data from game.js", data);
+
+			if(data.type == "si_receive_data_from_server")
+			{
+				console.log("received data from server", data);
+			}
+
+		};
 	}
 
 	connectedCallback() {}

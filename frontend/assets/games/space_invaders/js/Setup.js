@@ -2,11 +2,13 @@ import {THREE, GLTFLoader, Stats} from '/assets/games/space_invaders/js/three-de
 import { Controls } from '/assets/games/space_invaders/js/Controls.js';
 import { PowerUps } from '/assets/games/space_invaders/js/PowerUps.js';
 
+
 class Setup {
-    constructor(player) {
+    constructor(player, opponent) {
         this.canvas = document.getElementById('game-canvas');
         this.scene = new THREE.Scene();
         this.player = player;
+        this.opponent = opponent;
 
         this.controls = new Controls(player);
         this.BaseFOV = 60; // Base field of view
@@ -35,8 +37,10 @@ class Setup {
 
         this.clock = new THREE.Clock();
 
-        // this.stats = new Stats();
-        // this.canvas.appendChild(this.stats.dom);
+        this.stats = new Stats();
+        this.canvas.appendChild(this.stats.dom);
+
+
         
         this.planet = null;
         this.activeEffects = [];
@@ -44,6 +48,8 @@ class Setup {
         this.worldObjects = []; // Array to store world objects that are not powerups
         this.objectsToCheck = []; // Array to store objects that need to be checked for raycasting
         
+
+
         this.powerUPs = null;
         
         this.setupWorld();
@@ -83,10 +89,8 @@ class Setup {
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1;  // Reduced from 1 to 0.8
     
-        // Optional: Add some fog to the scene for depth
-        // this.scene.fog = new THREE.FogExp2(0x000000, 0.00025);
     
-        this.load_Planet();
+        // this.load_Planet();
         this.load_astroids();
     }
 
@@ -128,7 +132,7 @@ class Setup {
                 }
             });
 
-            this.powerUPs = new PowerUps(50, this.player, this);
+            this.powerUPs = new PowerUps(30, this.player, this);
         });
 
     }
@@ -165,6 +169,7 @@ class Setup {
 
         this.controls.update();
         this.player.update(deltatime);
+        this.opponent.update(deltatime);
         this.updateCamera();
         if(this.planet) this.planet.update();
         if(this.powerUPs) this.powerUPs.update();
@@ -172,7 +177,7 @@ class Setup {
 
 
 
-        // this.stats.update();
+        this.stats.update();
         this.renderer.render(this.scene, this.camera);
     }
 

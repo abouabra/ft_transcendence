@@ -32,7 +32,7 @@ class Player():
         self.user_id = user_data['id']
         self.username = user_data['username']
         self.avatar = user_data['avatar']
-    
+
         self.game_name = game_name
         self.ws_obj = ws_obj
 
@@ -49,6 +49,12 @@ class Player():
             'avatar': self.avatar,
         }
 
+
+
+
+
+
+
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
@@ -56,9 +62,10 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         # search for the player in the PLAYERS dict and remove them
         for game_name in PLAYERS:
-            if self.scope['user'].id in PLAYERS[game_name]:
-                del PLAYERS[game_name][self.scope['user'].id]
-                break
+            for object in PLAYERS[game_name]:
+                if self == PLAYERS[game_name][object].ws_obj:
+                    del PLAYERS[game_name][object]
+                    break
 
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
@@ -90,7 +97,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def add_to_queue(self, player, game_name):
         logger.error(f'add_to_queue: {player.user_id} , {game_name}')
-        
+
         if len(PLAYERS[game_name]) >= 2:
             logger.error(f'len of match making queue: {len(PLAYERS[game_name])}')
             player1, player2 = PLAYERS[game_name].values()
@@ -102,12 +109,15 @@ class GameConsumer(AsyncWebsocketConsumer):
             GAME_ROOMS[game_obj.id] = game_obj
 
             await self.start_game(GAME_ROOMS[game_obj.id])
+            # create task to start the game
 
 
     async def start_game(self, game_obj):
         player1 = game_obj.player1
         player2 = game_obj.player2
 
+        # pop the two players from the PLAYERS dict
+        
         logger.error(f'start_game between {player1} and {player2}')
 
         message = {
@@ -119,6 +129,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         await player1.ws_obj.send(text_data=json.dumps(message))
         await player2.ws_obj.send(text_data=json.dumps(message))
+
 
 
     async def process_move(self, text_data_json):
@@ -139,6 +150,10 @@ class GameConsumer(AsyncWebsocketConsumer):
         text_data_json['type'] = 'si_receive_data_from_server'
         
         player2.ws_obj.send(text_data=json.dumps(text_data_json))
+
+
+
+
 
     @database_sync_to_async
     def create_match_history(self, user_1_id, user_2_id, game_name):

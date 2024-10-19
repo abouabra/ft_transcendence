@@ -98,26 +98,6 @@ export default class Game_Page extends HTMLElement {
 
 		const user_1_score = this.querySelector("#game-page-user-1-score");
 		const user_2_score = this.querySelector("#game-page-user-2-score");
-		const game_timer = this.querySelector("#game-page-game-timer");
-
-
-		let minutes = 0;
-		let seconds = 0;
-
-		function updateTimer() {
-			seconds++;
-			if (seconds === 60) {
-				seconds = 0;
-				minutes++;
-			}
-
-			let minutesDisplay = minutes < 10 ? '0' + minutes : minutes;
-			let secondsDisplay = seconds < 10 ? '0' + seconds : seconds;
-
-			game_timer.textContent = minutesDisplay + ' : ' + secondsDisplay;
-		}
-
-		setInterval(updateTimer, 1000);
 
 		if(data.game_name == "space_invaders")
 		{
@@ -157,13 +137,13 @@ export default class Game_Page extends HTMLElement {
 			</div>
 		`;
 				
-		const player = new Player();
-		const opponent = new Opponent();
+		this.player = new Player();
+		this.opponent = new Opponent();
 
-		const setup = new Setup(player, opponent);
+		this.setup = new Setup(this.player, this.opponent);
 
-		player.setSetup(setup);
-		opponent.setSetup(setup);
+		this.player.setSetup(this.setup);
+		this.opponent.setSetup(this.setup);
 
 		window.game_socket.onmessage = function (event) {
 			const data = JSON.parse(event.data);
@@ -179,7 +159,17 @@ export default class Game_Page extends HTMLElement {
 
 	connectedCallback() {}
 
-	disconnectedCallback() {}
+	disconnectedCallback() {
+		console.log("disconnected from game page");
+		window.game_socket.close();
+		delete window.game_socket;
+		
+		this.player.isAlive = false;
+
+		delete this.player;
+		delete this.opponent;
+		delete this.setup;
+	}
 
 	attributeChangedCallback(name, oldValue, newValue) {}
 }

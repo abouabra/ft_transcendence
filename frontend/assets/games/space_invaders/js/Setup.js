@@ -175,7 +175,19 @@ class Setup {
         if(this.powerUPs) this.powerUPs.update();
 
 
-
+		const timer = document.getElementById('game-page-game-timer');
+		if(!timer){
+            console.log('timer not found');
+            return;
+        } 
+        const minutes = Math.floor(this.clock.elapsedTime / 60);
+        const seconds = Math.floor(this.clock.elapsedTime % 60);
+        
+        let minutesDisplay = minutes < 10 ? '0' + minutes : minutes;
+        let secondsDisplay = seconds < 10 ? '0' + seconds : seconds;
+        
+        timer.textContent = minutesDisplay + ' : ' + secondsDisplay;
+            
 
         this.stats.update();
         this.renderer.render(this.scene, this.camera);

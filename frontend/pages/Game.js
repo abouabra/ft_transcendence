@@ -9,11 +9,11 @@ export default class Game_Page extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/game_page.css'));
 
-			// if(!window.game_socket)
-			// {
-			// 	GoTo("/play/");
-			// 	return;
-			// }
+			if(!window.game_socket)
+			{
+				GoTo("/play/");
+				return;
+			}
 
 		const game_id = window.location.pathname.split("/")[3];
 		localStorage.setItem("game_id", game_id);
@@ -27,6 +27,20 @@ export default class Game_Page extends HTMLElement {
 				`;
 				return;		
 			}
+			// const fake_data = {
+			// 	loser: {
+			// 		id: 2, 
+			// 		username: "ayman", 
+			// 		avatar: "/assets/images/avatars/abouabra.jpg"
+			// 	},
+			// 	winner: { 
+			// 		id: 1, 
+			// 		username: "admin", 
+			// 		avatar: "/assets/images/avatars/default.jpg"
+			// 	},
+			// };
+			// this.display_game_results(fake_data);
+
 
 			this.render_data(data);
 		});
@@ -113,7 +127,6 @@ export default class Game_Page extends HTMLElement {
 		{
 			this.space_invaders();
 		}
-
 	}
 
 	space_invaders()
@@ -161,14 +174,14 @@ export default class Game_Page extends HTMLElement {
 		window.game_socket.onmessage = null;
 		window.game_socket.onmessage = (event) => {
 			const response = JSON.parse(event.data);
-			console.log("Game.js response", response);
+			// console.log("Game.js response", response);
 			// console.log(`position: ${response.data.position} quaternion: ${response.data.quaternion}`);
 			
 			if(response.type == "si_from_server_to_client")
 			{
 				if(this.opponent.mesh && response.data.position && response.data.quaternion)
 				{
-					console.log("Game.js data from server", response.data);
+					// console.log("Game.js data from server", response.data);
 					this.opponent.ws_update(response.data.position, response.data.quaternion);
 				}
 			}
@@ -179,14 +192,48 @@ export default class Game_Page extends HTMLElement {
 				console.log("Game Over loser is", response.loser);
 				this.player.isAlive = false;
 				window.game_socket.close();
+				this.display_game_results(response);
 			}
 		};
 	}
+	
+
+	display_game_results(result)
+	{
+		this.innerHTML = /* html */`
+			<div class="display_game_results_bg">
+				<div class="display_game_results_container">
+					<div class="display_game_results_winner">
+						<span class="winner_header">Winner</span>
+						<img src="${result.winner.avatar}" alt="winner avatar" class="display_game_results_winner_avatar">
+						<span class="header_h1">${result.winner.username}</span>
+					</div>
+					<div class="display_game_results_loser">
+						<span class="loser_header">Loser</span>
+						<img src="${result.loser.avatar}" alt="loser avatar" class="display_game_results_loser_avatar">
+						<span class="p2_bold">${result.loser.username}</span>
+					</div>
+
+					<button-component data-text="Go to profile" onclick="GoTo('/profile/${result.winner.id}')"></button-component>
+				</div>
+			</div>
+		`;
+	}
+
 
 	connectedCallback() {}
 
 	disconnectedCallback() {
 		console.log("disconnected from game page");
+		const current_user_data = {};
+		current_user_data.id = parseInt(localStorage.getItem("id"));
+
+		window.game_socket.send(JSON.stringify({
+			type: "game_over",
+			user: current_user_data,
+			game_room_id: parseInt(localStorage.getItem('game_id')),
+		}));
+
 		window.game_socket.close();
 		delete window.game_socket;
 		

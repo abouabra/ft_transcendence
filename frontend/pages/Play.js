@@ -163,6 +163,8 @@ export default class Play_Page extends HTMLElement {
 					const current_id = localStorage.getItem("id");
 					const opponent = data.player1.id == current_id ? data.player2 : data.player1;
 					
+					localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+					
 					handle_action("reveal_opponent", opponent.id, opponent);
 					
 					setTimeout(() => {

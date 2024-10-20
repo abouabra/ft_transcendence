@@ -5,8 +5,11 @@ import { Bullet } from '/assets/games/space_invaders/js/Bullet.js';
 class Player {
     constructor() {
         this.mesh = null;
-
-        this.position = new THREE.Vector3(0, 0, -100);
+        const initial_data = JSON.parse(localStorage.getItem("initial_data"));
+        
+        this.position = new THREE.Vector3(initial_data.x, initial_data.y, initial_data.z);
+        
+        
         this.quaternion = new THREE.Quaternion();
         this.yawSpeed = 0.01; // Speed for yaw (left/right)
         this.pitchSpeed = 0.01; // Speed for pitch (up/down)
@@ -103,7 +106,6 @@ class Player {
     
     update(deltaTime) {
         if (!this.setup || !this.setup.camera) return;
-
 
         // Check for collisions
         this.checkCoallision();

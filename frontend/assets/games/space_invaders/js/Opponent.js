@@ -6,9 +6,13 @@ class Opponent {
     constructor() {
         this.mesh = null;
 
-        this.position = new THREE.Vector3(0, 0, 100);
+        this.position = new THREE.Vector3(0, 0, 0);
         this.quaternion = new THREE.Quaternion();
-        this.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+
+        this.targetPosition = new THREE.Vector3();
+        this.targetQuaternion = new THREE.Quaternion();
+        this.smoothingSpeed = 0.05;  
+
 
         this.isSprinting = false;
         
@@ -47,12 +51,18 @@ class Opponent {
         if (!this.mesh) return;
         if (!this.setup) return;
 
+        // Interpolate the position and quaternion towards the target values
+        this.position.lerp(this.targetPosition, this.smoothingSpeed);
+        this.quaternion.slerp(this.targetQuaternion, this.smoothingSpeed);
+
+        // Update mesh position and rotation
+        this.mesh.position.copy(this.position);
+        this.mesh.quaternion.copy(this.quaternion);
+
+
         this.moveForward();
     
         if(this.thrustEffect) this.thrustEffect.update(deltaTime);
-
-        this.mesh.position.copy(this.position);
-
     }
 
     moveForward() {
@@ -61,14 +71,9 @@ class Opponent {
     }
 
     ws_update(new_position, new_quaternion) {
-        // const vec_position = new THREE.Vector3(new_position.x, new_position.y, new_position.z);
-        const vec_quaternion = new THREE.Quaternion(new_quaternion._x, new_quaternion._y, new_quaternion._z, new_quaternion._w);
-
-
-        // this.position = vec_position;
-        this.quaternion = vec_quaternion;
-        // this.mesh.position.copy(this.position);
-        this.mesh.quaternion.copy(this.quaternion);
+        // Store the target position and quaternion
+        this.targetPosition.set(new_position.x, new_position.y, new_position.z);
+        this.targetQuaternion.set(new_quaternion._x, new_quaternion._y, new_quaternion._z, new_quaternion._w);
     }
 
     takeDamage(damage) {

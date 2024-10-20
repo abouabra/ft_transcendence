@@ -58,8 +58,9 @@ class Setup {
         
         window.addEventListener('resize', () => this.onWindowResize());
 
-        this.animate();
-
+        this.interval = setInterval(() => {
+            this.animate();
+        }, 1000 / 60);
     }
 
     setupWorld() {
@@ -159,14 +160,16 @@ class Setup {
 		current_user_data.id = parseInt(localStorage.getItem("id"));
 
 
-        window.game_socket.send(JSON.stringify({
-            type: "game_over",
-            user: current_user_data,
-            game_room_id: parseInt(localStorage.getItem('game_id')),
-        }));
+        if(window.game_socket) {
+            window.game_socket.send(JSON.stringify({
+                type: "game_over",
+                user: current_user_data,
+                game_room_id: parseInt(localStorage.getItem('game_id')),
+            }));
+            console.log("i am dead | i am ", current_user_data.username);
+        }
 
         // window.game_socket.close();
-        console.log("i am dead | i am ", current_user_data.username);
     }
 
     animate() {
@@ -174,11 +177,12 @@ class Setup {
         if (!this.player.isAlive)
         {
             this.EndGame();
+            clearInterval(this.interval);
             return;
         }
 
         
-        requestAnimationFrame(() => this.animate());
+        // requestAnimationFrame(() => this.animate());
         
         if(!this.player.mesh || !this.opponent.mesh) return;
 
@@ -217,11 +221,14 @@ class Setup {
 
         if(this.game_task_switch)
         {
+            console.log("sending si_clients_ready");
             this.game_task_switch = false;
-            window.game_socket.send(JSON.stringify({
-                type: "si_clients_ready",
-                game_room_id: parseInt(localStorage.getItem('game_id')),
-            }));
+            if(window.game_socket) {
+                window.game_socket.send(JSON.stringify({
+                    type: "si_clients_ready",
+                    game_room_id: parseInt(localStorage.getItem('game_id')),
+                }));
+            }
         }
 
     }
@@ -231,6 +238,9 @@ class Setup {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
     }
+
+
+
 }
 
 export { Setup };

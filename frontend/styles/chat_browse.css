@@ -81,3 +81,9 @@
     right: 3%;
     top:20%
 }
+.serverimage
+{
+    height: 150px;
+    width: 300px;
+    object-fit: contain;
+}

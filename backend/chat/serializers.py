@@ -24,3 +24,4 @@ class ServerChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Server
         field = ['name', 'avatar']
+

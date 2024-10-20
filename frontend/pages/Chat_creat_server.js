@@ -53,13 +53,16 @@ export default class Create_Server_page extends HTMLElement {
 			<div class="cards_2 flex-column justify-content-center align-items-center w-100 h-100 platinum_40_color_border">
 				<div class="platinum_40_color_border d-flex flex-column align-items-center card2_content">
 					<span class="header_h2 ">Invite Link</span>
-					<div class="qr_code"><img src="/assets/images/servers_qr_codes/default_qr_code.png">
+					<div class="qr_code">
+						<img class="qr_codeimg" src=''>
 					</div>
+				</div>
+				<div>
+					<button-component class="button_submit" data-text="Back" id="close_qr"></button-component>
 				</div>
 			</div>
 		</div>
 		`;
-		
 		const selectElement = this.querySelector(".form-select1");
 		const update_avatar = this.querySelector('.avatar_change')
 		const password_element = this.querySelector('.server_password')
@@ -68,7 +71,10 @@ export default class Create_Server_page extends HTMLElement {
 		const password_tag = this.querySelector('#pass')
 		let file_name = "default.jpg"
 		let base64 = null;
-		
+
+		this.querySelector("#close_qr").addEventListener('click', ()=>{
+			GoTo('/chat/')
+		})
 		selectElement.addEventListener('change', function() {
 			const value = this.value;
 			console.log(value);
@@ -113,16 +119,20 @@ export default class Create_Server_page extends HTMLElement {
 		let visibility = "public"
 		if (selectElement.value === 2)
 			visibility = "private"
+		
+		let image_extention = base64.split('/')[1].split(';')[0]
+
 
 		let body = {
 			"name":name_tag.value,
 			"visibility":visibility,
-			"avatar":`/assets/images/server_avatars/default.jpg`,
+			"avatar":`/assets/images/server_avatars/${name_tag.value}.${image_extention}`,
 			"password":password_tag.value,
 			"id":localStorage.getItem('id'),
 			"img":base64,
 			"type":"Server",
-			"qr_code":`/assets/images/server_avatars/default.jpg`
+			"qr_code":`/assets/images/servers_qr_codes/${name_tag.value}.${image_extention}`,
+			"members":[localStorage.getItem("id")]
 		}
 		let loader_container = this.getElementsByClassName("loader-container")[0]
 		let creation_container = this.getElementsByClassName("creation-container")[0]
@@ -130,9 +140,9 @@ export default class Create_Server_page extends HTMLElement {
 
 		loader_container.style.display = 'flex'
 		creation_container.style.opacity = 0.5
-
 		makeRequest('/api/chat/create_server/', 'POST', body)
 		.then(data =>{
+			this.querySelector('.qr_codeimg').src = `/assets/images/servers_qr_codes/${name_tag.value}.${image_extention}`
 			loader_container.style.display = 'none'
 			creation_container.classList.add('pointer_enable')
 			creation_container.classList.remove("platinum_40_color_border")

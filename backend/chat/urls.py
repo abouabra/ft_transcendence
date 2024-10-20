@@ -7,4 +7,6 @@ urlpatterns = [
     path('get_server_data/', views.GetServerDataView.as_view(), name='get_server_data'),
     path('get_message_data/', views.GetMessageDataView.as_view(), name='get_message_data'),
     path('get_serverlist/', views.GetServerListView.as_view(), name='get_serverlist'),
+    path('server_info/', views.ServerInfo.as_view(), name='server_info'),
+    
 ]

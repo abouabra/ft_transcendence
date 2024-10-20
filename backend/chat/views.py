@@ -8,7 +8,7 @@ from .models import Server, Message
 import logging
 from .utils import getUserData
 import base64
-
+from .request_api import create_qr_code
 import os
 import io
 from django.conf import settings
@@ -25,37 +25,28 @@ class JoinedServersView(generics.GenericAPIView):
         servers_data = self.serializer_class(all_servers, many=True).data
         
         return Response(servers_data, status=status.HTTP_200_OK)
+    def post(self, request):
+        serializer = ServerSerializer(data=request.data)
 
 class CreateServerView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     def post(self, request):
         serializer = ServerSerializer(data=request.data)
-
         if serializer.is_valid():
+            print("create server called")
+            serializer.save()
             data = serializer.data
-            path_in_db = "/assets/images/server_avatars/default.jpg"
+            print(data)
             if request.data['img']:
-                header, image = request.data['img'].split(',')
-                extention = header.split(';')[0].split('/')[1]
+                image = request.data['img'].split(',')[1]
                 image = base64.b64decode(image)
-                avatar_name = f"{data['name']}.{extention}"
-                path_in_disk = os.path.join(settings.BASE_DIR, "assets/images/server_avatars/", avatar_name)
-            
-                path_in_db = f"/assets/images/server_avatars/{avatar_name}"
+                path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
                 with open(path_in_disk,'wb') as file:
                     file.write(image)
-
-            obg = Server.objects.create(
-                name=data["name"],
-                avatar=path_in_db,
-                visibility=data['visibility'],
-                password=data['password'],
-            )
-            obg.add_member(request.data['id'])
-            obg.save()
+            create_qr_code(data['avatar'], f"/chat/browse_chat/?join=server_name")
             return Response({
                     "success": "Server Created Successfully"
-                }, status.HTTP_201_CREATED)
+                }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -81,55 +72,52 @@ class GetServerListView(generics.GenericAPIView):
     
 
 class GetServerDataView(generics.GenericAPIView):
+
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = ServerSerializer
+
     def get(self, request):
-        # containe id
-
-	    # {visibility: "", server_name: "1_11", user_id: 1, username: "baanni", avatar: "/assets/images/avatars/default.jpg", status: "online", latest_message: "wa fin a sa7bi", latest_timestamp: "12:06 PM" },
-	    # {visibility: "", server_name: "1_11", user_id: 1, username: "baanni", avatar: "/assets/images/avatars/default.jpg", status: "online", latest_message: "wa fin a sa7bi", latest_timestamp: "12:06 PM" },
-	    # {visibility: "", server_name: "1_11", user_id: 1, username: "baanni", avatar: "/assets/images/avatars/default.jpg", status: "online", latest_message: "wa fin a sa7bi", latest_timestamp: "12:06 PM" },
-
-        # protected needs extra data
-        # all_server_objects = Server.objects.filter()
-        # for server_obj in all_server_objects:
-        #     server_obj 
-        #     user_data = getUserdata(request, 2)
-        #     server_obj["username"] = user_data.username
+    
         final_data = []
-        servers = Server.objects.filter(members__contains=[request.user.id])
-        serializer = ServerSerializer(servers, many=True)
-        
-        array = serializer.data
         if (request.query_params and request.query_params['server']):
-            array = [ item for item in serializer.data if item['name'] == request.query_params["server"]]
+            servers = Server.objects.filter(name=request.query_params['server'])
+            servers_data = ServerSerializer(servers, many=True).data
+        else:
+            servers = Server.objects.filter(members__contains=[request.user.id])
+            serializer = ServerSerializer(servers, many=True)
+            servers_data = serializer.data
 
-        for server in array:
+        for index, server in enumerate(servers_data):
             member = server['members']
             member.remove(request.user.id)
             visibility = server['visibility']
             server_name = server['name']
             user_id = request.user.id
-            username = 0
-            avatar = 0
             online = 'offline'
             latest_message = ''
+            avatar = server['avatar']
+            username = server_name
             try:
-                latest_message_data = MessageSerializer(Message.objects.filter(server=Server.objects.get(name=server_name)).last()).data
-                latest_message = latest_message_data["content"]
-                latest_timestamp= latest_message_data["timestamp"]
-            except Server.DoesNotExist:
-                    print('emptyyyyyyyyyyyy')
+                latest_msg_obj = Message.objects.filter(server=servers[index]).order_by("timestamp")
+                if(latest_msg_obj.count() > 0): 
+                    latest_msg_obj = latest_msg_obj.last()
+                    latest_message_data = MessageSerializer(latest_msg_obj).data
+                    latest_message = latest_message_data["content"]
+                    latest_timestamp = latest_message_data["timestamp"]
+
+
+                else:
+                    raise Message.DoesNotExist
+
+            except (Message.DoesNotExist):
+                    latest_message = ''
+                    latest_timestamp = ''
+
             if (server['visibility'] == 'protected'):
                 userdata =  getUserData(request,member[0])
                 avatar = userdata['avatar']
                 user_id = userdata['id']
                 username = userdata['username']
                 online = userdata['status']
-            else:
-                member = member
-                avatar = server['avatar']
-                username = server_name
 
 
             data = {
@@ -144,36 +132,38 @@ class GetServerDataView(generics.GenericAPIView):
                 'latest_timestamp':latest_timestamp
             }
             final_data.append(data)
-        return Response(final_data, status.HTTP_201_CREATED)
-    
+        return Response(final_data, status.HTTP_200_OK)
 
 
 class GetMessageDataView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
         data = []
         if (request.query_params and request.query_params['chat']):
             try:
                 serverrs = Server.objects.get(name=request.query_params['chat'])
-                server_name = serverrs.name
-                avatar = serverrs.avatar
-                messages = serverrs.server_message.all()
+                messages = serverrs.server_message.exclude(blocked__contains=[request.user.id]).order_by('timestamp')
                 id = -1
                 if serverrs.visibility == 'protected':
                     id1,id2 = serverrs.name.split('_')
                     id = id2
                     if (id1 != request.user.id):
                         id = id1
+                member_user = serverrs.members
+                alluserdata = {}
+                for member_id in member_user:
+                    alluserdata[member_id] = getUserData(request,member_id)
                 for message in messages:
-                    userdata =  getUserData(request,message.sender_id)
-                    if (id == message.sender_id):
-                        avatar = userdata.avatar
+                    userdata = alluserdata[message.sender_id]
                     body = {
                         'content':message.content,
-                        'timestamp':message.timestamp.strftime("%H:%M%p"),
+                        'timestamp':message.timestamp,
                         'avatar':userdata['avatar'],
                         'username':userdata['username'],
-                        'visibility':message.server.visibility
+                        'visibility':message.server.visibility,
+                        'message_id':message.pk,
+                        'created_at':message.timestamp
                     }
                     data.append(body)
             except Server.DoesNotExist:
@@ -181,3 +171,35 @@ class GetMessageDataView(generics.GenericAPIView):
 
             return Response(data, status.HTTP_200_OK)
         return Response({'error':'invalide queryparam'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        try:
+            message_delete = Message.objects.get(pk=request.data['message_id'])
+            server = Server.objects.get(name=request.data['server_name'])
+            if request.data['delete_type'] == "for_everyone":
+                message_delete.delete()
+
+            elif len(message_delete.blocked) + 1 == len(server.members):
+                message_delete.delete()
+
+            else:
+                message_delete.blocked.append(request.user.id)
+                message_delete.save()
+            return Response({"success:message deleted"}, status.HTTP_200_OK)
+        except Message.DoesNotExist:
+            return Response({'error':'No message was Found'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ServerInfo(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        if (request.query_params and request.query_params['server']):
+            try:
+                server = Server.objects.get(name=request.query_params['server'])
+                server = ServerSerializer(server).data
+
+                return Response({"visibility":server['visibility']}, status.HTTP_200_OK)
+
+            except Server.DoesNotExist:
+                return Response({'error':'invalide query param'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({}, status.HTTP_200_OK)

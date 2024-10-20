@@ -43,7 +43,9 @@ export default class Root_Page extends HTMLElement {
 
 	disconnectedCallback() {}
 
-	attributeChangedCallback(name, oldValue, newValue) {}
+	attributeChangedCallback(name, oldValue, newValue) {
+		
+	}
 }
 
 customElements.define("root-page", Root_Page);

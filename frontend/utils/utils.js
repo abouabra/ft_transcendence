@@ -47,8 +47,8 @@ async function makeRequest(url, method = "GET", data = null) {
 		}
 		if (response.status >= 400) 
 		{
-			let ok = await response.json()
-			let error = ok.non_field_errors[0]
+			let data = await response.json()
+			let error = data.non_field_errors[0] || data.detail || data.message;
 			throw new Error(error);
 		}
 

@@ -4,15 +4,26 @@ export default class ChatSideBar extends HTMLElement {
 		
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_page.css'));
-		this.promise_data = makeRequest('/api/chat/get_server_data/')
 	}
 	render_page(data)
 		{
+			let servername = location.pathname.substring(6)
 			this.innerHTML = /* html */`
 				${ data.map((item) => {
-						console.log(item)
-						return /* html */ `
-						<div  class="d-flex flex-row side-message-bar align-items-center ${item.visibility}" id=${item.server_name}>
+						let selectedchat = ''
+
+						let messagetext = document.createElement('span')
+						messagetext.classList.add('p3_regular')
+						messagetext.classList.add('platinum_40_color')
+						messagetext.classList.add('message_text')
+						let newlinebr = item.latest_message.indexOf('\n')
+						if (newlinebr !== -1)
+							item.latest_message = item.latest_message.substring(0, newlinebr) + '...'
+						messagetext.innerText = item.latest_message
+						if (servername === item.server_name)
+							selectedchat="selectedchat"
+						let result =  /* html */ `
+						<div  class="d-flex flex-row side-message-bar align-items-center ${item.visibility} ${selectedchat}" id=${item.server_name}>
 							<div class="position-relative">
 								${
 									item.status === "online" ? /* html */`
@@ -33,10 +44,11 @@ export default class ChatSideBar extends HTMLElement {
 									<span class="p2_bold">${item.name}</span>
 									<span class="p4_regular platinum_40_color time-message">${item.latest_timestamp}</span>
 								</div>
-								<span class="p3_regular platinum_40_color message_text">${item.latest_message}</span>
+								${messagetext.outerHTML}
 							</div>
 						</div>
 						`;
+						return result
 					}).join("")
 				}
 				`;
@@ -56,32 +68,41 @@ export default class ChatSideBar extends HTMLElement {
 
 	disconnectedCallback() {}
 	async attributeChangedCallback(name, oldValue, newValue) {
-		let body = await this.promise_data
+
 		let data = []
-		if (name === 'type')
-		{
-			if (newValue === "Direct")
+		makeRequest('/api/chat/get_server_data/').then((body)=>{
+			if (name === 'type')
 			{
-				for(let i = 0; i < body.length; i++)
+				if (newValue === "Direct")
 				{
-					if (body[i].visibility === "protected")
-						data.push(body[i])
-				}
-				this.render_page(data);
-			}
-			else if (newValue === "Server")
-			{
-				for(let i = 0; i < body.length; i++)
-				{
-					if (body[i].visibility !== "protected")
+					for(let i = 0; i < body.length; i++)
 					{
-						body[i].status = "none"
-						data.push(body[i])
+						if (body[i].visibility === "protected")
+							data.push(body[i])
 					}
+					this.render_page(data);
 				}
-				this.render_page(data);
+				else if (newValue === "Server")
+				{
+					for(let i = 0; i < body.length; i++)
+					{
+						if (body[i].visibility !== "protected")
+						{
+							body[i].status = "none"
+							body[i].latest_timestamp = new Date(body[i].latest_timestamp).toLocaleString()
+							// 
+							// 
+							// 
+							// 
+							// 
+							// 
+							data.push(body[i])
+						}
+					}
+					this.render_page(data);
+				}
 			}
-		}
+		})
 	}
 	static get observedAttributes() {
 		return ["type"];

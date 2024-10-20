@@ -10,31 +10,31 @@ export default class Chat_Browse extends HTMLElement {
         let user_data = ''
         makeRequest(`/api/chat/get_serverlist/`, 'GET')
         .then(data =>{
-            for(let i =0; i < data.length;i++)
+            data.forEach(element =>
             {
                 user_data += /* html*/`
                 <div class="server_content">
-                <div class="infoblock">
-                    <img src="/assets/images/server_avatars/f1.jpeg">
-                    <div class="d-flex flex-column block1">
-                        <span class="p1_bold">Name</span>
-                        <span class="header_h3">${data[i].server_name}</span>
-                    </div>
-                    <div class="d-flex flex-column align-items-center block2">
-                        <span class="p1_bold">member</span>
-                        <span class="header_h3">${data[i].member.length}</span>
-                    </div>
-                    <div class="d-flex flex-column block3">
-                        <span class="p1_bold">visibility</span>
-                        <span class="header_h3">${data[i].visibility}</span>
-                    </div>
-                    <div>
-                        <button-component class="join_server" data-text="join"></button-component>
+                    <div class="infoblock">
+                        <img class="serverimage" src="${element.avatar}">
+                        <div class="d-flex flex-column block1">
+                            <span class="p1_bold">Name</span>
+                            <span class="header_h3">${element.server_name}</span>
+                        </div>
+                        <div class="d-flex flex-column align-items-center block2">
+                            <span class="p1_bold">member</span>
+                            <span class="header_h3">${element.member.length}</span>
+                        </div>
+                        <div class="d-flex flex-column block3">
+                            <span class="p1_bold">visibility</span>
+                            <span class="header_h3">${element.visibility}</span>
+                        </div>
+                        <div>
+                            <button-component class="join_server" data-text="join" id="${element.server_name}"></button-component>
+                        </div>
                     </div>
                 </div>
-            </div>
                 `
-            }
+            })
             
             
             this.innerHTML = /* html */`
@@ -55,15 +55,19 @@ export default class Chat_Browse extends HTMLElement {
             
             `
             let joinbtn = this.querySelectorAll(".join_server")
-            console.log(joinbtn)
-            // joinbtn.addEventListener('click', ()=>{
-            //     if (data[i].visibility === "private")
-            //     {
-
-            //     }
-            //     else
-            //         GoTo('/chat/${data[i].server_name}')
-            // })
+            joinbtn.addEventListener('click', ()=>{
+                let body = {
+                    "server_name":joinbtn.id,
+                }
+                if (data[i].visibility === "private")
+                {
+                    makeRequest('/api/chat/joined_servers/', 'POST', body)
+                }
+                else
+                {
+                    GoTo(`/chat/${data[i].server_name}`)
+                }
+            })
      })
 	}
 	connectedCallback() {

@@ -95,7 +95,7 @@ select:focus
     display: none;
     position: absolute;
     gap:50px;
-    background-color: rgba(8, 9, 10, 0.5);
+    background-color: rgba(0, 0, 0, 0.8);
     border-radius: 13px;
 
 }

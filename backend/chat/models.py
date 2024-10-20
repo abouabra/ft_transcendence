@@ -39,6 +39,6 @@ class Message(models.Model):
     sender_id = models.IntegerField()
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    
+    blocked = ArrayField(models.IntegerField(), blank=True, default=list)
     def __str__(self):
         return f"{self.server.name} - {self.sender_id} - {self.timestamp}"

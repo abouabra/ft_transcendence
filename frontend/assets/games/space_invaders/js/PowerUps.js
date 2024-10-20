@@ -54,7 +54,7 @@ class PowerUp {
                 Math.random() * space - space / 2,
                 Math.random() * space - space / 2
             );
-            if (random_position.distanceTo(this.player.mesh.position) > 5)
+            if (random_position.distanceTo(this.player.position) > 5)
                 break;
         }
 

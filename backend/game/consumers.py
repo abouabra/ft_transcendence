@@ -25,6 +25,7 @@ class Game_Room():
         self.player2 = player2
         self.match_history = None
         self.game_task = None
+        self.client_ready = 0
 
     def __str__(self):
         return f"{self.game_name} - {self.player1} - {self.player2}"
@@ -144,7 +145,13 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
             logger.error(f'\n\n\n\nclosing connection\n\n\n\n\n')
+        
+        elif type == "si_clients_ready":
+            game_obj = GAME_ROOMS[text_data_json["game_room_id"]]
+            game_obj.client_ready += 1
             
+            if game_obj.client_ready == 2:
+                await self.start_game_task(game_obj)
 
     async def add_to_queue(self, player, game_name):
         logger.error(f'add_to_queue: {player.user_id} , {game_name}')
@@ -179,17 +186,22 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         await player1.ws_obj.send(text_data=json.dumps(message))
         await player2.ws_obj.send(text_data=json.dumps(message))
-        
+
+        # game_obj.game_task = asyncio.create_task(self.space_invaders_game_loop(game_obj))
+        # logger.error(f'\n\n\n\ncreated task: {game_obj.game_task}\n\n\n\n\n')
+
+
+    async def start_game_task(self, game_obj):
         game_obj.game_task = asyncio.create_task(self.space_invaders_game_loop(game_obj))
 
-        logger.error(f'\n\n\n\ncreated task: {game_obj.game_task}\n\n\n\n\n')
 
     async def space_invaders_game_loop(self, game_obj):
         player1 = game_obj.player1
         player2 = game_obj.player2
 
         while True:
-            await asyncio.sleep(1/60) # 60 fps
+            # await asyncio.sleep(1/60) # 60 fps
+            await asyncio.sleep(1/60) # 10 fps
             message = {
                 'type': 'si_from_server_to_client',
                 'data' : player2.get_space_invaders_data(),

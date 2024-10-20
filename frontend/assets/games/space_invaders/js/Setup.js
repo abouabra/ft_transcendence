@@ -9,6 +9,7 @@ class Setup {
         this.scene = new THREE.Scene();
         this.player = player;
         this.opponent = opponent;
+        this.game_task_switch = true;
 
         this.controls = new Controls(player);
         this.BaseFOV = 60; // Base field of view
@@ -175,10 +176,17 @@ class Setup {
             this.EndGame();
             return;
         }
+
         
         requestAnimationFrame(() => this.animate());
         
         if(!this.player.mesh || !this.opponent.mesh) return;
+
+
+        
+
+
+
         
         const deltatime = this.clock.getDelta();
 
@@ -206,6 +214,16 @@ class Setup {
 
         this.stats.update();
         this.renderer.render(this.scene, this.camera);
+
+        if(this.game_task_switch)
+        {
+            this.game_task_switch = false;
+            window.game_socket.send(JSON.stringify({
+                type: "si_clients_ready",
+                game_room_id: parseInt(localStorage.getItem('game_id')),
+            }));
+        }
+
     }
 
     onWindowResize() {

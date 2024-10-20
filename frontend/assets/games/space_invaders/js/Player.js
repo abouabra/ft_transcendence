@@ -4,9 +4,7 @@ import { Bullet } from '/assets/games/space_invaders/js/Bullet.js';
 
 class Player {
     constructor() {
-        this.geometry = new THREE.BoxGeometry(1, 1, 1);
-        this.material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh = null;
 
         this.position = new THREE.Vector3(0, 0, -100);
         this.quaternion = new THREE.Quaternion();
@@ -379,8 +377,8 @@ class Player {
         const data = {
             type: "si_send_from_client_to_server",
             user_id: parseInt(localStorage.getItem("id")),
-            position: this.position,
-            quaternion: this.quaternion,
+            position: this.mesh.position,
+            quaternion: this.mesh.quaternion,
 
         };
 

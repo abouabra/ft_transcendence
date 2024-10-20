@@ -156,7 +156,7 @@ export default class Play_Page extends HTMLElement {
 	
 			window.game_socket.onmessage = (event) => {
 				const data = JSON.parse(event.data);
-				console.log("play.js Game socket message: ", data);
+				console.log(`Play.js | Received data:`, data);
 
 				if(data.type == "start_game") 
 				{

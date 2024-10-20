@@ -9,11 +9,11 @@ export default class Game_Page extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/game_page.css'));
 
-		if(!window.game_socket)
-		{
-			GoTo("/play/");
-			return;
-		}
+			// if(!window.game_socket)
+			// {
+			// 	GoTo("/play/");
+			// 	return;
+			// }
 
 		const game_id = window.location.pathname.split("/")[3];
 		localStorage.setItem("game_id", game_id);
@@ -158,29 +158,29 @@ export default class Game_Page extends HTMLElement {
 
 
 		// remove the old event listener and add a new one
-		window.game_socket.removeEventListener("message", (event) => {});
-		window.game_socket.addEventListener("message", (event) => {
-			const data = JSON.parse(event.data);
-			// console.log("Game.js data from server", data);
-
-			if(data.type == "si_from_server_to_client")
+		window.game_socket.onmessage = null;
+		window.game_socket.onmessage = (event) => {
+			const response = JSON.parse(event.data);
+			console.log("Game.js response", response);
+			// console.log(`position: ${response.data.position} quaternion: ${response.data.quaternion}`);
+			
+			if(response.type == "si_from_server_to_client")
 			{
-				if(this.opponent.mesh && event.data.position && event.data.quaternion)
+				if(this.opponent.mesh && response.data.position && response.data.quaternion)
 				{
-					
-					this.opponent.ws_update(data.position, data.quaternion);
-					console.log("received data from server", data);
+					console.log("Game.js data from server", response.data);
+					this.opponent.ws_update(response.data.position, response.data.quaternion);
 				}
 			}
-			else if(data.type == "game_over")
+			else if(response.type == "game_over")
 			{
 				console.log("Game Over onmessage");
-				console.log("Game Over winner is", data.winner);
-				console.log("Game Over loser is", data.loser);
+				console.log("Game Over winner is", response.winner);
+				console.log("Game Over loser is", response.loser);
 				this.player.isAlive = false;
 				window.game_socket.close();
 			}
-		});
+		};
 	}
 
 	connectedCallback() {}

@@ -61,9 +61,13 @@ class Opponent {
     }
 
     ws_update(new_position, new_quaternion) {
-        this.position = new_position;
-        this.quaternion = new_quaternion;
-        this.mesh.position.copy(this.position);
+        // const vec_position = new THREE.Vector3(new_position.x, new_position.y, new_position.z);
+        const vec_quaternion = new THREE.Quaternion(new_quaternion._x, new_quaternion._y, new_quaternion._z, new_quaternion._w);
+
+
+        // this.position = vec_position;
+        this.quaternion = vec_quaternion;
+        // this.mesh.position.copy(this.position);
         this.mesh.quaternion.copy(this.quaternion);
     }
 

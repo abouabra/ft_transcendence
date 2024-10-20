@@ -152,19 +152,34 @@ class Setup {
     }
 
     EndGame() {
-        console.log('Game Over');
+        const current_user_data = {};
+		current_user_data.username = localStorage.getItem("username");
+		current_user_data.avatar = localStorage.getItem("avatar");
+		current_user_data.id = parseInt(localStorage.getItem("id"));
+
+
+        window.game_socket.send(JSON.stringify({
+            type: "game_over",
+            user: current_user_data,
+            game_room_id: parseInt(localStorage.getItem('game_id')),
+        }));
+
+        // window.game_socket.close();
+        console.log("i am dead | i am ", current_user_data.username);
     }
 
     animate() {
-
+        
         if (!this.player.isAlive)
         {
             this.EndGame();
             return;
         }
-
+        
         requestAnimationFrame(() => this.animate());
-
+        
+        if(!this.player.mesh || !this.opponent.mesh) return;
+        
         const deltatime = this.clock.getDelta();
 
         this.controls.update();

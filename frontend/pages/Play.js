@@ -11,6 +11,7 @@ export default class Play_Page extends HTMLElement {
 
 		this.first_stage_data = [
 			{img: "/assets/images/landing_page/pong-video-game.gif", text: "Pong 1972", game_name: "pong"},
+			{img: "/assets/images/landing_page/pong-video-game-2.gif", text: "Road Fighter 1984", game_name: "road_fighter"},
 			{img: "/assets/images/landing_page/pong-video-game-3.gif", text: "Space Invaders 1978", game_name: "space_invaders"},
 		]
 
@@ -68,6 +69,19 @@ export default class Play_Page extends HTMLElement {
 					if(this.selected_game == "space_invaders") {
 						this.selected_mode = "ranked";
 						this.construct_a_game();
+						return;
+					}
+					else if(this.selected_game == "road_fighter") {
+						
+						const cards_container = this.querySelector(".cards_container");
+						cards_container.innerHTML = /* html */`
+							<div class="d-flex flex-column align-items-center justify-content-center">
+								<span class="header_h2">Road Fighter 1984</span>
+								<span class="p1_bold">Work in progress</span>
+
+								<button-component data-text="Go Home" onclick="GoTo('/home/')" style="margin-top: 50px;"></button-component>
+							</div>
+						`;
 						return;
 					}
 					else {
@@ -140,9 +154,9 @@ export default class Play_Page extends HTMLElement {
 				console.log("Game socket error");
 			};
 	
-			window.game_socket.onmessage = function (event) {
+			window.game_socket.onmessage = (event) => {
 				const data = JSON.parse(event.data);
-				console.log("Game socket message: ", data);
+				console.log("play.js Game socket message: ", data);
 
 				if(data.type == "start_game") 
 				{

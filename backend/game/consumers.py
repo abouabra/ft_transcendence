@@ -5,6 +5,7 @@ from channels.db import database_sync_to_async
 from .models import Game_History, GameStats
 from .serializers import GameStatsSerializer,GameHistorySerializer
 from .utils import generate_id
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,7 @@ class Game_Room():
         self.player1 = player1
         self.player2 = player2
         self.match_history = None
+        self.game_task = None
 
     def __str__(self):
         return f"{self.game_name} - {self.player1} - {self.player2}"
@@ -49,6 +51,12 @@ class Player():
             'avatar': self.avatar,
         }
 
+    def get_space_invaders_data(self):
+        return {
+            'position': self.position,
+            'quaternion': self.quaternion,
+        }
+
 
 
 
@@ -56,16 +64,23 @@ class Player():
 
 
 class GameConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
         await self.accept()
 
     async def disconnect(self, close_code):
+
         # search for the player in the PLAYERS dict and remove them
-        for game_name in PLAYERS:
+        for game_name in PLAYERS :
             for object in PLAYERS[game_name]:
                 if self == PLAYERS[game_name][object].ws_obj:
-                    del PLAYERS[game_name][object]
-                    break
+                    for game_room_id in GAME_ROOMS:
+                        if PLAYERS[game_name][object] in [GAME_ROOMS[game_room_id].player1, GAME_ROOMS[game_room_id].player2]:
+                            GAME_ROOMS[game_room_id].game_task.cancel()
+                            del GAME_ROOMS[game_room_id]
+                            # del PLAYERS[game_name][object]
+                            self.close()
+                            return 
 
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
@@ -91,9 +106,45 @@ class GameConsumer(AsyncWebsocketConsumer):
             game_name = text_data_json["game_name"]
             del PLAYERS[game_name][user_id]
 
-        elif type == 'si_receive_data_from_client':
-            await self.si_receive_data_from_client(text_data_json)
+        elif type == 'si_send_from_client_to_server':
+            await self.si_send_from_client_to_server(text_data_json)
 
+        elif type == "game_over":
+            logger.error(f'\n\n\n\n\ngame_over: {text_data_json}\n\n\n\n\n')
+            user = text_data_json["user"]
+            user_id = user["id"]
+            game_obj = GAME_ROOMS[text_data_json["game_room_id"]]
+            
+            me = game_obj.player1 if game_obj.player1.user_id == user_id else game_obj.player2
+            opponent = game_obj.player1 if game_obj.player2.user_id == user_id else game_obj.player2
+            
+            logger.error(f"\n\n\n\n\nrecieved game over from {me} and winner is {opponent}\n\n\n\n\n")
+
+
+
+            message = {
+                    'type': 'game_over',
+                    'winner': opponent.get_user_info(),
+                    'loser': user,
+                }
+            
+            await opponent.ws_obj.send(text_data=json.dumps(message))
+            await me.ws_obj.send(text_data=json.dumps(message))
+            
+
+            game_obj.game_task.cancel()
+            
+            await opponent.ws_obj.close()
+            await me.ws_obj.close()
+            
+            del PLAYERS["space_invaders"][me.user_id]
+            del PLAYERS["space_invaders"][opponent.user_id]
+
+            await self.disconnect(1000)
+
+
+            logger.error(f'\n\n\n\nclosing connection\n\n\n\n\n')
+            
 
     async def add_to_queue(self, player, game_name):
         logger.error(f'add_to_queue: {player.user_id} , {game_name}')
@@ -109,7 +160,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             GAME_ROOMS[game_obj.id] = game_obj
 
             await self.start_game(GAME_ROOMS[game_obj.id])
-            # create task to start the game
 
 
     async def start_game(self, game_obj):
@@ -129,29 +179,37 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         await player1.ws_obj.send(text_data=json.dumps(message))
         await player2.ws_obj.send(text_data=json.dumps(message))
+        
+        game_obj.game_task = asyncio.create_task(self.space_invaders_game_loop(game_obj))
 
+        logger.error(f'\n\n\n\ncreated task: {game_obj.game_task}\n\n\n\n\n')
 
-
-    async def process_move(self, text_data_json):
-        logger.error('process_move')
-        game_obj = GAME_ROOMS[text_data_json['game_room_id']]
+    async def space_invaders_game_loop(self, game_obj):
         player1 = game_obj.player1
         player2 = game_obj.player2
 
-        pass
+        while True:
+            await asyncio.sleep(1/60) # 60 fps
+            message = {
+                'type': 'si_from_server_to_client',
+                'data' : player2.get_space_invaders_data(),
+            }
+
+            await player1.ws_obj.send(text_data=json.dumps(message))
+            
+            message['data'] = player1.get_space_invaders_data()
+            await player2.ws_obj.send(text_data=json.dumps(message))
 
 
-    async def si_receive_data_from_client(self, text_data_json):
-        player = PLAYERS['space_invaders'][text_data_json["user_id"]]
-        game = GAME_ROOMS[text_data_json['game_id']]
-        
-        player2 = game.player2 if game.player1.user_id == player.user_id else game.player1
-        
-        text_data_json['type'] = 'si_receive_data_from_server'
-        
-        player2.ws_obj.send(text_data=json.dumps(text_data_json))
 
-
+    async def si_send_from_client_to_server(self, text_data_json):
+        try:
+            player = PLAYERS['space_invaders'][text_data_json["user_id"]]
+            
+            player.position = text_data_json['position']
+            player.quaternion = text_data_json['quaternion']
+        except Exception as e:
+            pass
 
 
 

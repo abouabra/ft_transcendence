@@ -4,7 +4,7 @@ import { Bullet } from '/assets/games/space_invaders/js/Bullet.js';
 
 class Opponent {
     constructor() {
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh = null;
 
         this.position = new THREE.Vector3(0, 0, 100);
         this.quaternion = new THREE.Quaternion();
@@ -77,6 +77,8 @@ class Opponent {
     die() {
         this.setup.scene.remove(this.mesh);
         console.log("Opponent died");
+        this.setup.player.isAlive = false;
+        // this.setup.EndGame();
     }
 }
 

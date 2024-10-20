@@ -8,7 +8,7 @@ class Player {
         this.material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
-        this.position = new THREE.Vector3(0, 0, 0);
+        this.position = new THREE.Vector3(0, 0, -100);
         this.quaternion = new THREE.Quaternion();
         this.yawSpeed = 0.01; // Speed for yaw (left/right)
         this.pitchSpeed = 0.01; // Speed for pitch (up/down)
@@ -154,6 +154,9 @@ class Player {
         
         // Combine the movement and visual rotation quaternions
         this.mesh.quaternion.copy(movementQuaternion).multiply(visualRotationZQuaternion).multiply(visualRotationXQuaternion);
+
+
+        this.send_ws_data();
 
     }
 
@@ -374,15 +377,14 @@ class Player {
     send_ws_data()
     {
         const data = {
-            type: "si_receive_data_from_client",
+            type: "si_send_from_client_to_server",
             user_id: parseInt(localStorage.getItem("id")),
-            game_id: parseInt(localStorage.getItem("game_id")),
             position: this.position,
             quaternion: this.quaternion,
 
         };
 
-        this.setup.ws.send(JSON.stringify(data));
+        window.game_socket.send(JSON.stringify(data));
     }
 
 

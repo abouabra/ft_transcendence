@@ -9,6 +9,12 @@ export default class Game_Page extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/game_page.css'));
 
+		if(!window.game_socket)
+		{
+			GoTo("/play/");
+			return;
+		}
+
 		const game_id = window.location.pathname.split("/")[3];
 		localStorage.setItem("game_id", game_id);
 
@@ -24,6 +30,10 @@ export default class Game_Page extends HTMLElement {
 
 			this.render_data(data);
 		});
+		this.player = null;
+		this.opponent = null;
+
+		this.setup =  null;
 
 		
 	}	
@@ -136,7 +146,8 @@ export default class Game_Page extends HTMLElement {
 				</div>
 			</div>
 		`;
-				
+
+		
 		this.player = new Player();
 		this.opponent = new Opponent();
 
@@ -145,16 +156,31 @@ export default class Game_Page extends HTMLElement {
 		this.player.setSetup(this.setup);
 		this.opponent.setSetup(this.setup);
 
-		window.game_socket.onmessage = function (event) {
+
+		// remove the old event listener and add a new one
+		window.game_socket.removeEventListener("message", (event) => {});
+		window.game_socket.addEventListener("message", (event) => {
 			const data = JSON.parse(event.data);
-			console.log("data from game.js", data);
+			// console.log("Game.js data from server", data);
 
-			if(data.type == "si_receive_data_from_server")
+			if(data.type == "si_from_server_to_client")
 			{
-				console.log("received data from server", data);
+				if(this.opponent.mesh && event.data.position && event.data.quaternion)
+				{
+					
+					this.opponent.ws_update(data.position, data.quaternion);
+					console.log("received data from server", data);
+				}
 			}
-
-		};
+			else if(data.type == "game_over")
+			{
+				console.log("Game Over onmessage");
+				console.log("Game Over winner is", data.winner);
+				console.log("Game Over loser is", data.loser);
+				this.player.isAlive = false;
+				window.game_socket.close();
+			}
+		});
 	}
 
 	connectedCallback() {}

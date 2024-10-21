@@ -11,16 +11,14 @@ export default class ChatBody extends HTMLElement {
 
 		let result_data = ''
 		this.server_name = location.pathname.split('/').pop()
-
-
 		makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then(data => {
-			console.log(`data == = ${data[0].server_name}`)
-			for (let i = 0; i < data.length; i++) {
-				if (data[i].server_name === this.server_name) {
-					result_data = data[i]
-					break;
-				}
-			}
+
+			// for (let i = 0; i < data.length; i++) {
+				// if (data[i].server_name === this.server_name) {
+					result_data = data[0] // i to 0
+					// break;
+				// }
+			// }
 			this.innerHTML = /* html */`
 			<div class="chatbodymain">
 				<div class="chatbody-container">
@@ -29,7 +27,7 @@ export default class ChatBody extends HTMLElement {
 						<div class="d-flex flex-column align-items-start">
 							<span class="p1_bold">${result_data.name}</span>
 							${ result_data.visibility === "protected" ? `<span class="p3_regular platinum_40_color">${result_data.status}</span>`
-								: `<span class="p3_regular platinum_40_color">Total member: ${result_data.member.length+1}</span>`
+								: `<span class="p3_regular platinum_40_color">${result_data.member.length+1} members are online</span>`
 							}
 						</div>
 					</div>
@@ -61,9 +59,9 @@ export default class ChatBody extends HTMLElement {
 				if (text)
 				{
 					socket.send(JSON.stringify({
+						"content": text,
 						"avatar":localStorage.getItem('avatar'),
 						"username": localStorage.getItem('username'),
-						"content": text,
 						"user_id": localStorage.getItem("id"),
 						"server_name": window.location.pathname.substring(6)
 					}))
@@ -100,8 +98,8 @@ export default class ChatBody extends HTMLElement {
 			})
 		}
 		socket.onmessage = (event)=>{
-			console.log(`message received = ${event.data}`)
 			this.append_message(JSON.parse(event.data))
+
 			let sidechat = document.querySelector("chat-side-bar")
 			sidechat.setAttribute('type', sidechat.getAttribute('type'))
 			this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
@@ -123,7 +121,7 @@ export default class ChatBody extends HTMLElement {
 		this.textAreaAdjust();	
 	}
 	append_message(data) {
-		console.log(`message send = ${data.content}`)
+
 		this.render_messageblock(data)
 	}
 
@@ -134,7 +132,8 @@ export default class ChatBody extends HTMLElement {
 		const hour_past = new Date() - dateObject;
 		const hoursDifference = hour_past / (1000 * 60 * 60);
 		let divmessage_body = document.createElement('div')
-		let message_time = epochToLocalTimeString(parseInt(data.timestamp))
+		let time_now = new Date(data.timestamp)
+		let message_time = `${time_now.getHours()}:${time_now.getMinutes()}${time_now.getHours() > 12 ? 'PM' : 'AM'}`
 		divmessage_body.classList.add('message-body')
 
 		divmessage_body.innerHTML = /* html */ `
@@ -173,7 +172,11 @@ export default class ChatBody extends HTMLElement {
 
 			let content_element = divmessage_body.querySelector(".messageblockcontent")
 			let delete_msg = divmessage_body.querySelector(".delete_message");
+			let message_name = divmessage_body.querySelector(".message_name");
 
+			message_name.addEventListener('click', ()=>{
+				GoTo(`/profile/${data.user_id}`)
+			})
 			if (data.username == localStorage.getItem("username"))
 			{
 				if (hoursDifference <= 1)
@@ -234,12 +237,6 @@ attributeChangedCallback(name, oldValue, newValue) { }
 customElements.define("chat-body", ChatBody);
 
 
-function epochToLocalTimeString(epochTime) {
-	// epochTime to time zone in string
-	let time = new Date(epochTime);
-	return `${time.getHours()}:${time.getMinutes()}${time.getHours() >= 12 ? 'PM' : 'AM'}`
-}
-
 function delete_le_message(tag , server_name, delete_type, id)
 {
 	let msg_id = id
@@ -247,5 +244,5 @@ function delete_le_message(tag , server_name, delete_type, id)
 	let element_todel = tag.querySelector(`#message_${msg_id}`)
 	let parent = element_todel.parentNode;
 	parent.removeChild(element_todel);
-	makeRequest('/api/chat/get_message_data/', 'POST', {'message_id':msg_id, 'server_name':server_name, 'delete_type':delete_type})
+	makeRequest(`/api/chat/get_message_data/?chat=${msg_id}&server=${server_name}&type=${delete_type}`, 'DELETE')
 }

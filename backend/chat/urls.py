@@ -8,5 +8,6 @@ urlpatterns = [
     path('get_message_data/', views.GetMessageDataView.as_view(), name='get_message_data'),
     path('get_serverlist/', views.GetServerListView.as_view(), name='get_serverlist'),
     path('server_info/', views.ServerInfo.as_view(), name='server_info'),
+    path('server_JoinedData/<str:name>/', views.GetServerjoinedDataView.as_view(), name='server_JoinedData'),
     
 ]

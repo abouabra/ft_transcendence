@@ -69,7 +69,24 @@ class GetServerListView(generics.GenericAPIView):
             })
         return Response(final_data, status.HTTP_201_CREATED)
     
-    
+
+class GetServerjoinedDataView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request, name):
+        server_name = name
+        server = Server.objects.filter(name=server_name)
+        if server:
+            server = ServerSerializer(server,many=True).data[0]
+            print(server)
+            data = {
+                "server_name":server_name,
+                "visibility":server['visibility'],
+                "avatar":server['avatar'],
+                "members":len(server['members'])
+            }
+            return Response(data, status.HTTP_200_OK)
+        return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
+
 
 class GetServerDataView(generics.GenericAPIView):
 
@@ -97,7 +114,7 @@ class GetServerDataView(generics.GenericAPIView):
             avatar = server['avatar']
             username = server_name
             try:
-                latest_msg_obj = Message.objects.filter(server=servers[index]).order_by("timestamp")
+                latest_msg_obj = Message.objects.filter(server=servers[index]).exclude(blocked__contains=[request.user.id]).order_by("timestamp")
                 if(latest_msg_obj.count() > 0): 
                     latest_msg_obj = latest_msg_obj.last()
                     latest_message_data = MessageSerializer(latest_msg_obj).data
@@ -163,7 +180,8 @@ class GetMessageDataView(generics.GenericAPIView):
                         'username':userdata['username'],
                         'visibility':message.server.visibility,
                         'message_id':message.pk,
-                        'created_at':message.timestamp
+                        'created_at':message.timestamp,
+                        'user_id':message.sender_id
                     }
                     data.append(body)
             except Server.DoesNotExist:
@@ -172,11 +190,17 @@ class GetMessageDataView(generics.GenericAPIView):
             return Response(data, status.HTTP_200_OK)
         return Response({'error':'invalide queryparam'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self, request):
+    def delete(self, request):
+        if (request.query_params and request.query_params['chat']):
+            data = {
+                'message_id':request.query_params['chat'],
+                'server_name':request.query_params['server'],
+                'delete_type':request.query_params['type']
+            }
         try:
-            message_delete = Message.objects.get(pk=request.data['message_id'])
-            server = Server.objects.get(name=request.data['server_name'])
-            if request.data['delete_type'] == "for_everyone":
+            message_delete = Message.objects.get(pk=data['message_id'])
+            server = Server.objects.get(name=data['server_name'])
+            if data['delete_type'] == "for_everyone":
                 message_delete.delete()
 
             elif len(message_delete.blocked) + 1 == len(server.members):

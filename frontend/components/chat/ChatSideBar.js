@@ -7,9 +7,14 @@ export default class ChatSideBar extends HTMLElement {
 	}
 	render_page(data)
 		{
+
 			let servername = location.pathname.substring(6)
 			this.innerHTML = /* html */`
 				${ data.map((item) => {
+						if (item.latest_timestamp === '')
+						{
+							item.latest_timestamp = ''
+						}
 						let selectedchat = ''
 
 						let messagetext = document.createElement('span')
@@ -71,6 +76,8 @@ export default class ChatSideBar extends HTMLElement {
 
 		let data = []
 		makeRequest('/api/chat/get_server_data/').then((body)=>{
+			
+			
 			if (name === 'type')
 			{
 				if (newValue === "Direct")
@@ -78,7 +85,14 @@ export default class ChatSideBar extends HTMLElement {
 					for(let i = 0; i < body.length; i++)
 					{
 						if (body[i].visibility === "protected")
+						{
+							if (body[i].latest_timestamp)
+							{
+								let time_now = new Date(body[i].latest_timestamp)
+								body[i].latest_timestamp = `${time_now.getHours()}:${time_now.getMinutes()}${time_now.getHours() > 12 ? ' PM' : ' AM'}`
+							}
 							data.push(body[i])
+						}
 					}
 					this.render_page(data);
 				}
@@ -89,13 +103,11 @@ export default class ChatSideBar extends HTMLElement {
 						if (body[i].visibility !== "protected")
 						{
 							body[i].status = "none"
-							body[i].latest_timestamp = new Date(body[i].latest_timestamp).toLocaleString()
-							// 
-							// 
-							// 
-							// 
-							// 
-							// 
+							if (body[i].latest_timestamp)
+							{
+								let time_now = new Date(body[i].latest_timestamp)
+								body[i].latest_timestamp = `${time_now.getHours()}:${time_now.getMinutes()}${time_now.getHours() > 12 ? ' PM' : ' AM'}`
+							}
 							data.push(body[i])
 						}
 					}

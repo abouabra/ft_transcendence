@@ -2,7 +2,7 @@ import json
 from .models import Message, Server
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-
+import datetime
 class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
@@ -23,6 +23,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         text_data_json = json.loads(text_data)
         print(text_data_json)
+        print(text_data_json)
+        print(text_data_json)
+        print(text_data_json)
+        print(text_data_json)
+        print(text_data_json)
+        print(text_data_json)
         message = text_data_json["content"]
         server_name = text_data_json["server_name"]
         user_id = text_data_json["user_id"]
@@ -30,8 +36,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         db_msg = await self.create_message(server_chat, user_id, message)
         text_data_json["message_id"] = db_msg.id
         print(f"Message send by {user_id} channel: {server_name} message: {message}")
-        text_data_json['timestamp'] =  db_msg.timestamp.timestamp()
-        
+        text_data_json['timestamp'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
         event = {
             "type": "chat_message",
             "message": text_data_json,
@@ -54,6 +60,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from room group
     async def chat_message(self, event):
         text_data_json = event["message"]
-
+        print(f"Message received by {self.room_name} channel: {text_data_json}")
         # Send message to WebSocket
         await self.send(text_data=json.dumps(text_data_json))

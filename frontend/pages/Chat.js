@@ -60,11 +60,6 @@ export default class Chat_Page extends HTMLElement {
 			const Server = this.getElementsByClassName("select-server")[0];
 			const Bar = this.getElementsByClassName("Bar")[0];
 
-
-			Bar.setAttribute('type', 'Direct')
-			Direct.classList.add("activedirection")
-			Server.classList.remove("activedirection")
-
 			if (data.visibility === 'protected')
 			{
 				Bar.setAttribute('type', 'Direct')

@@ -19,13 +19,13 @@ import Tournament_Page from "./Tournament.js";
 import Chat_Page from "./Chat.js";
 import Chat_Browse from "./Chat_browse_server.js";
 import Create_Server_page from "./Chat_creat_server.js";
+import Chat_join_server from "./Chat_join_server.js";
 import Leaderboard_Page from "./Leaderboard.js";
 import Shop_Page from "./Shop.js";
 import Notifications_Page from "./Notifications.js";
 import Profile_Page from "./Profile.js";
 import Settings_Page from "./Settings.js";
 import Small_Cards from "../components/common/small_cards.js";
-
 
 export default class Root_Page extends HTMLElement {
 	constructor() {

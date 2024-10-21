@@ -65,6 +65,20 @@ chat-page {
     gap: 40px;
 }
 
+.Bar
+{
+    width: 300px;
+    height: 800px;
+
+}
+
+
+
+.Bar .side-message-bar:first-child
+{
+    border-top: 1px solid var(--platinum_40_percent);
+}
+
 .side-message-bar
 {
     height: fit-content;

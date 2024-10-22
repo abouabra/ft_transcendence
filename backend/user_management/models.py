@@ -21,6 +21,9 @@ class User(AbstractUser):
 
     friends = models.ManyToManyField("self", blank=True, symmetrical=False)
 
+
+
+
     def __str__(self):
         return f"{self.username}"
 

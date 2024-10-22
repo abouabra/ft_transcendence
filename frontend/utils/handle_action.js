@@ -100,23 +100,46 @@ function handle_action(action, id, data = null) {
 	{
 		const roller = document.querySelector('.avatar-roller');
 		const opponentAvatar = document.getElementById('opponentAvatar');
-		const statusText = document.getElementById('statusText');
+		const statusText = document.getElementById('match-making-user-status-text');
 
 		// Start slowing down the animation
 		roller.classList.add('slowing');
-		
+
+		const timer = document.querySelector('.match-making-timer-bar .header_h1');
+		let seconds = 6;
+
+		function ReverseUpdateTimer() {
+			seconds--;
+			
+			if(seconds === -1) {
+				seconds = 0;
+			}
+
+			timer.textContent = `00 : 0${seconds}`;
+		}
+
+		const updateTimerID = setInterval(ReverseUpdateTimer, 1000);
+
 		setTimeout(() => {
 			// Stop the animation
 			roller.classList.remove('slowing');
 			roller.classList.add('stopped');
-			
+
 			// Show opponent's avatar
-			opponentAvatar.src = data.avatar;
+			opponentAvatar.src = data.opponent.avatar;
 			opponentAvatar.classList.add('visible');
 			
 			// Update status text
-			statusText.textContent = data.username;
-		}, 3000); // Adjust this time to match the slowing animation duration
+			statusText.textContent = data.opponent.username;
+
+			setTimeout(() => {
+				clearInterval(updateTimerID);
+				GoTo(`/play/game/${data.game_room_id}`);
+			}, 3000);
+
+		}, 3000);
+
+
 	}
 
 }

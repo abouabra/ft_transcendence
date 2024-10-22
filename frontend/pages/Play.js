@@ -8,6 +8,7 @@ export default class Play_Page extends HTMLElement {
 
 		this.selected_game = null;
 		this.selected_mode = null;
+		this.updateTimerID = null;
 
 		this.first_stage_data = [
 			{img: "/assets/images/landing_page/pong-video-game.gif", text: "Pong 1972", game_name: "pong"},
@@ -90,7 +91,6 @@ export default class Play_Page extends HTMLElement {
 							{
 								all_cards[i].innerHTML = "";
 								all_cards[i].style.display = "none";
-								// all_cards[i].remove();
 							}
 							else
 							{								
@@ -174,12 +174,20 @@ export default class Play_Page extends HTMLElement {
 					
 					localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
 					
-					handle_action("reveal_opponent", opponent.id, opponent);
+					clearInterval(this.updateTimerID);
+
+					const match_making_timer = document.querySelector('.match-making-timer');
+					match_making_timer.style.backgroundColor = "var(--primary_color)";
+
+					const status_text = document.getElementById("match-making-user-status-text");
+					status_text.textContent = "Match Found";
+
+					handle_action("reveal_opponent", opponent.id, {
+						opponent,
+						game_room_id: data.game_room_id,
+					});
 					
-					setTimeout(() => {
-						console.log("Game started between", data.player1.id, "and", data.player2.id);
-						GoTo(`/play/game/${data.game_room_id}`);
-					}, 3000);
+					
 				}
 
 			};
@@ -187,7 +195,6 @@ export default class Play_Page extends HTMLElement {
 
 			this.match_making();
 		}
-
 
 		else if(this.selected_mode == "local") {		
 			makeRequest("/api/game/construct_local_game/", "POST", {
@@ -217,12 +224,10 @@ export default class Play_Page extends HTMLElement {
 
 				<div class="match-making-user">
 					<div id="avatarContainer" class="match-making-user-avatar-container platinum_40_color_border">
-						<div class="avatar-roller">
-							<!-- Avatars will be inserted here by JavaScript -->
-						</div>
+						<div class="avatar-roller"></div>
 						<img id="opponentAvatar" class="opponent-avatar" alt="Opponent Avatar">
 					</div>
-					<span id="statusText" class="header_h2"> searching ... </span>
+					<span id="match-making-user-status-text" class="header_h2"> searching ... </span>
 				</div>
 			</div>
 
@@ -243,11 +248,19 @@ export default class Play_Page extends HTMLElement {
 		let minutes = 0;
 		let seconds = 0;
 
-		function updateTimer() {
-			seconds++;
+		function updateTimer(reverse = false) {
+			if(reverse)
+				seconds--;
+			else
+				seconds++;
+
 			if (seconds === 60) {
 				seconds = 0;
 				minutes++;
+			}
+			else if(seconds === -1) {
+				seconds = 59;
+				minutes--;
 			}
 
 			let minutesDisplay = minutes < 10 ? '0' + minutes : minutes;
@@ -256,7 +269,7 @@ export default class Play_Page extends HTMLElement {
 			timer.textContent = minutesDisplay + ' : ' + secondsDisplay;
 		}
 
-		setInterval(updateTimer, 1000);
+		this.updateTimerID = setInterval(updateTimer, 1000);
 
 
 		

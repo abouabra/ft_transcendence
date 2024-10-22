@@ -68,10 +68,12 @@ game-page{
     gap: 20px;
 }
 
-.game-page-user-data .header_h3:hover{
+.game-page-header-users-highlight:hover
+{
     cursor: pointer;
     text-decoration: underline;
 }
+
 
 .game-page-user-data-image:hover{
     cursor: pointer;

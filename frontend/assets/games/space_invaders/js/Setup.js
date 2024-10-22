@@ -161,18 +161,21 @@ class Setup {
         else
             uid = parseInt(localStorage.getItem("opponent_id"));
 
+        let game_time_div = document.getElementById("game-page-game-timer").innerText.split(" : ");
+        let game_time_in_seconds_int = parseInt(game_time_div[0]) * 60 + parseInt(game_time_div[1]);
+        console.log("game time in seconds", game_time_in_seconds_int);
 
+       
 
         if(window.game_socket) {
             window.game_socket.send(JSON.stringify({
                 type: "game_over",
                 user_id: uid,
                 game_room_id: parseInt(localStorage.getItem('game_id')),
+                game_time : game_time_in_seconds_int
             }));
             console.log("i am dead | i am ", uid);
         }
-
-        // window.game_socket.close();
     }
 
     animate() {

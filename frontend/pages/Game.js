@@ -9,11 +9,7 @@ export default class Game_Page extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/game_page.css'));
 
-			if(!window.game_socket)
-			{
-				GoTo("/play/");
-				return;
-			}
+			
 
 		const game_id = window.location.pathname.split("/")[3];
 		localStorage.setItem("game_id", game_id);
@@ -27,20 +23,14 @@ export default class Game_Page extends HTMLElement {
 				`;
 				return;		
 			}
-			// const fake_data = {
-			// 	loser: {
-			// 		id: 2, 
-			// 		username: "ayman", 
-			// 		avatar: "/assets/images/avatars/abouabra.jpg"
-			// 	},
-			// 	winner: { 
-			// 		id: 1, 
-			// 		username: "admin", 
-			// 		avatar: "/assets/images/avatars/default.jpg"
-			// 	},
-			// };
-			// this.display_game_results(fake_data);
 
+
+			// if(!window.game_socket)
+			// {
+			// 	GoTo("/play/");
+			// 	return;
+			// }
+			
 
 			this.render_data(data);
 		});
@@ -75,7 +65,7 @@ export default class Game_Page extends HTMLElement {
 					<img src="${data.player1.avatar}" alt="game image" class="game-page-user-data-image">
 					<div class="game-page-user-data">
 						<span class="p3_bold platinum_40_color">username</span>
-						<span class="header_h3">${data.player1.username}</span>
+						<span class="header_h3 game-page-header-users-highlight">${data.player1.username}</span>
 					</div>
 				</div>
 
@@ -99,7 +89,7 @@ export default class Game_Page extends HTMLElement {
 				<div class="game-page-user-data-container" data-user-id="${data.player2.id}">
 					<div class="game-page-user-data">
 						<span class="p3_bold platinum_40_color">username</span>
-						<span class="header_h3">${data.player2.username}</span>
+						<span class="header_h3 game-page-header-users-highlight">${data.player2.username}</span>
 					</div>
 					<img src="${data.player2.avatar}" alt="game image" class="game-page-user-data-image">
 				</div>
@@ -199,6 +189,7 @@ export default class Game_Page extends HTMLElement {
 				console.log("Game Over winner is", response.winner);
 				console.log("Game Over loser is", response.loser);
 				this.player.isAlive = false;
+				
 				window.game_socket.close();
 				this.display_game_results(response);
 			}
@@ -208,7 +199,7 @@ export default class Game_Page extends HTMLElement {
 
 	display_game_results(result)
 	{
-		this.innerHTML = /* html */`
+		this.innerHTML += /* html */`
 			<div class="display_game_results_bg">
 				<div class="display_game_results_container">
 					<div class="display_game_results_winner">
@@ -233,13 +224,16 @@ export default class Game_Page extends HTMLElement {
 
 	disconnectedCallback() {
 		console.log("disconnected from game page");
-		const current_user_data = {};
-		current_user_data.id = parseInt(localStorage.getItem("id"));
+		const uid = parseInt(localStorage.getItem("id"));
+		let game_time_div = document.getElementById("game-page-game-timer").innerText.split(" : ");
+		let game_time_in_seconds_int = parseInt(game_time_div[0]) * 60 + parseInt(game_time_div[1]);
+		console.log("game time in seconds", game_time_in_seconds_int);
 
 		window.game_socket.send(JSON.stringify({
 			type: "game_over",
-			user: current_user_data,
+			user_id: uid,
 			game_room_id: parseInt(localStorage.getItem('game_id')),
+			game_time : game_time_in_seconds_int
 		}));
 
 		window.game_socket.close();

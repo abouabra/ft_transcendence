@@ -4,8 +4,8 @@ import json
 from channels.db import database_sync_to_async
 from .models import Game_History, GameStats
 from .serializers import GameStatsSerializer,GameHistorySerializer
-from .utils import generate_id
 import asyncio
+from .utils import update_stats_after_game, ELO_System
 
 logger = logging.getLogger(__name__)
 
@@ -131,6 +131,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         elif type == "game_over":
             logger.error(f'\n\n\ngame_over: {text_data_json}\n\n\n')
             user_id = text_data_json["user_id"]
+            game_time = text_data_json["game_time"]
             game_obj = GAME_ROOMS[text_data_json["game_room_id"]]
             
             me = game_obj.player1 if game_obj.player1.user_id == user_id else game_obj.player2
@@ -148,6 +149,31 @@ class GameConsumer(AsyncWebsocketConsumer):
 
             game_obj.game_task.cancel()
             
+            @database_sync_to_async
+            def wrapper():
+                player_1_score = game_obj.player1.score
+                player_2_score = game_obj.player2.score
+
+                match_obj = Game_History.objects.get(id=game_obj.id)
+
+                match_obj.player_1_score = player_1_score
+                match_obj.player_2_score = player_2_score
+                match_obj.game_duration = game_time
+
+                if player_1_score > player_2_score:
+                    match_obj.winner = game_obj.player1.user_id
+                elif player_1_score < player_2_score:
+                    match_obj.winner = game_obj.player2.user_id
+                else:
+                    match_obj.winner = -1
+
+                match_obj.save()
+                
+                update_stats_after_game(me.user_id, opponent.user_id, "space_invaders", game_obj.id)
+        
+            await wrapper()
+
+
             await opponent.ws_obj.close()
             await me.ws_obj.close()
             
@@ -158,7 +184,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             game_obj.player2 = None
 
             await self.disconnect(1000)
-        
+
         
         elif type == "si_clients_ready":
             game_obj = GAME_ROOMS[text_data_json["game_room_id"]]

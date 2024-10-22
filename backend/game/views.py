@@ -1,11 +1,10 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
-from datetime import datetime, timezone
 from rest_framework.pagination import PageNumberPagination
 from .models import Game_History, GameStats
 import logging
-from .utils import getUserData, generate_id
+from .utils import getUserData
 from rest_framework import generics, permissions, status
 from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer
 

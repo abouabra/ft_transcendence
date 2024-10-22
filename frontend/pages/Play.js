@@ -61,7 +61,7 @@ export default class Play_Page extends HTMLElement {
 						all_cards[i].classList.remove("play-page-rotation");
 					});
 					
-					if(i == all_cards.length - 1) {
+					if(i == 0) {
 							all_cards[i].addEventListener("animationend", () => {
 							go_back_btn.style.opacity = "100";
 						});
@@ -86,25 +86,34 @@ export default class Play_Page extends HTMLElement {
 					}
 					else {
 						setTimeout(() => {
-							all_cards[i].innerHTML = /* html */`
-								<div class="play-game-card blur platinum_40_color_border">
-									<div class="d-flex flex-column play-game-text-btn">
-										<div class="d-flex h-100 justify-content-center align-items-center">
-											<span class="header_h3 play-game-text">${this.second_stage_data[i].text}</span>
-										</div>
-											
-										<div class="d-flex" style="width: 100%;">
-											<button-component data-text="Play" onclick="GoTo('/play/')"></button-component>
+							if(i == 2)
+							{
+								all_cards[i].innerHTML = "";
+								all_cards[i].style.display = "none";
+								// all_cards[i].remove();
+							}
+							else
+							{								
+								all_cards[i].innerHTML = /* html */`
+									<div class="play-game-card blur platinum_40_color_border">
+										<div class="d-flex flex-column play-game-text-btn">
+											<div class="d-flex h-100 justify-content-center align-items-center">
+												<span class="header_h3 play-game-text">${this.second_stage_data[i].text}</span>
+											</div>
+												
+											<div class="d-flex" style="width: 100%;">
+												<button-component data-text="Play" onclick="GoTo('/play/')"></button-component>
+											</div>
 										</div>
 									</div>
-								</div>
-								`;
-							
-							const btn = all_cards[i].querySelector("button-component");
-							btn.addEventListener("click", () => {
-								this.selected_mode = this.second_stage_data[i].mode;
-								this.construct_a_game();
-							});
+									`;
+								
+								const btn = all_cards[i].querySelector("button-component");
+								btn.addEventListener("click", () => {
+									this.selected_mode = this.second_stage_data[i].mode;
+									this.construct_a_game();
+								});
+							}
 						}, 250);
 					}
 

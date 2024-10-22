@@ -37,11 +37,12 @@ class Player {
         this.createCrosshair();
 
         // UI elements
-        this.health = 100;
+        this.health = 2000;
         this.boost = 100;
         this.damage = 10;
         this.BaseMoveSpeed = 0.5;
         this.moveSpeed = this.BaseMoveSpeed;
+        this.score = 0;
 
         this.isAlive = true;
 
@@ -381,12 +382,13 @@ class Player {
             user_id: parseInt(localStorage.getItem("id")),
             position: this.mesh.position,
             quaternion: this.mesh.quaternion,
-
+            game_id: parseInt(localStorage.getItem("game_id")),
+            opponent_health: this.setup.opponent.health,
+            score: this.score
         };
 
         window.game_socket.send(JSON.stringify(data));
     }
-
 
 }
 

@@ -6,7 +6,7 @@ class PowerUp {
         this.type = type;
         
 
-        this.Reward_HP = 20;
+        this.Reward_HP = 40;
         this.Reward_BOOST = 20;
         this.Reward_SPEED = 0.1;
         this.Reward_DAMAGE = 10;
@@ -14,7 +14,7 @@ class PowerUp {
         this.mesh = null;
 
 
-        this.health = 100;
+        this.health = 1000;
         this.moveSpeed = 0.1;
 
         this.player = player;
@@ -90,27 +90,40 @@ class PowerUp {
         this.mesh.rotation.x += 0.01;
         this.mesh.rotation.y += 0.01;
         this.mesh.rotation.z += 0.01;
+
+        this.handlePowerUp(true);
     }
 
-    handlePowerUp(){
+    handlePowerUp(update = false){
+
+        if(update == false)
+        {
+            this.player.score += 100;
+            document.querySelector("#game-page-user-1-score").innerText = this.player.score;
+        }
+
         if (this.type === 'health') {
-            this.player.health += this.Reward_HP;
-            this.player.health = Math.ceil(this.player.health);
+            if(update == false)
+                this.player.health += this.Reward_HP;
+            
+                this.player.health = Math.ceil(this.player.health);
 
             const powerup_health = document.getElementById('powerup_health');
-            if(this.player.health > 100){
-                powerup_health.style.width = `${200 * (this.player.health / 100)}px`;
+            if(this.player.health > 2000){
+                powerup_health.style.width = `${200 * (this.player.health / 2000)}px`;
                 powerup_health.setAttribute("aria-valuemax", this.player.health);
             }
             
             powerup_health.setAttribute("aria-valuenow", this.player.health);
-            powerup_health.querySelector('.progress-bar').style.width = `${this.player.health}%`;
+            powerup_health.querySelector('.progress-bar').style.width = `${this.player.health * 100 / 2000}%`;
             powerup_health.querySelector('.progress-bar span').innerText = `${this.player.health}`;
         }
 
         if (this.type === 'boost') {
-            this.player.boost += this.Reward_BOOST;
-            this.player.boost = Math.ceil(this.player.boost);
+            if(update == false)
+                this.player.boost += this.Reward_BOOST;
+            
+                this.player.boost = Math.ceil(this.player.boost);
             
             const powerup_boost = document.getElementById('powerup_boost');
             if(this.player.boost > 100){
@@ -125,18 +138,22 @@ class PowerUp {
         }
 
         if (this.type === 'speed') {
-            this.player.BaseMoveSpeed += this.Reward_SPEED;
-            this.player.moveSpeed = this.player.BaseMoveSpeed;
-            this.setup.BaseFOV += this.Reward_SPEED * 10;
-            
-            this.setup.camera.fov = this.setup.BaseFOV;
-            this.setup.camera.updateProjectionMatrix();
-
+            if(update == false)
+            {
+                this.player.BaseMoveSpeed += this.Reward_SPEED;
+                this.player.moveSpeed = this.player.BaseMoveSpeed;
+                this.setup.BaseFOV += this.Reward_SPEED * 10;
+                
+                this.setup.camera.fov = this.setup.BaseFOV;
+                this.setup.camera.updateProjectionMatrix();
+            }
+                
             const powerup_speed = document.getElementById('powerup_speed');
             powerup_speed.innerText = `x ${(this.player.moveSpeed / 0.5).toFixed(2)}`;
         }
         if (this.type === 'damage') {
-            this.player.damage += this.Reward_DAMAGE;
+            if(update == false)
+                this.player.damage += this.Reward_DAMAGE;
 
             const powerup_damage = document.getElementById('powerup_damage');
             powerup_damage.innerText = `x ${(this.player.damage / 10).toFixed(2)}`;

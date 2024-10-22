@@ -41,6 +41,9 @@ class Player():
 
         self.position = None
         self.quaternion = None
+        
+        self.health = -1
+        self.score = 0
 
     def __str__(self):
         return f"{self.user_id}"
@@ -50,12 +53,14 @@ class Player():
             'id': self.user_id,
             'username': self.username,
             'avatar': self.avatar,
+
         }
 
     def get_space_invaders_data(self):
         return {
             'position': self.position,
             'quaternion': self.quaternion,
+            'score': self.score,
         }
 
 
@@ -125,8 +130,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         elif type == "game_over":
             logger.error(f'\n\n\ngame_over: {text_data_json}\n\n\n')
-            user = text_data_json["user"]
-            user_id = user["id"]
+            user_id = text_data_json["user_id"]
             game_obj = GAME_ROOMS[text_data_json["game_room_id"]]
             
             me = game_obj.player1 if game_obj.player1.user_id == user_id else game_obj.player2
@@ -154,6 +158,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             game_obj.player2 = None
 
             await self.disconnect(1000)
+        
         
         elif type == "si_clients_ready":
             game_obj = GAME_ROOMS[text_data_json["game_room_id"]]
@@ -203,10 +208,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         await player2.ws_obj.send(text_data=json.dumps(message))
 
     async def start_game_task(self, game_obj):
-        game_obj.game_task = asyncio.create_task(self.space_invaders_game_loop(game_obj))
+        game_obj.game_task = asyncio.create_task(self.space_invaders_game_loop(game_obj.id))
 
 
-    async def space_invaders_game_loop(self, game_obj):
+    async def space_invaders_game_loop(self, game_id):
+        game_obj = GAME_ROOMS[game_id]
+        
         player1 = game_obj.player1
         player2 = game_obj.player2
 
@@ -215,11 +222,16 @@ class GameConsumer(AsyncWebsocketConsumer):
             message = {
                 'type': 'si_from_server_to_client',
                 'data' : player2.get_space_invaders_data(),
+                'health': player1.health,
             }
 
             await player1.ws_obj.send(text_data=json.dumps(message))
             
             message['data'] = player1.get_space_invaders_data()
+            message['health'] = player2.health
+
+
+
             await player2.ws_obj.send(text_data=json.dumps(message))
 
 
@@ -230,6 +242,15 @@ class GameConsumer(AsyncWebsocketConsumer):
             
             player.position = text_data_json['position']
             player.quaternion = text_data_json['quaternion']
+            player.score = text_data_json['score']
+            
+            game_id = text_data_json["game_id"]
+            game = GAME_ROOMS[game_id]
+            opponent = game.player1 if game.player2 == player else game.player2
+
+            PLAYERS['space_invaders'][opponent.user_id].health = text_data_json['opponent_health']
+        
+
         except Exception as e:
             pass
 

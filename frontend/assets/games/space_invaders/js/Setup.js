@@ -153,20 +153,23 @@ class Setup {
         this.camera.lookAt(this.player.position); // Always look at the player
     }
 
-    EndGame() {
-        const current_user_data = {};
-		current_user_data.username = localStorage.getItem("username");
-		current_user_data.avatar = localStorage.getItem("avatar");
-		current_user_data.id = parseInt(localStorage.getItem("id"));
+    EndGame(loser) {
+        let uid = -1;
+
+        if(loser == "player")
+		    uid = parseInt(localStorage.getItem("id"));
+        else
+            uid = parseInt(localStorage.getItem("opponent_id"));
+
 
 
         if(window.game_socket) {
             window.game_socket.send(JSON.stringify({
                 type: "game_over",
-                user: current_user_data,
+                user_id: uid,
                 game_room_id: parseInt(localStorage.getItem('game_id')),
             }));
-            console.log("i am dead | i am ", current_user_data.username);
+            console.log("i am dead | i am ", uid);
         }
 
         // window.game_socket.close();
@@ -174,9 +177,10 @@ class Setup {
 
     animate() {
         
-        if (!this.player.isAlive)
+        if (!this.player.isAlive || !this.opponent.isAlive)
         {
-            this.EndGame();
+            let loser = this.player.isAlive ? "opponent" : "player";
+            this.EndGame(loser);
             clearInterval(this.interval);
             return;
         }

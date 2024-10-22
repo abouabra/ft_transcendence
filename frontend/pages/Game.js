@@ -48,7 +48,8 @@ export default class Game_Page extends HTMLElement {
 		this.opponent = null;
 
 		this.setup =  null;
-
+		this.player1_score = null;
+		this.player2_score = null;
 		
 	}	
 
@@ -63,6 +64,8 @@ export default class Game_Page extends HTMLElement {
 			let tmp = data.player2;
 			data.player2 = data.player1;
 			data.player1 = tmp;
+
+			localStorage.setItem("opponent_id", data.player2.id);
 		}
 
 
@@ -120,8 +123,8 @@ export default class Game_Page extends HTMLElement {
 			});
 		});
 
-		const user_1_score = this.querySelector("#game-page-user-1-score");
-		const user_2_score = this.querySelector("#game-page-user-2-score");
+		this.player1_score = this.querySelector("#game-page-user-1-score");
+		this.player2_score = this.querySelector("#game-page-user-2-score");
 
 		if(data.game_name == "space_invaders")
 		{
@@ -136,8 +139,8 @@ export default class Game_Page extends HTMLElement {
 			<div class="game-page-stats-container">
 				<div class="game-page-stats-part">
 					<img src="/assets/games/space_invaders/ui/heart.svg" alt="heart" style="width: 16px;"></img>
-					<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_health">
-						<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 100%"><span>100</span></div>
+					<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="2000" style="width: 200px;" id="powerup_health">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 100%"><span>2000</span></div>
 					</div>
 				</div>
 
@@ -181,13 +184,18 @@ export default class Game_Page extends HTMLElement {
 			{
 				if(this.opponent.mesh && response.data.position && response.data.quaternion)
 				{
-					// console.log("Game.js data from server", response.data);
 					this.opponent.ws_update(response.data.position, response.data.quaternion);
+					this.player.health = response.health;
+					this.setup.opponent.score = response.data.score;
+					this.player2_score.innerText = response.data.score;
 				}
 			}
 			else if(response.type == "game_over")
 			{
 				console.log("Game Over onmessage");
+				console.log("Player 1 score", this.player.score);
+				console.log("Player 2 score", this.opponent.score);
+
 				console.log("Game Over winner is", response.winner);
 				console.log("Game Over loser is", response.loser);
 				this.player.isAlive = false;

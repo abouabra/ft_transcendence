@@ -11,18 +11,19 @@ class Opponent {
 
         this.targetPosition = new THREE.Vector3();
         this.targetQuaternion = new THREE.Quaternion();
-        this.smoothingSpeed = 0.05;  
+        this.smoothingSpeed = 1;  
 
+        this.score = 0;
 
         this.isSprinting = false;
         
         this.thrustEffect = null;
         this.setup = null;
         
-        this.health = 100;
+        this.health = 2000;
         this.damage = 10;
         this.moveSpeed = 0.5;
-
+        this.isAlive = true;
         this.bullets = []; // Store bullets
     }
 
@@ -86,8 +87,8 @@ class Opponent {
     die() {
         this.setup.scene.remove(this.mesh);
         console.log("Opponent died");
-        this.setup.player.isAlive = false;
-        // this.setup.EndGame();
+        this.setup.player.score += 1000;    
+        this.isAlive = false;
     }
 }
 

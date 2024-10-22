@@ -5,6 +5,9 @@ class Controls {
 
         window.addEventListener('keydown', (event) => {
             this.activeKeys.add(event.key.toLowerCase());
+
+            if(event.key == 'f') this.FullScreen();
+                
         });
 
         window.addEventListener('keyup', (event) => {
@@ -22,6 +25,32 @@ class Controls {
         if (this.activeKeys.has(' ')) this.player.Shoot();
         if (this.activeKeys.has('c')) this.player.changeCamera();
         if (this.activeKeys.has('shift')) this.player.Sprint();
+    }
+
+
+
+    FullScreen(){
+        const gameElement = document.getElementById('game-canvas');
+        if(!gameElement) return;
+
+        const isFullScreen = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+        
+        if(!isFullScreen)
+        {
+            if (gameElement.requestFullscreen) {
+                gameElement.requestFullscreen().catch((err) => {
+                    console.error('Error requesting fullscreen1111111111111: ', err);
+                });
+            }
+        }
+        else
+        {
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch((err) => {
+                    console.error('Error exiting fullscreen: ', err);
+                });
+            }
+        }
     }
 }
 

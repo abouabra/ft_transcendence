@@ -77,6 +77,8 @@ async function handleLocationChange() {
     const base_page = document.getElementById("base_page");
     base_page.innerHTML = `<${component}></${component}>`;
 
+    update_active_sidebar();
+
 }
 
 window.onpopstate = handleLocationChange;

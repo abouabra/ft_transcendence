@@ -5,10 +5,11 @@ play-page {
     justify-content: center;
     align-items: center;
     gap: 50px;
-    
     overflow-y: auto;
-
+    
+    min-height: 100%;
 }
+
 .cards_container {
     width: 100%;
     display: flex;

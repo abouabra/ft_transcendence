@@ -7,7 +7,6 @@ export default class Side_Bar extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/common.css'));
 
-
 		this.innerHTML = /*html*/`
 				<side-bar-item
 					class="active_side_bar_item"
@@ -44,21 +43,23 @@ export default class Side_Bar extends HTMLElement {
 
 		const elements = this.querySelectorAll("side-bar-item");
 		const current_path = window.location.pathname;
+		
+		const active_element = document.querySelector(".active_side_bar_item");
+	
+		if(active_element) 
+			active_element.classList.remove("active_side_bar_item");
 
+			
 		elements.forEach((element) => {
 			if (current_path.includes(element.getAttribute("data-link")))
-			{
-				elements.forEach((element) => {
-					element.classList.remove("active_side_bar_item");
-				});
 				element.classList.add("active_side_bar_item");
-			}
 
 
 			element.addEventListener("click", () => {
-				elements.forEach((element) => {
-					element.classList.remove("active_side_bar_item");
-				});
+				const active_element = document.querySelector(".active_side_bar_item");			
+				if(active_element) 
+					active_element.classList.remove("active_side_bar_item");
+
 				element.classList.add("active_side_bar_item");
 				GoTo(element.getAttribute("data-link"));
 			});
@@ -74,6 +75,19 @@ export default class Side_Bar extends HTMLElement {
 				element.classList.remove("hover_side_bar_item");
 			});
 		});
+
+	}
+
+	update_active_sidebar() {
+		const elements = document.querySelectorAll("side-bar-item");
+		const current_path = window.location.pathname;
+		const active_element = document.querySelector(".active_side_bar_item");
+		active_element.classList.remove("active_side_bar_item");
+
+		elements.forEach((element) => {
+			if (current_path.includes(element.getAttribute("data-link")))
+				element.classList.add("active_side_bar_item");
+		});
 	}
 
 	connectedCallback() {}
@@ -86,6 +100,9 @@ export default class Side_Bar extends HTMLElement {
 	static get observedAttributes() {
 		return [""];
 	}
+
+
+	
 }
 
 customElements.define("side-bar", Side_Bar);

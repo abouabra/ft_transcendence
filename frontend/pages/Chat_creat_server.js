@@ -4,11 +4,9 @@ export default class Create_Server_page extends HTMLElement {
 		
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_create_server.css'));
-		
-		
-		
-		
-		
+
+
+
 		this.innerHTML = /* html */`
 		<div class="w-100 h-100 d-flex align-items-center">
 			<div class="loader-container  w-100 justify-content-center align-items-center">
@@ -35,7 +33,7 @@ export default class Create_Server_page extends HTMLElement {
 							<span id="text_avatar">150x150 image required</span>
 						</div>
 						<div class="server_name platinum_40_color_border  d-flex flex-column justify-content-center align-items-center">
-							<input class="create_server_input" id= "name" type="text" placeholder="Name">
+							<input class="create_server_input" id= "name" type="text" placeholder="Name" maxlength="15">
 						</div>
 						<div class="server_visibility platinum_40_color_border position-relative">
 							<select class="form-select1">
@@ -77,8 +75,6 @@ export default class Create_Server_page extends HTMLElement {
 		})
 		selectElement.addEventListener('change', function() {
 			const value = this.value;
-			console.log(value);
-			
 			if (value == 2)
 				password_element.style.display = "flex";
 			else
@@ -93,17 +89,19 @@ export default class Create_Server_page extends HTMLElement {
 			fileInput.addEventListener("change", function () {
 				var file = this.files[0];
 				file_name = file.name;
+
 				var reader = new FileReader();
 				const spanElement = document.querySelectorAll('#text_avatar').forEach(element => {
 					if (element)
 						element.remove();
-			});
-			reader.onload = function (e) {
+				});
+				reader.onload = function (e) {
 				update_avatar.style.backgroundImage = `url(${e.target.result})`;
-				update_avatar
 				base64 = e.target.result;
 			};
 			reader.readAsDataURL(file);
+
+			
 		});
 	});
 
@@ -117,7 +115,7 @@ export default class Create_Server_page extends HTMLElement {
 			return
 		}
 		let visibility = "public"
-		if (selectElement.value === 2)
+		if (selectElement.value == 2)
 			visibility = "private"
 		
 		let image_extention = base64.split('/')[1].split(';')[0]
@@ -134,6 +132,7 @@ export default class Create_Server_page extends HTMLElement {
 			"qr_code":`/assets/images/servers_qr_codes/${name_tag.value}.${image_extention}`,
 			"members":[localStorage.getItem("id")]
 		}
+
 		let loader_container = this.getElementsByClassName("loader-container")[0]
 		let creation_container = this.getElementsByClassName("creation-container")[0]
 		let card2 = this.querySelector(".cards_2");

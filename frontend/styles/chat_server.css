@@ -104,8 +104,9 @@
     border: 1px solid var(--platinum_40_percent);
     text-align: start;
     padding: 10px;
+    resize: none;
 }
-/* <div class="message_input p3_regular" id="send-msg-bar1" contenteditable="true" placeholder="Type a message..."></div> */
+
 .send_icone{
     cursor: pointer;
     width: 30px;

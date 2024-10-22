@@ -33,7 +33,6 @@ class CreateServerView(generics.GenericAPIView):
     def post(self, request):
         serializer = ServerSerializer(data=request.data)
         if serializer.is_valid():
-            print("create server called")
             serializer.save()
             data = serializer.data
             print(data)
@@ -43,7 +42,7 @@ class CreateServerView(generics.GenericAPIView):
                 path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
                 with open(path_in_disk,'wb') as file:
                     file.write(image)
-            create_qr_code(data['avatar'], f"/chat/browse_chat/?join=server_name")
+            create_qr_code(data['avatar'], f"http://127.0.0.1:3000/chat/join_server/{data['name']}/")
             return Response({
                     "success": "Server Created Successfully"
                 }, status=status.HTTP_201_CREATED)
@@ -72,12 +71,12 @@ class GetServerListView(generics.GenericAPIView):
 
 class GetServerjoinedDataView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
+
     def get(self, request, name):
         server_name = name
         server = Server.objects.filter(name=server_name)
         if server:
             server = ServerSerializer(server,many=True).data[0]
-            print(server)
             data = {
                 "server_name":server_name,
                 "visibility":server['visibility'],
@@ -86,7 +85,15 @@ class GetServerjoinedDataView(generics.GenericAPIView):
             }
             return Response(data, status.HTTP_200_OK)
         return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
-
+    def post(self, request, name):
+        try:
+            server = Server.objects.get(name=request.data['server_name'])
+            if request.user.id in server.members:
+                return Response({"error":"user already joined the server"}, status.HTTP_400_BAD_REQUEST)
+            server.add_member(request.user.id)
+            return Response({"success":"user joined the server", "server_name":server.name}, status.HTTP_200_OK)
+        except Server.DoesNotExist:
+            return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
 
 class GetServerDataView(generics.GenericAPIView):
 

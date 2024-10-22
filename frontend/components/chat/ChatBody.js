@@ -27,7 +27,7 @@ export default class ChatBody extends HTMLElement {
 						<div class="d-flex flex-column align-items-start">
 							<span class="p1_bold">${result_data.name}</span>
 							${ result_data.visibility === "protected" ? `<span class="p3_regular platinum_40_color">${result_data.status}</span>`
-								: `<span class="p3_regular platinum_40_color">${result_data.member.length+1} members are online</span>`
+								: `<span class="p3_regular platinum_40_color">Total members: ${result_data.member.length+1}</span>`
 							}
 						</div>
 					</div>
@@ -229,7 +229,9 @@ divmessage_body.querySelector(".message_cnt").addEventListener('mouseleave', ()=
 
 connectedCallback() {}
 
-disconnectedCallback() { }
+disconnectedCallback() {
+	this.socket.close()
+}
 
 attributeChangedCallback(name, oldValue, newValue) { }
 }

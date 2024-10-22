@@ -1,12 +1,12 @@
 .browse-container
 {
+    width: 1150px;
     height: 100%;
-    width: 100%;
-    overflow: hidden;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    margin: auto;
 }
 .server_description
 {
@@ -18,12 +18,11 @@
 }
 .server_content
 {
-    display: flex;
-    flex-direction: row;
+    width: 100%;
     height: 150px;
     border-radius: 15px;
     border: 1px solid var(--platinum_40_percent);
-    overflow: hidden;
+
 }
 .infoblock
 {
@@ -33,20 +32,12 @@
     flex-direction: row;
     align-items: center;
     gap: 20px;
+    padding-right: 50px;
+    overflow: hidden;
+    border-radius: 15px;
 }
 
-.block1
-{
-    width: 25%;
-}
-.block2
-{
-    width: 15%;
-}
-.block3
-{
-    width: 15%;
-}
+
 .searchserver
 {
     border: 1px solid var(--platinum_40_percent);
@@ -81,9 +72,44 @@
     right: 3%;
     top:20%
 }
+
 .serverimage
 {
     height: 150px;
     width: 300px;
-    object-fit: contain;
+}
+
+.serverimage img
+{
+    height: 150px;
+    width: 300px;
+    object-fit: cover;
+}
+
+.specific_info
+{
+    display: flex;
+    gap: 20px;
+    height: 50px;
+    width: 516px;
+}
+
+.block1
+{
+    flex-grow: 1;
+}
+
+.join_server button-component
+{
+    width: 260px;
+    height: 48px;
+}
+.join_lists
+{
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }

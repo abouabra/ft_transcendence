@@ -12,9 +12,12 @@ export default class Chat_Page extends HTMLElement {
 
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_page.css'));
-
+		let ChatType= ''
+		if (pathname == "/chat/")
+			ChatType = 'Direct'
 		let servername = pathname.substring(6)
 		let path = '/api/chat/server_info/'
+		console.log(pathname)
 		if (servername)
 			path = `/api/chat/server_info/?server=${servername}`
 		makeRequest(path).then(data=> {
@@ -32,7 +35,7 @@ export default class Chat_Page extends HTMLElement {
 								<span class="select-server p3_bold platinum_40_color" id="server-chat">Servers</span>
 								<span class="select-direct p3_bold platinum_40_color" id="direct-chat">Direct</span>
 							</div>
-							<chat-side-bar class="Bar"></chat-side-bar>
+							<chat-side-bar class="Bar" type="${ChatType}"></chat-side-bar>
 						</div>
 
 						${ pathname == "/chat/" ?
@@ -59,6 +62,13 @@ export default class Chat_Page extends HTMLElement {
 			const Direct = this.getElementsByClassName("select-direct")[0];
 			const Server = this.getElementsByClassName("select-server")[0];
 			const Bar = this.getElementsByClassName("Bar")[0];
+
+			if (ChatType === "Direct")
+			{
+				Bar.setAttribute('type', 'Direct')
+				Direct.classList.add("activedirection")
+				Server.classList.remove("activedirection")
+			}
 
 			if (data.visibility === 'protected')
 			{

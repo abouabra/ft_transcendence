@@ -294,8 +294,6 @@ class Player {
 
         this.boost -= 0.1;
 
-        // this.thrustEffect.particleMaterial.color.setHex(this.thrustEffect.material_thrust_color);
-
         const powerup_boost = document.getElementById('powerup_boost');
         powerup_boost.setAttribute("aria-valuenow", this.boost);
         powerup_boost.querySelector('.progress-bar').style.width = `${this.boost}%`;

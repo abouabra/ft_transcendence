@@ -47,6 +47,8 @@ class Player():
         self.health = -1
         self.score = 0
 
+        self.is_in_queue = False
+
     def __str__(self):
         return f"{self.user_id}"
     
@@ -82,7 +84,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                 if self == PLAYERS[game_name][object].ws_obj:
                     for game_room_id in GAME_ROOMS:
                         if PLAYERS[game_name][object] in [GAME_ROOMS[game_room_id].player1, GAME_ROOMS[game_room_id].player2]:
-                            GAME_ROOMS[game_room_id].game_task.cancel()
+                            
+                            if(GAME_ROOMS[game_room_id].game_task != None):
+                                GAME_ROOMS[game_room_id].game_task.cancel()
                             
                             opponent = GAME_ROOMS[game_room_id].player1 if GAME_ROOMS[game_room_id].player2 == PLAYERS[game_name][object] else GAME_ROOMS[game_room_id].player2
                             
@@ -121,8 +125,11 @@ class GameConsumer(AsyncWebsocketConsumer):
 
             player = Player(user_data, text_data_json['game_name'], self)
             game_name = text_data_json['game_name']
+            
+            player.is_in_queue = True
 
             PLAYERS[game_name][user_data["id"]] = player
+            
 
             await self.check_queue(player, game_name)
 
@@ -131,6 +138,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             user_id = user["id"]
             game_name = text_data_json["game_name"]
             del PLAYERS[game_name][user_id]
+
 
         elif type == 'si_send_from_client_to_server':
             await self.si_send_from_client_to_server(text_data_json)
@@ -156,8 +164,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             await opponent.ws_obj.send(text_data=json.dumps(message))
             await me.ws_obj.send(text_data=json.dumps(message))
             
-
-            game_obj.game_task.cancel()
+            if(game_obj.game_task != None):
+                game_obj.game_task.cancel()
             
 
             
@@ -183,10 +191,16 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def check_queue(self, player, game_name):
         logger.error(f'check_queue: {player.user_id} , {game_name}')
 
-        if len(PLAYERS[game_name]) >= 2:
+        logger.error(f'len of match making queue: {len(PLAYERS[game_name])}')
+        queue_len = await self.count_players(game_name)
+        logger.error(f'count_players: {queue_len}')
+        if queue_len == 2:
             logger.error(f'len of match making queue: {len(PLAYERS[game_name])}')
             player1, player2 = PLAYERS[game_name].values()
             
+            player1.is_in_queue = False
+            player2.is_in_queue = False
+
             match_history = await self.create_match_history(player1.user_id, player2.user_id, game_name)
             game_obj = Game_Room(match_history.id ,game_name, player1, player2)
             game_obj.match_history = match_history
@@ -194,6 +208,11 @@ class GameConsumer(AsyncWebsocketConsumer):
             GAME_ROOMS[game_obj.id] = game_obj
 
             await self.start_initial_game_state(GAME_ROOMS[game_obj.id])
+
+    async def count_players(self, game_name):
+        # count the number of players in the game that are their is_in_queue attribute is False
+        new_players = [player for player in PLAYERS[game_name].values() if player.is_in_queue == True]
+        return len(new_players)
 
 
     async def start_initial_game_state(self, game_obj):

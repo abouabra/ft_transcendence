@@ -37,6 +37,11 @@ export default class Game_Page extends HTMLElement {
 			localStorage.setItem("starting_time", this.starting_time);
 			this.render_data(data);
 
+		})
+		.catch((error) => {
+			showToast("error", "You are not part of this game");
+			GoTo("/play/");
+			return;
 		});
 		this.player = null;
 		this.opponent = null;
@@ -194,6 +199,13 @@ export default class Game_Page extends HTMLElement {
 				this.player.isAlive = false;
 				
 				window.game_socket.close();
+
+				if(this.setup && this.setup.opponentTracker)
+				{
+					this.setup.opponentTracker.destroy();
+					this.setup.opponentTracker = null;
+				}
+				
 				this.display_game_results(response);
 			}
 		};
@@ -225,6 +237,12 @@ export default class Game_Page extends HTMLElement {
 	connectedCallback() {}
 
 	disconnectedCallback() {
+		if(this.setup && this.setup.opponentTracker)
+		{
+			this.setup.opponentTracker.destroy();
+			this.setup.opponentTracker = null;
+		}
+
 		if(!window.game_socket)
 			return;
 

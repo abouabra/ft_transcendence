@@ -167,11 +167,16 @@ class GetGameInfo(generics.GenericAPIView):
 
     def get(self, request, pk):
         try:
+
+            logged_in_user_id = request.user.id
             game_obj = Game_History.objects.get(id=pk)
             game_info = ShortGameHistorySerializer(game_obj).data
             game_info["player1"] = getUserData(request, game_info["player1"])
             game_info["player2"] = getUserData(request, game_info["player2"])
-        
+            if(game_info["player1"]["id"] != logged_in_user_id and game_info["player2"]["id"] != logged_in_user_id):
+                return Response({"detail": "You are not part of this game"}, status=status.HTTP_403_FORBIDDEN)
+
+
             return Response(game_info, status=status.HTTP_200_OK)
         except Game_History.DoesNotExist:
             return Response({"detail": "Game Not Found"}, status=status.HTTP_404_NOT_FOUND)

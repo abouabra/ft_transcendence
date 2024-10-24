@@ -158,6 +158,14 @@ class Setup {
     }
 
     EndGame(loser) {
+
+        if(this.opponentTracker)
+        {
+            this.opponentTracker.destroy();
+            this.opponentTracker = null
+        }
+
+
         if(!window.game_socket) 
             return;
         

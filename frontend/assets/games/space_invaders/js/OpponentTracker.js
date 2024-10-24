@@ -3,6 +3,11 @@ import {THREE} from '/assets/games/space_invaders/js/three-defs.js';
 class OpponentTracker {
     constructor(setup) {
         this.setup = setup;
+        // Scale configuration
+        this.minScale = 0.5;     // Minimum marker scale (when very close)
+        this.maxScale = 10;       // Maximum marker scale (when very far)
+        this.minDistance = 10;   // Distance at which marker starts scaling up
+        this.maxDistance = 300;  // Distance at which marker reaches max scale
         this.createMarker();
         this.createOffscreenIndicator();
     }
@@ -27,11 +32,9 @@ class OpponentTracker {
         const markerTexture = new THREE.CanvasTexture(markerCanvas);
         const markerMaterial = new THREE.SpriteMaterial({ map: markerTexture });
         this.marker = new THREE.Sprite(markerMaterial);
-        this.marker.scale.set(1, 1, 1);
         this.setup.scene.add(this.marker);
     }
 
-    
     createOffscreenIndicator() {
         // Create the HTML element for off-screen indicator
         this.offscreenIndicator = document.createElement('div');
@@ -46,11 +49,28 @@ class OpponentTracker {
         document.getElementById('game-canvas').appendChild(this.offscreenIndicator);
     }
 
+    calculateMarkerScale(distance) {
+        // If distance is less than minDistance, return minScale
+        if (distance <= this.minDistance) return this.minScale;
+        // If distance is greater than maxDistance, return maxScale
+        if (distance >= this.maxDistance) return this.maxScale;
+        
+        // Calculate scale based on distance using linear interpolation
+        const distanceRatio = (distance - this.minDistance) / (this.maxDistance - this.minDistance);
+        return this.minScale + (this.maxScale - this.minScale) * distanceRatio;
+    }
+
     update() {
         if (!this.setup.opponent.mesh || !this.setup.camera) return;
 
         // Get opponent's position in world space
         const opponentPos = this.setup.opponent.position.clone();
+        
+        // Calculate distance to camera
+        const distanceToCamera = opponentPos.distanceTo(this.setup.camera.position);
+        
+        // Calculate marker scale based on distance
+        const scale = this.calculateMarkerScale(distanceToCamera);
         
         // Project opponent position to screen space
         const screenPosition = opponentPos.clone().project(this.setup.camera);
@@ -73,7 +93,7 @@ class OpponentTracker {
             // Hide 3D marker
             this.marker.visible = false;
 
-            // Show and position the off-screen indicator
+            // Show off-screen indicator
             this.offscreenIndicator.style.display = 'block';
 
             // Calculate angle to opponent for indicator rotation
@@ -81,10 +101,34 @@ class OpponentTracker {
             const toOpponent = opponentPos.clone().sub(this.setup.camera.position).normalize();
             let angle = Math.atan2(toOpponent.x, toOpponent.z) - Math.atan2(cameraDir.x, cameraDir.z);
 
-            // Clamp position to screen edges
             const padding = 40;
-            const clampedX = Math.min(Math.max(padding, x), canvasRect.width - padding);
-            const clampedY = Math.min(Math.max(padding, y), canvasRect.height - padding);
+            let clampedX, clampedY;
+
+            if (isBehind) {
+                // When opponent is behind, position indicator in corners based on relative position
+                const relativeX = toOpponent.x;
+                const relativeY = toOpponent.y;
+                
+                // Determine which corner to use based on relative position
+                if (relativeX > 0) {
+                    clampedX = canvasRect.width - padding; // Right side
+                } else {
+                    clampedX = padding; // Left side
+                }
+                
+                if (relativeY > 0) {
+                    clampedY = padding; // Top
+                } else {
+                    clampedY = canvasRect.height - padding; // Bottom
+                }
+                
+                // Adjust angle to point towards the center when in corners
+                angle = Math.atan2(canvasRect.height/2 - clampedY, canvasRect.width/2 - clampedX) + Math.PI;
+            } else {
+                // Normal edge clamping for off-screen but not behind
+                clampedX = Math.min(Math.max(padding, x), canvasRect.width - padding);
+                clampedY = Math.min(Math.max(padding, y), canvasRect.height - padding);
+            }
 
             // Position the indicator
             this.offscreenIndicator.style.left = `${clampedX - 10}px`;
@@ -98,6 +142,9 @@ class OpponentTracker {
             // Position the 3D marker above the opponent
             const markerPosition = opponentPos.clone().add(new THREE.Vector3(0, 2, 0));
             this.marker.position.copy(markerPosition);
+
+            // Apply the distance-based scale
+            this.marker.scale.set(scale, scale, scale);
 
             // Make marker face camera
             this.marker.quaternion.copy(this.setup.camera.quaternion);

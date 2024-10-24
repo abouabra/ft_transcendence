@@ -123,8 +123,6 @@ class PowerUp {
             if(update == false)
                 this.player.boost += this.Reward_BOOST;
             
-                this.player.boost = Math.ceil(this.player.boost);
-            
             const powerup_boost = document.getElementById('powerup_boost');
             if(this.player.boost > 100){
                 powerup_boost.style.width = `${200 * (this.player.boost / 100)}px`;
@@ -133,8 +131,8 @@ class PowerUp {
 
 
             powerup_boost.setAttribute("aria-valuenow", this.player.boost);
-            powerup_boost.querySelector('.progress-bar').style.width = `${this.player.boost}%`; 
-            powerup_boost.querySelector('.progress-bar span').innerText = `${this.player.boost}`; 
+            powerup_boost.querySelector('.progress-bar').style.width = `${this.player.boost.toFixed(2)}%`; 
+            powerup_boost.querySelector('.progress-bar span').innerText = `${this.player.boost.toFixed(2)}`; 
         }
 
         if (this.type === 'speed') {

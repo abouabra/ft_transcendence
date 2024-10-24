@@ -199,7 +199,7 @@ class Player {
         if (this.bulletTimeout > 0) return;
 
         this.bulletTimeout = this.bulletDelay;
-        
+
         // Ensure crosshair and ray are up to date
         this.updateCrosshairPosition();
 

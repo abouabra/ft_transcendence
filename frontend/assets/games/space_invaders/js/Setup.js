@@ -1,6 +1,7 @@
 import {THREE, GLTFLoader, Stats} from '/assets/games/space_invaders/js/three-defs.js';
 import { Controls } from '/assets/games/space_invaders/js/Controls.js';
 import { PowerUps } from '/assets/games/space_invaders/js/PowerUps.js';
+import {OpponentTracker} from '/assets/games/space_invaders/js/OpponentTracker.js';
 
 
 class Setup {
@@ -10,6 +11,8 @@ class Setup {
         this.player = player;
         this.opponent = opponent;
         this.game_task_switch = true;
+
+        this.opponentTracker = null;
 
         this.controls = new Controls(player);
         this.BaseFOV = 60; // Base field of view
@@ -91,7 +94,8 @@ class Setup {
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1;  // Reduced from 1 to 0.8
     
-    
+        this.opponentTracker = new OpponentTracker(this);
+
         // this.load_Planet();
         this.load_astroids();
     }
@@ -192,7 +196,9 @@ class Setup {
         if(!this.player.mesh || !this.opponent.mesh) return;
 
 
-        
+        if (this.opponentTracker) {
+            this.opponentTracker.update();
+        }
 
 
 

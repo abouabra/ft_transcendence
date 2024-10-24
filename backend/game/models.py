@@ -56,6 +56,8 @@ class Game_History(models.Model):
 
     winner = models.IntegerField(default=0)
     
+    has_ended = models.BooleanField(default=False)
+    
     game_date = models.DateTimeField(auto_now_add=True)
     game_duration = models.IntegerField(default=0)
 

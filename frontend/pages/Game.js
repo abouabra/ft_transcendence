@@ -24,13 +24,15 @@ export default class Game_Page extends HTMLElement {
 				return;		
 			}
 
+			console.log(data);
 
-			// if(!window.game_socket)
-			// {
-			// 	GoTo("/play/");
-			// 	return;
-			// }
-			
+			if(data.has_ended == true)
+			{
+				showToast("error", "Game is already over");
+				GoTo("/play/");
+				return;
+			}
+
 			this.starting_time = new Date().getTime();
 			localStorage.setItem("starting_time", this.starting_time);
 			this.render_data(data);
@@ -48,7 +50,6 @@ export default class Game_Page extends HTMLElement {
 
 	render_data(data)
 	{
-		console.log(data);
 		const current_id = parseInt(localStorage.getItem("id"));
 		
 		if(data.player2.id == current_id)
@@ -224,6 +225,9 @@ export default class Game_Page extends HTMLElement {
 	connectedCallback() {}
 
 	disconnectedCallback() {
+		if(!window.game_socket)
+			return;
+
 		console.log("disconnected from game page");
 		const uid = parseInt(localStorage.getItem("id"));
 

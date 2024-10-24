@@ -158,26 +158,27 @@ class Setup {
     }
 
     EndGame(loser) {
-        if(window.game_socket) {
-            let uid = -1;
+        if(!window.game_socket) 
+            return;
+        
+        let uid = -1;
 
-            if(loser == "player")
-                uid = parseInt(localStorage.getItem("id"));
-            else
-                uid = parseInt(localStorage.getItem("opponent_id"));
+        if(loser == "player")
+            uid = parseInt(localStorage.getItem("id"));
+        else
+            uid = parseInt(localStorage.getItem("opponent_id"));
 
-            const current_time = new Date().getTime();
-    		const delta_time_in_sec = (current_time - parseInt(localStorage.getItem('starting_time'))) / 1000;
-	    	console.log("delta time in seconds", delta_time_in_sec);
+        const current_time = new Date().getTime();
+        const delta_time_in_sec = (current_time - parseInt(localStorage.getItem('starting_time'))) / 1000;
+        console.log("delta time in seconds", delta_time_in_sec);
 
-            window.game_socket.send(JSON.stringify({
-                type: "game_over",
-                user_id: uid,
-                game_room_id: parseInt(localStorage.getItem('game_id')),
-                game_time : delta_time_in_sec
-            }));
-            console.log("i am dead | i am ", uid);
-        }
+        window.game_socket.send(JSON.stringify({
+            type: "game_over",
+            user_id: uid,
+            game_room_id: parseInt(localStorage.getItem('game_id')),
+            game_time : delta_time_in_sec
+        }));
+        console.log("i am dead | i am ", uid);
     }
 
     animate() {

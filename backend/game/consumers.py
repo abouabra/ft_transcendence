@@ -26,6 +26,8 @@ class Game_Room():
         self.match_history = None
         self.game_task = None
         self.client_ready = 0
+        self.game_time = 0
+        self.finished_peacefully = False
 
     def __str__(self):
         return f"{self.game_name} - {self.player1} - {self.player2}"
@@ -84,6 +86,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                             
                             opponent = GAME_ROOMS[game_room_id].player1 if GAME_ROOMS[game_room_id].player2 == PLAYERS[game_name][object] else GAME_ROOMS[game_room_id].player2
                             
+                            if(GAME_ROOMS[game_room_id].finished_peacefully == False):
+                                game_obj = GAME_ROOMS[game_room_id]
+                                me = PLAYERS[game_name][object]
+                                await self.stats_wrapper(game_obj, me, opponent)
+
                             await opponent.ws_obj.send(text_data=json.dumps({
                                 'type': 'game_over',
                                 'winner': opponent.get_user_info(),
@@ -133,10 +140,13 @@ class GameConsumer(AsyncWebsocketConsumer):
             user_id = text_data_json["user_id"]
             game_time = text_data_json["game_time"]
             game_obj = GAME_ROOMS[text_data_json["game_room_id"]]
-            
+            game_obj.game_time = game_time
+            game_obj.finished_peacefully = True
+
             me = game_obj.player1 if game_obj.player1.user_id == user_id else game_obj.player2
             opponent = game_obj.player1 if game_obj.player2.user_id == user_id else game_obj.player2
             
+
             message = {
                     'type': 'game_over',
                     'winner': opponent.get_user_info(),
@@ -149,29 +159,9 @@ class GameConsumer(AsyncWebsocketConsumer):
 
             game_obj.game_task.cancel()
             
-            @database_sync_to_async
-            def wrapper():
-                player_1_score = game_obj.player1.score
-                player_2_score = game_obj.player2.score
 
-                match_obj = Game_History.objects.get(id=game_obj.id)
-
-                match_obj.player_1_score = player_1_score
-                match_obj.player_2_score = player_2_score
-                match_obj.game_duration = game_time
-
-                if player_1_score > player_2_score:
-                    match_obj.winner = game_obj.player1.user_id
-                elif player_1_score < player_2_score:
-                    match_obj.winner = game_obj.player2.user_id
-                else:
-                    match_obj.winner = -1
-
-                match_obj.save()
-                
-                update_stats_after_game(me.user_id, opponent.user_id, "space_invaders", game_obj.id)
-        
-            await wrapper()
+            
+            await self.stats_wrapper(game_obj, me, opponent)
 
 
             await opponent.ws_obj.close()
@@ -282,3 +272,28 @@ class GameConsumer(AsyncWebsocketConsumer):
         logger.error(f'created a match history: {game}')
         
         return game
+    
+    @database_sync_to_async
+    def stats_wrapper(self, game_obj, me, opponent):
+
+        player_1_score = game_obj.player1.score
+        player_2_score = game_obj.player2.score
+
+        match_obj = Game_History.objects.get(id=game_obj.id)
+
+        match_obj.has_ended = True
+
+        match_obj.player_1_score = player_1_score
+        match_obj.player_2_score = player_2_score
+        match_obj.game_duration = game_obj.game_time
+
+        if player_1_score > player_2_score:
+            match_obj.winner = game_obj.player1.user_id
+        elif player_1_score < player_2_score:
+            match_obj.winner = game_obj.player2.user_id
+        else:
+            match_obj.winner = 0
+
+        match_obj.save()
+        
+        update_stats_after_game(me.user_id, opponent.user_id, "space_invaders", game_obj.id)

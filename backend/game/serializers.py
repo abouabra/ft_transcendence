@@ -15,5 +15,5 @@ class GameHistorySerializer(serializers.ModelSerializer):
 class ShortGameHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Game_History
-        fields = ["id", "player1", "player2", "game_name", "game_type"]
+        fields = ["id", "player1", "player2", "game_name", "game_type", "has_ended"]
 

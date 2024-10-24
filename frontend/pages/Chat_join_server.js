@@ -4,17 +4,12 @@ export default class Join_Server extends HTMLElement {
 		
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_join_server.css'));
-        const server_name = window.location.pathname.substring(18, window.location.pathname.length-1)
-        console.log(server_name)
-        console.log(server_name)
-        console.log(server_name)
-        console.log(server_name)
-        console.log(server_name)
-        console.log(server_name)
-        console.log(server_name)
-        console.log("sdf")
-        console.log(server_name)
-        makeRequest(`/api/chat/server_JoinedData/${server_name}/`).then(data=> {
+
+        let queryparam = new URLSearchParams(location.search)
+        const server_name = queryparam.get("server_name")
+
+
+        makeRequest(`/api/chat/server_JoinedData/?server_name=${server_name}`).then(data=> {
             let name_dot = server_name
             if (name_dot.length + 3 > 15)
                 name_dot = name_dot.slice(0, 12) + "..."
@@ -39,26 +34,32 @@ export default class Join_Server extends HTMLElement {
                         </div>
                     </div>
                 </div>
-            
             `
             let join_password = this.querySelector(".join_password")
-            let joinbtn = this.querySelector(".join_button")
-            
-            joinbtn.addEventListener("click", () => {
-                makeRequest(`/api/chat/server_JoinedData/${server_name}/`, "POST", {'server_name':server_name}).then((data0) => {
+            let join_passdd = this.querySelector(".join_passworddv")
+            let join_btn = this.querySelector(".join_button")
+            if (data.visibility === "private")
+                join_passdd.style.display = "block";
+            join_btn.addEventListener("click", () => {
+            if (!(data.visibility === "private" && join_password.value === ""))
+            {
+                makeRequest(`/api/chat/server_JoinedData/`, "POST", {'server_name':server_name, 'password':join_password.value}).then((data0) => {
                     GoTo(`/chat/${data0.server_name}`)
                     }).catch(error => {
-                        this.innerHTML = /* html */`
-                            <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
-		    	    	        <div class="d-flex justify-content-center align-items-center flex-column" style="gap: 50px">
-		    	    		        <span class="header_h1">Already Joined</span>
-		    	    		        <button-component   data-text="Go back to chat" onclick="GoTo('/chat/')"> </button-component>
-                            </div>
-                        </div>
-                        `;
+                        if (error === "Error: Error: user already joined the server")
+                            console.log("user already joined the server")
+                        console.log(`gaa = ${error}`)
+                        // this.innerHTML = /* html */`
+                        //     <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
+		            	//         <div class="d-flex justify-content-center align-items-center flex-column" style="gap: 50px">
+		            	// 	        <span class="header_h1">Already Joined</span>
+		            	// 	        <button-component   data-text="Chat" onclick="GoTo('/chat/${server_name}')"> </button-component>
+                        //     </div>
+                        // </div>
+                        // `;
                     })
-                })
-            
+            }
+        })
         }).catch(error => {
 			this.innerHTML = /* html */`
             <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">

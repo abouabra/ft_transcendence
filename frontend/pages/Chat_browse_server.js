@@ -12,10 +12,11 @@ export default class Chat_Browse extends HTMLElement {
         .then(data =>{
             data.forEach(element =>
             {
+                let name_dt = element.server_name
                 if (element.server_name.length > 15)
-                    element.server_name = element.server_name.slice(0, 15) + "..."
+                    name_dt = element.server_name.slice(0, 15) + "..."
                 user_data += /* html*/`
-                <div class="server_content">
+                <div class="server_content" data-id="${element.server_name}">
                     <div class="infoblock">
                         <div class="serverimage">
                             <img src="${element.avatar}">
@@ -23,7 +24,7 @@ export default class Chat_Browse extends HTMLElement {
                         <div class="specific_info">
                             <div class="d-flex flex-column block1">
                                 <span class="p1_bold platinum_40_color">Name</span>
-                                <span class="header_h3">${element.server_name}</span>
+                                <span class="header_h3">${name_dt}</span>
                             </div>
                             <div class="d-flex flex-column align-items-center">
                                 <span class="p1_bold platinum_40_color">member</span>
@@ -34,8 +35,8 @@ export default class Chat_Browse extends HTMLElement {
                                 <span class="header_h3">${element.visibility}</span>
                             </div>
                         </div>
-                        <div class="join_server">
-                            <button-component data-text="join" data-id="${element.visibility} ${element.server_name}" id="${element.server_name}" onclick="GoTo('/chat/join_server/${element.server_name}/')"></button-component>
+                        <div class="join_server" data-id="${element.server_name}">
+                            <button-component data-text="join" id="${element.server_name}"></button-component>
                         </div>
                     </div>
                 </div>
@@ -62,18 +63,22 @@ export default class Chat_Browse extends HTMLElement {
             
             `
             let joinbtn = this.querySelectorAll(".join_server")
-            joinbtn.forEach((joinbtn, i) => {
-                joinbtn.addEventListener('click', ()=>{
-                if (data[i].visibility === "private")
-                    {
-                        makeRequest('/api/chat/joined_servers/', 'POST', {"server_name":joinbtn.id})
-                    }
-                    else
-                    {
-                        GoTo(`/chat/${data[i].server_name}`)
-                    }
+            joinbtn.forEach((element, i) => {
+                element.addEventListener('click', ()=>{
+                    GoTo(`/chat/join_server/?server_name=${element.getAttribute('data-id')}`)
                 })
-            }
+            })
+            let join_lists = this.querySelectorAll(".server_content");
+            let serversearch = this.querySelector(".searchinput");
+            serversearch.addEventListener("input", (e)=>{
+				let input_value = e.target.value.toLowerCase();
+				join_lists.forEach((element) => {
+					let found_array = data.filter(item => item.server_name.toLowerCase() === element.getAttribute('data-id').toLowerCase())
+					found_array = found_array.filter(item => item.server_name.toLowerCase().includes(input_value))
+					element.classList.toggle("hides",!found_array.length)
+
+				});
+			})
      })
 	}
 	connectedCallback() {

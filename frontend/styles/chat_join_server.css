@@ -69,6 +69,7 @@
 }
 .join_passworddv
 {
+    display: none;
     width: 320px;
     height: 48px;
 }

@@ -11,8 +11,8 @@ export default class ChatSideBar extends HTMLElement {
 			this.innerHTML = /* html */`
 				${ data.map((item) => {
 						let name_dot = item.name
-						if (item.name.length + 3 > 15)
-							name_dot = item.name.slice(0, 12) + "..."
+						if (item.name.length + 3 > 18)
+							name_dot = item.name.slice(0, 15) + "..."
 						if (item.latest_timestamp === '')
 						{
 							item.latest_timestamp = ''
@@ -30,7 +30,7 @@ export default class ChatSideBar extends HTMLElement {
 						if (servername === item.server_name)
 							selectedchat="selectedchat"
 						let result =  /* html */ `
-						<div  class="d-flex flex-row side-message-bar align-items-center ${item.visibility} ${selectedchat}" id=${item.server_name}>
+						<div  class="side-message-bar ${item.visibility} ${selectedchat}" id=${item.server_name}>
 							<div class="position-relative">
 								${
 									item.status === "online" ? /* html */`
@@ -59,7 +59,7 @@ export default class ChatSideBar extends HTMLElement {
 					}).join("")
 				}
 				`;
-			const clicked_block = this.getElementsByClassName("side-message-bar");
+			const clicked_block = this.querySelectorAll(".side-message-bar");
 			for (let i = 0; i < clicked_block.length; i++)
 			{
 				let targeted = clicked_block[i];
@@ -67,6 +67,17 @@ export default class ChatSideBar extends HTMLElement {
 					GoTo(`/chat/${targeted.id}`)
 				})
 			}
+			const sidesearchbar = document.querySelector(".SidebarSearch")
+			sidesearchbar.addEventListener("input", (e)=>{
+				let server_block = this.querySelectorAll(".side-message-bar");
+				let input_value = e.target.value.toLowerCase();
+				server_block.forEach((element) => {
+					let found_array = data.filter(item => item.server_name.toLowerCase() === element.id.toLowerCase())
+					found_array = found_array.filter(item => item.name.toLowerCase().includes(input_value))
+					element.classList.toggle("hides",!found_array.length)
+
+				});
+			})
 
 		}
 

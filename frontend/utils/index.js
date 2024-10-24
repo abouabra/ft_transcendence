@@ -22,7 +22,7 @@ const routes = {
     "^/chat/$": "chat-page",
     "^/chat/[^\/]+$": "chat-page",
     "^/chat/browse_chat/$": "chat-browse",
-    "^/chat/join_server/[^\/]+/$": "join-server",
+    "^/chat/join_server/$": "join-server",
 
 };
 

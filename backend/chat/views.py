@@ -72,35 +72,47 @@ class GetServerListView(generics.GenericAPIView):
 class GetServerjoinedDataView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, name):
-        server_name = name
-        server = Server.objects.filter(name=server_name)
-        if server:
-            server = ServerSerializer(server,many=True).data[0]
-            data = {
-                "server_name":server_name,
-                "visibility":server['visibility'],
-                "avatar":server['avatar'],
-                "members":len(server['members'])
-            }
+    def get(self, request):
+
+        if (request.query_params.get('server_name') is None):
+            return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
+        server_name = request.query_params.get('server_name')
+        try:
+            server = Server.objects.get(name=server_name)
+
+            if server:
+                data = {
+                    "server_name":server_name,
+                    "visibility":server.visibility,
+                    "avatar":server.avatar,
+                    "members":len(server.members)
+                }
             return Response(data, status.HTTP_200_OK)
-        return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
-    def post(self, request, name):
+        except Server.DoesNotExist:
+            return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
+    def post(self, request):
         try:
             server = Server.objects.get(name=request.data['server_name'])
             if request.user.id in server.members:
                 return Response({"error":"user already joined the server"}, status.HTTP_400_BAD_REQUEST)
-            server.add_member(request.user.id)
+            if server.visibility == "private":
+                if request.data['password']:
+                    if server.check_passwd(request.data['password']):
+                        server.add_member(request.user.id)
+                        return Response({"success":"user joined the server", "server_name":server.name}, status.HTTP_200_OK)
+                print("wring password")
+                return Response({"error":"Wrong password"}, status.HTTP_400_BAD_REQUEST)
+            else:
+                server.add_member(request.user.id)
             return Response({"success":"user joined the server", "server_name":server.name}, status.HTTP_200_OK)
         except Server.DoesNotExist:
+            print("not found")
             return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
 
 class GetServerDataView(generics.GenericAPIView):
-
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-    
         final_data = []
         if (request.query_params and request.query_params['server']):
             servers = Server.objects.filter(name=request.query_params['server'])
@@ -109,10 +121,11 @@ class GetServerDataView(generics.GenericAPIView):
             servers = Server.objects.filter(members__contains=[request.user.id])
             serializer = ServerSerializer(servers, many=True)
             servers_data = serializer.data
-
+        
         for index, server in enumerate(servers_data):
             member = server['members']
-            member.remove(request.user.id)
+            if (request.user.id in member):
+                member.remove(request.user.id)
             visibility = server['visibility']
             server_name = server['name']
             user_id = request.user.id
@@ -228,9 +241,7 @@ class ServerInfo(generics.GenericAPIView):
             try:
                 server = Server.objects.get(name=request.query_params['server'])
                 server = ServerSerializer(server).data
-
                 return Response({"visibility":server['visibility']}, status.HTTP_200_OK)
-
             except Server.DoesNotExist:
                 return Response({'error':'invalide query param'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({}, status.HTTP_200_OK)

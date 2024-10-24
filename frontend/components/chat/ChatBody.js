@@ -13,19 +13,17 @@ export default class ChatBody extends HTMLElement {
 		this.server_name = location.pathname.split('/').pop()
 		makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then(data => {
 
-			// for (let i = 0; i < data.length; i++) {
-				// if (data[i].server_name === this.server_name) {
-					result_data = data[0] // i to 0
-					// break;
-				// }
-			// }
+			result_data = data[0]
+			let name_dt = result_data.name
+			if (result_data.name.length > 20)
+				name_dt = result_data.name.slice(0, 20) + "..."
 			this.innerHTML = /* html */`
 			<div class="chatbodymain">
 				<div class="chatbody-container">
 					<div class="server-description">
 						<img class="images_chat" src=${result_data.avatar}>
 						<div class="d-flex flex-column align-items-start">
-							<span class="p1_bold">${result_data.name}</span>
+							<span class="p1_bold">${name_dt}</span>
 							${ result_data.visibility === "protected" ? `<span class="p3_regular platinum_40_color">${result_data.status}</span>`
 								: `<span class="p3_regular platinum_40_color">Total members: ${result_data.member.length+1}</span>`
 							}

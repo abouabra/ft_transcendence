@@ -17,7 +17,7 @@ export default class Chat_Page extends HTMLElement {
 			ChatType = 'Direct'
 		let servername = pathname.substring(6)
 		let path = '/api/chat/server_info/'
-		console.log(pathname)
+
 		if (servername)
 			path = `/api/chat/server_info/?server=${servername}`
 		makeRequest(path).then(data=> {
@@ -28,7 +28,7 @@ export default class Chat_Page extends HTMLElement {
 							<div class="d-flex flex-column justify-content-center align-items-center">
 								<div class="search-input d-flex ">
 									<img  class="images_chat" src="/assets/images/common/Iconly/Light/Search.svg">
-									<input type="text" placeholder="Search" style="margin-right: 15px">
+									<input type="text" placeholder="Search" class="SidebarSearch" style="margin-right: 15px">
 								</div>
 							</div>
 							<div class="select-party d-flex justify-content-center w-100">

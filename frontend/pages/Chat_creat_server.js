@@ -33,7 +33,7 @@ export default class Create_Server_page extends HTMLElement {
 							<span id="text_avatar">150x150 image required</span>
 						</div>
 						<div class="server_name platinum_40_color_border  d-flex flex-column justify-content-center align-items-center">
-							<input class="create_server_input" id= "name" type="text" placeholder="Name" maxlength="15">
+							<input class="create_server_input" id= "name" type="text" placeholder="Name" maxlength="255">
 						</div>
 						<div class="server_visibility platinum_40_color_border position-relative">
 							<select class="form-select1">
@@ -91,7 +91,7 @@ export default class Create_Server_page extends HTMLElement {
 				file_name = file.name;
 
 				var reader = new FileReader();
-				const spanElement = document.querySelectorAll('#text_avatar').forEach(element => {
+				document.querySelectorAll('#text_avatar').forEach(element => {
 					if (element)
 						element.remove();
 				});
@@ -118,18 +118,27 @@ export default class Create_Server_page extends HTMLElement {
 		if (selectElement.value == 2)
 			visibility = "private"
 		
-		let image_extention = base64.split('/')[1].split(';')[0]
+		let image_extention;
+		let avatar = "/assets/images/server_avatars/default.jpg";
+		let qr_code = "/assets/images/servers_qr_codes/default.jpg";
+		
+		if(base64)
+		{
+			image_extention = base64.split('/')[1].split(';')[0]
+			avatar = `/assets/images/server_avatars/${name_tag.value}.${image_extention}`
+			qr_code = `/assets/images/servers_qr_codes/${name_tag.value}.${image_extention}`
+		}
 
 
 		let body = {
 			"name":name_tag.value,
 			"visibility":visibility,
-			"avatar":`/assets/images/server_avatars/${name_tag.value}.${image_extention}`,
+			"avatar":avatar,
 			"password":password_tag.value,
 			"id":localStorage.getItem('id'),
 			"img":base64,
 			"type":"Server",
-			"qr_code":`/assets/images/servers_qr_codes/${name_tag.value}.${image_extention}`,
+			"qr_code":qr_code,
 			"members":[localStorage.getItem("id")]
 		}
 

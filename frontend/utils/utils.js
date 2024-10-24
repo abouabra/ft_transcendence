@@ -48,8 +48,9 @@ async function makeRequest(url, method = "GET", data = null) {
 		if (response.status >= 400) 
 		{
 			let data = await response.json()
-			let error = data.non_field_errors[0] || data.detail || data.message;
-			throw new Error(error);
+			
+
+			throw new Error(data.error);
 		}
 
 
@@ -69,17 +70,6 @@ async function makeRequest(url, method = "GET", data = null) {
 	} catch (error) {
 		throw new Error(error);
 	
-		// Handle error response
-		const errorResponse = {
-			response_code: 500,
-			detail: error.message,
-		};
-
-		// if (!BANNED_TOAST_URLS.includes(url)) {
-			// handleToastNotifications(errorResponse);
-		// }
-
-		return errorResponse;
 	}
 }
 

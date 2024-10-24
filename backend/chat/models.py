@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField # NOTE: Use this for PostgreSQL
-
+from django.contrib.postgres.fields import ArrayField
+from django.contrib.auth.hashers import make_password, check_password
 # Create your models here.
 class Server(models.Model):
     # direct value to take = iduser 1 + iduser2 sorted so we know the communicated party
@@ -16,9 +16,11 @@ class Server(models.Model):
 
     visibility = models.CharField(choices=VISISBILITY_CHOICES, max_length=255, default="public")
     password = models.CharField(max_length=255, blank=True, null=True)
-    
-    
-    # members = models.JSONField(default=list, blank=True) # NOTE: Use this for SQLite
+    def set_passwd(self, passwd):
+        self.password = make_password(passwd)
+    def check_passwd(self, passwd):
+        return check_password(passwd, self.password)
+
     members = ArrayField(models.IntegerField(), blank=True, default=list)
 
     def add_member(self, member_id):

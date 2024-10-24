@@ -31,6 +31,7 @@ class OpponentTracker {
         this.setup.scene.add(this.marker);
     }
 
+    
     createOffscreenIndicator() {
         // Create the HTML element for off-screen indicator
         this.offscreenIndicator = document.createElement('div');

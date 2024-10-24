@@ -87,7 +87,7 @@ def update_stats_after_game(player_1_id, player_2_id, game_name, game_id):
     player_2_stats.total_games_played += 1
 
     player_1_new_elo, player_2_new_elo = ELO_System(player_1_stats.current_elo, player_2_stats.current_elo, match_obj.player_1_score, match_obj.player_2_score, 32)
-    
+
     match_obj.player1_elo_change = player_1_new_elo - player_1_stats.current_elo
     match_obj.player2_elo_change = player_2_new_elo - player_2_stats.current_elo
 

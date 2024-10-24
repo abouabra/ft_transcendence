@@ -31,8 +31,10 @@ export default class Game_Page extends HTMLElement {
 			// 	return;
 			// }
 			
-
+			this.starting_time = new Date().getTime();
+			localStorage.setItem("starting_time", this.starting_time);
 			this.render_data(data);
+
 		});
 		this.player = null;
 		this.opponent = null;
@@ -195,7 +197,6 @@ export default class Game_Page extends HTMLElement {
 			}
 		};
 	}
-	
 
 	display_game_results(result)
 	{
@@ -225,15 +226,17 @@ export default class Game_Page extends HTMLElement {
 	disconnectedCallback() {
 		console.log("disconnected from game page");
 		const uid = parseInt(localStorage.getItem("id"));
-		let game_time_div = document.getElementById("game-page-game-timer").innerText.split(" : ");
-		let game_time_in_seconds_int = parseInt(game_time_div[0]) * 60 + parseInt(game_time_div[1]);
-		console.log("game time in seconds", game_time_in_seconds_int);
+
+		const current_time = new Date().getTime();
+		const delta_time_in_sec = (current_time - this.starting_time) / 1000;
+		console.log("delta time in seconds", delta_time_in_sec);
+
 
 		window.game_socket.send(JSON.stringify({
 			type: "game_over",
 			user_id: uid,
 			game_room_id: parseInt(localStorage.getItem('game_id')),
-			game_time : game_time_in_seconds_int
+			game_time : delta_time_in_sec
 		}));
 
 		window.game_socket.close();

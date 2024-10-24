@@ -175,11 +175,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
             await opponent.ws_obj.close()
-            await me.ws_obj.close()
-            
-            del PLAYERS["space_invaders"][me.user_id]
-            del PLAYERS["space_invaders"][opponent.user_id]
-            
+
             game_obj.player1 = None
             game_obj.player2 = None
 
@@ -255,8 +251,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             
             message['data'] = player1.get_space_invaders_data()
             message['health'] = player2.health
-
-
 
             await player2.ws_obj.send(text_data=json.dumps(message))
 

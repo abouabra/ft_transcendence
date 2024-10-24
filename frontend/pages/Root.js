@@ -18,7 +18,6 @@ import Home_Page from "./Home.js";
 import Tournament_Page from "./Tournament.js";
 import Chat_Page from "./Chat.js";
 import Leaderboard_Page from "./Leaderboard.js";
-import Shop_Page from "./Shop.js";
 import Notifications_Page from "./Notifications.js";
 import Profile_Page from "./Profile.js";
 import Settings_Page from "./Settings.js";

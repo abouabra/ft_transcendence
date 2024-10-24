@@ -7,20 +7,6 @@ export default class Friends_Bar extends HTMLElement {
 
 		makeRequest("/api/auth/friends_bar/")
 		.then((data) => {
-			// const tt = [
-			// 	{id: 1, username: "admin",avatar: "/assets/images/avatars/default.jpg",is_playing: "Pong"},
-			// 	{id: 2, username: "User 2",avatar: "/assets/images/about_us/abouabra.png",is_playing: "Space Invaders"},
-			// 	{id: 3, username: "User 3",avatar: "/assets/images/about_us/abouabra.png",is_playing: "Road Fighter"},
-			// 	{id: 4, username: "User 4",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
-			// 	{id: 5, username: "User 5",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
-			// 	{id: 6, username: "User 6",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
-			// 	{id: 7, username: "User 7",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
-			// 	{id: 8, username: "User 8",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
-			// 	{id: 9, username: "User 9",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
-			// 	{id: 10, username: "User 10",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
-			// 	{id: 11, username: "User 11",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
-			// 	{id: 12, username: "User 12",avatar: "/assets/images/about_us/abouabra.png",is_playing: ""},
-			// ];
 			this.render_data(data);
 		})
 		.catch((error) => {

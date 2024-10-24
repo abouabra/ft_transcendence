@@ -222,9 +222,7 @@ class SearchUsersView(generics.ListAPIView):
     def post(self, request):
         search_query = request.data.get("search_query")
         if search_query:
-            users = User.objects.filter(username__icontains=search_query).order_by(
-                "username"
-            )[:5]
+            users = User.objects.filter(username__icontains=search_query, is_staff=False).order_by("username")[:5]
             return Response(
                 self.serializer_class(users, many=True).data, status=status.HTTP_200_OK
             )

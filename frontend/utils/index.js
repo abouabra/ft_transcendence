@@ -12,7 +12,6 @@ const routes = {
     "^/home/$": "home-page",
     "^/tournament/$": "tournament-page",
     "^/leaderboard/$": "leaderboard-page",
-    "^/shop/$": "shop-page",
     "^/notifications/$": "notifications-page",
     "^/profile/\\d+$": "profile-page",
     "^/settings/$": "settings-page",

@@ -35,9 +35,9 @@ export default class Side_Bar extends HTMLElement {
 					data-link="/leaderboard/" >
 				</side-bar-item>
 				<side-bar-item
-					data-icon="Light/Bag 3.svg"
-					data-text="Shop"
-					data-link="/shop/" >
+					data-icon="Light/Category.svg"
+					data-text="About Us"
+					data-link="/about_us/" >
 				</side-bar-item>
 		`;
 

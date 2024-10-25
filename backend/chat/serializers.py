@@ -15,6 +15,7 @@ class ServerSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         try:
+            
             Server.objects.get(name=data['name'])
             raise serializers.ValidationError(f"server {data['name']} already created")
         except Server.DoesNotExist:

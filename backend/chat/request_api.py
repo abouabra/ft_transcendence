@@ -3,12 +3,12 @@ import json
 import os
 
 
-def create_qr_code(image="./assets/images/tournament_avatars/default.jpg", qr_data="empty"):
+def create_qr_code(image="./assets/images/server_avatars/default.jpg", qr_data="empty", name="default.jpg"):
 
     image_url = "https://api.qrcode-monkey.com/qr/uploadImage"
     url_qr = "https://api.qrcode-monkey.com/qr/custom"
-    image_name = image.split('/')[-1]
-    image_extention = image_name.split('.')[-1]
+    image_name = name
+    image_extention = name.split('.')[-1]
     with open(f".{image}", "rb") as img:
         files = {'file': img}
         response_img = requests.post(image_url, files=files)

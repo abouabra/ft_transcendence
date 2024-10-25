@@ -30,13 +30,12 @@ export default class Chat_Browse extends HTMLElement {
                                 <span class="p1_bold platinum_40_color">member</span>
                                 <span class="header_h3">${element.member.length}</span>
                             </div>
-                            <div class="d-flex flex-column">
-                                <span class="p1_bold platinum_40_color">visibility</span>
-                                <span class="header_h3">${element.visibility}</span>
-                            </div>
                         </div>
                         <div class="join_server" data-id="${element.server_name}">
-                            <button-component data-text="join" id="${element.server_name}"></button-component>
+                            <div class="server_visibility_lock">
+                                ${element.visibility === "private" ? `<img src="/assets/images/common/Iconly/Bold/Lock.svg" class="icon_lock">`: `<img src="/assets/images/common/Iconly/Bold/Unlock.svg" class="icon_lock">`}
+                                <button-component data-text="join" id="${element.server_name}"></button-component>
+                            </div>
                         </div>
                     </div>
                 </div>

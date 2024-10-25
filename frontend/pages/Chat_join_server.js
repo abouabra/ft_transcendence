@@ -18,7 +18,7 @@ export default class Join_Server extends HTMLElement {
                     <div class="join_container">
                         <div class="join_header">
                             <span class="header_h2">Join Server</span>
-                            <img src="${data.avatar}" class="join_server_img">
+                            <img src="${data.avatar}" class="join_server_img" alt="${name_dot}">
                             <span class="join_msg">You've been invited to join:</span>
                             <span class="header_h3">${name_dot}</span>
                             <div class="joined_data_container">
@@ -46,17 +46,19 @@ export default class Join_Server extends HTMLElement {
                 makeRequest(`/api/chat/server_JoinedData/`, "POST", {'server_name':server_name, 'password':join_password.value}).then((data0) => {
                     GoTo(`/chat/${data0.server_name}`)
                     }).catch(error => {
-                        if (error === "Error: Error: user already joined the server")
-                            console.log("user already joined the server")
-                        console.log(`gaa = ${error}`)
-                        // this.innerHTML = /* html */`
-                        //     <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
-		            	//         <div class="d-flex justify-content-center align-items-center flex-column" style="gap: 50px">
-		            	// 	        <span class="header_h1">Already Joined</span>
-		            	// 	        <button-component   data-text="Chat" onclick="GoTo('/chat/${server_name}')"> </button-component>
-                        //     </div>
-                        // </div>
-                        // `;
+                        if (error == "Error: Error: user already joined the server")
+                        {
+                            this.innerHTML = /* html */`
+                                <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
+		            	            <div class="d-flex justify-content-center align-items-center flex-column" style="gap: 50px">
+		            	    	        <span class="header_h1">Already Joined</span>
+		            	    	        <button-component   data-text="Chat" onclick="GoTo('/chat/${server_name}')"> </button-component>
+                                </div>
+                            </div>
+                            `;
+                        }
+                        else
+                            showToast("error", error)
                     })
             }
         })

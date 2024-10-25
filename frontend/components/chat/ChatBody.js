@@ -1,3 +1,4 @@
+import Pannel from "../components/chat/Pannel.js";
 
 export default class ChatBody extends HTMLElement {
 	constructor() {
@@ -18,29 +19,42 @@ export default class ChatBody extends HTMLElement {
 			if (result_data.name.length > 20)
 				name_dt = result_data.name.slice(0, 20) + "..."
 			this.innerHTML = /* html */`
-			<div class="chatbodymain">
-				<div class="chatbody-container">
-					<div class="server-description">
-						<img class="images_chat" src=${result_data.avatar}>
-						<div class="d-flex flex-column align-items-start">
-							<span class="p1_bold">${name_dt}</span>
-							${ result_data.visibility === "protected" ? `<span class="p3_regular platinum_40_color">${result_data.status}</span>`
-								: `<span class="p3_regular platinum_40_color">Total members: ${result_data.member.length+1}</span>`
-							}
+				<div class="chatbodymain">
+					<div class="chatbody d-flex flex-column w-100">
+						<div class="chatbody-container">
+							<div class="server-description">
+								<img class="images_chat" src=${result_data.avatar} alt="${name_dt}">
+								<div class="d-flex flex-column align-items-start">
+									<span class="p1_bold">${name_dt}</span>
+									${ result_data.visibility === "protected" ? `<span class="p3_regular platinum_40_color">${result_data.status}</span>`
+										: `<span class="p3_regular platinum_40_color">Total members: ${result_data.member.length+1}</span>`
+									}
+								</div>
+							</div>
+							<div class="more-dots">
+								<span class="dot-point"></span>
+								<span class="dot-point"></span>
+								<span class="dot-point"></span>
+							</div>
+						</div>
+						<div class="messagetext"></div>
+						<div class="messagebar_input">
+							<textarea class="message_input" id="send-msg-bar1" placeholder="Type a message"></textarea>
+							<img class="send_icone" src="/assets/images/common/Iconly/Bold/Send.svg">
 						</div>
 					</div>
-					<div class="more-dots">
-						<span class="dot-point"></span>
-						<span class="dot-point"></span>
-						<span class="dot-point"></span>
+					<div class="More_bar">
+						<div class="header_right_side_bar">
+							<span>X</span>
+							<span>Server info</span>
+						</div>
+						<div class="user_info_right_side_bar">
+							<img src="/assets/images/server_avatars/default.jpg" alt="avatar">
+							<span class="header_h3">server_name</span>
+						</div>
+						<pannel-component>
 					</div>
 				</div>
-				<div class="messagetext"></div>
-				<div class="messagebar_input">
-					<textarea class="message_input" id="send-msg-bar1" placeholder="Type a message"></textarea>
-					<img class="send_icone" src="/assets/images/common/Iconly/Bold/Send.svg">
-				</div>
-			</div>
 			`;
 
 			this.messagecontainer = document.querySelector(".messagetext");
@@ -133,11 +147,15 @@ export default class ChatBody extends HTMLElement {
 		let time_now = new Date(data.timestamp)
 		let message_time = `${time_now.getHours()}:${time_now.getMinutes()}${time_now.getHours() > 12 ? 'PM' : 'AM'}`
 		divmessage_body.classList.add('message-body')
-
-		divmessage_body.innerHTML = /* html */ `
+		let name_dot = data.username
+		if (name_dot.length + 3 > 15)
+			name_dot = name_dot.slice(0, 12) + "..."
+		divmessage_body.innerHTML = /* html */
+				
+				`
 				<div class="message-text-container" id="message_${data.message_id}">
 					<div>
-						<img class="images_chat" src=${data.avatar}>
+						<img class="images_chat" src=${data.avatar} alt="${name_dot}">
 					</div>
 					<div class="d-flex flex-column w-100 message_cnt">
 						<div class="d-flex flex-row name-time">

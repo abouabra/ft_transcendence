@@ -117,3 +117,15 @@
 {
     display: none;
 }
+.server_visibility_lock
+{
+    width: 260px;
+    height: 48px;
+    position: relative;
+}
+.icon_lock{
+    position: absolute;
+    top:25%;
+    right: 57%;
+    z-index: 5
+}

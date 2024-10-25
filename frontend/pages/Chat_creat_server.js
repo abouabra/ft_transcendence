@@ -52,7 +52,7 @@ export default class Create_Server_page extends HTMLElement {
 				<div class="platinum_40_color_border d-flex flex-column align-items-center card2_content">
 					<span class="header_h2 ">Invite Link</span>
 					<div class="qr_code">
-						<img class="qr_codeimg" src=''>
+						<img class="qr_codeimg" src='' alt="Qr_img">
 					</div>
 				</div>
 				<div>
@@ -118,18 +118,17 @@ export default class Create_Server_page extends HTMLElement {
 		if (selectElement.value == 2)
 			visibility = "private"
 		
-		let image_extention;
+		let image_extention = 'jpg';
 		let avatar = "/assets/images/server_avatars/default.jpg";
-		let qr_code = "/assets/images/servers_qr_codes/default.jpg";
 		
-		if(base64)
+		if(base64 != null)
 		{
 			image_extention = base64.split('/')[1].split(';')[0]
 			avatar = `/assets/images/server_avatars/${name_tag.value}.${image_extention}`
-			qr_code = `/assets/images/servers_qr_codes/${name_tag.value}.${image_extention}`
 		}
-
-
+		let qr_code = `/assets/images/servers_qr_codes/${name_tag.value}.${image_extention}`
+		
+		
 		let body = {
 			"name":name_tag.value,
 			"visibility":visibility,

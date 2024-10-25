@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth.hashers import make_password
 from datetime import datetime, timezone
 from rest_framework.pagination import PageNumberPagination
 from .serializers import ServerSerializer, MessageSerializer
@@ -31,6 +32,7 @@ class JoinedServersView(generics.GenericAPIView):
 class CreateServerView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     def post(self, request):
+        request.data['password'] = make_password(request.data['password'])
         serializer = ServerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -42,7 +44,7 @@ class CreateServerView(generics.GenericAPIView):
                 path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
                 with open(path_in_disk,'wb') as file:
                     file.write(image)
-            create_qr_code(data['avatar'], f"http://127.0.0.1:3000/chat/join_server/{data['name']}/")
+            create_qr_code(data['avatar'], f"http://127.0.0.1:3000/chat/join_server/{data['name']}/",data['qr_code'].split('/')[-1])
             return Response({
                     "success": "Server Created Successfully"
                 }, status=status.HTTP_201_CREATED)
@@ -240,6 +242,8 @@ class ServerInfo(generics.GenericAPIView):
         if (request.query_params and request.query_params['server']):
             try:
                 server = Server.objects.get(name=request.query_params['server'])
+                if (request.user.id not in server.members):
+                    return Response({'error':'not Chat found'}, status=status.HTTP_400_BAD_REQUEST)
                 server = ServerSerializer(server).data
                 return Response({"visibility":server['visibility']}, status.HTTP_200_OK)
             except Server.DoesNotExist:

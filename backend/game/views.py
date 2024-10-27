@@ -139,14 +139,19 @@ class HomeExpandedActiveGamesView(generics.GenericAPIView):
     
 
 
-class ConstructLocalGameHistoryData(generics.GenericAPIView):
+class ConstructGameHistoryData(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
         player_1 = request.data["user_id"]
-        player_2 = getUserData(request, username="local_user")["id"]
+        game_type = request.data["game_type"]
+        
+        if game_type == "local":
+            player_2 = getUserData(request, username="local_user")["id"]
+        else:
+            player_2 = request.data["opponent_id"]
+
         game_name = request.data["game_name"]
-        game_type = "local"
 
         game_obj = Game_History.objects.create(
             player1=player_1,

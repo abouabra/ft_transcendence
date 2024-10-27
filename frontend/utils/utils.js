@@ -211,10 +211,10 @@ function sendNotification(type, receiver_id, extra_data = null)
 }
 
 
-function Make_Small_Card(type, server_id = null, game_id = null, username_who_invited_you = null, avatar_who_invited_you = null, game_name = null, username_waiting_for = null, avatar_waiting_for = null, data_id_who_invited_you=null, data_id_waiting_for=null)
+function Make_Small_Card(type, server_id = null, username_who_invited_you = null, avatar_who_invited_you = null, game_name = null, username_waiting_for = null, avatar_waiting_for = null, data_id_who_invited_you=null, data_id_waiting_for=null)
 {
 	const center_part = document.getElementById("base_page");
-	center_part.innerHTML += `<small-cards data-type="${type}" data-server-id="${server_id}" data-game-id="${game_id}" data-username_who_invited_you="${username_who_invited_you}" data-avatar_who_invited_you="${avatar_who_invited_you}" data-game-name="${game_name}" data-username_waiting_for="${username_waiting_for}" data-avatar_waiting_for="${avatar_waiting_for}" data-id_who_invited_you="${data_id_who_invited_you}" data-id_waiting_for="${data_id_waiting_for}"></small-cards>`;
+	center_part.innerHTML += `<small-cards data-type="${type}" data-server-id="${server_id}" data-username_who_invited_you="${username_who_invited_you}" data-avatar_who_invited_you="${avatar_who_invited_you}" data-game-name="${game_name}" data-username_waiting_for="${username_waiting_for}" data-avatar_waiting_for="${avatar_waiting_for}" data-id_who_invited_you="${data_id_who_invited_you}" data-id_waiting_for="${data_id_waiting_for}"></small-cards>`;
 
 	// example for logout small card
 	// Make_Small_Card("logout");

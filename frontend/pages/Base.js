@@ -70,7 +70,7 @@ export default class Base_Page extends HTMLElement {
 
 			if(data.type == "game_invitation")
 			{
-				Make_Small_Card("join_game", null, data.game_id, data.sender.username, data.sender.avatar, data.game_name, null, null, data.sender.id);
+				Make_Small_Card("join_game", null, data.sender.username, data.sender.avatar, data.game_name, null, null, data.sender.id);
 			}
 			else if(data.type == "cancel_game_invitation")
 			{

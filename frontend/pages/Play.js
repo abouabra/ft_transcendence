@@ -197,10 +197,10 @@ export default class Play_Page extends HTMLElement {
 		}
 
 		else if(this.selected_mode == "local") {		
-			makeRequest("/api/game/construct_local_game/", "POST", {
+			makeRequest("/api/game/construct_game/", "POST", {
 				game_name: this.selected_game,
-				mode: "local",
 				user_id: parseInt(localStorage.getItem("id")),
+				game_type: "local",
 			}).then((data) => {
 				GoTo(`/play/game/${data.game_room_id}`);
 			});

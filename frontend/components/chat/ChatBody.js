@@ -1,4 +1,3 @@
-import Pannel from "../components/chat/Pannel.js";
 
 export default class ChatBody extends HTMLElement {
 	constructor() {
@@ -45,14 +44,33 @@ export default class ChatBody extends HTMLElement {
 					</div>
 					<div class="More_bar">
 						<div class="header_right_side_bar">
-							<span>X</span>
-							<span>Server info</span>
+							<span class="p1_bold">X</span>
+							<span class="p1_bold">Server info</span>
 						</div>
 						<div class="user_info_right_side_bar">
 							<img src="/assets/images/server_avatars/default.jpg" alt="avatar">
 							<span class="header_h3">server_name</span>
 						</div>
-						<pannel-component>
+						<div class="pannel_tag">
+							<div class="pannel_edit">
+								<div class="edit_icon">
+									<img src="/assets/images/common/Iconly/Bold/Edit.svg">
+								</div>
+								<span class="p2_regular">Edit</span>
+							</div>
+							<div class="pannel_leave">
+								<div class="leave_icon">
+									<img src="/assets/images/common/Iconly/Bold/Logout.svg">
+								</div>
+								<span class="p2_regular">Leave Server</span>
+							</div>
+							<div class="pannel_delete">
+								<div class="bin_icon ">
+									<img src="/assets/images/common/Iconly/Bold/Delete.svg">
+								</div>
+								<span class="p2_regular">Delete Server</span>
+							</div>
+						</div>
 					</div>
 				</div>
 			`;

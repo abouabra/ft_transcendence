@@ -239,3 +239,19 @@
 
 /* pannel component styling*/
 
+
+.pannel_edit ,.pannel_leave, .pannel_delete
+{
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    height: 54px;
+    padding: 15px 10px;
+    border-bottom: 1px solid var(--platinum_40_percent);
+    background-color: var(--red);
+    text-align: start;
+}
+.pannel_edit
+{
+    background-color: transparent;
+}

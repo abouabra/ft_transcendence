@@ -179,6 +179,12 @@ export default class Play_Page extends HTMLElement {
 					const match_making_timer = document.querySelector('.match-making-timer');
 					match_making_timer.style.backgroundColor = "var(--primary_color)";
 
+
+					const cancel_match_making = document.getElementById("cancel-match-making");
+					cancel_match_making.style.display = "none";
+
+
+
 					const status_text = document.getElementById("match-making-user-status-text");
 					status_text.textContent = "Match Found";
 

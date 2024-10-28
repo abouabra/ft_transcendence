@@ -63,7 +63,7 @@ export default class Expanded_Home_Active_Tournaments extends HTMLElement {
 
 
 		const active_games_list = this.querySelector(".active-tournament-list");
-
+		const items_per_page = 5;
 		const pagination_arrow_left = this.querySelector(".pagination-item-arrow:first-child");
 		const pagination_arrow_right = this.querySelector(".pagination-item-arrow:last-child");
 		const pagination_items = this.querySelectorAll(".pagination-item .p4_bold");
@@ -92,7 +92,7 @@ export default class Expanded_Home_Active_Tournaments extends HTMLElement {
 			this.game_name = "";
 			this.current_page = 1;
 			const items_per_page = 3;  // You have 3 pagination items
-			this.max_page_number = Math.ceil(response.count / response.results.length);
+			this.max_page_number = Math.ceil(response.count / items_per_page);
 		
 			// Helper to update pagination items display
 			
@@ -117,7 +117,7 @@ export default class Expanded_Home_Active_Tournaments extends HTMLElement {
 	
 						// Make the API request for the selected page
 						makeRequest(url_with_page).then((response) => {
-							this.max_page_number = Math.ceil(response.count / response.results.length);
+							this.max_page_number = Math.ceil(response.count / items_per_page);
 	
 							active_games_list.classList.add("active-games-list-animation");
 							setTimeout(() => {
@@ -147,7 +147,7 @@ export default class Expanded_Home_Active_Tournaments extends HTMLElement {
 	
 						// Make the API request for the selected page
 						makeRequest(url_with_page).then((response) => {
-							this.max_page_number = Math.ceil(response.count / response.results.length);
+							this.max_page_number = Math.ceil(response.count / items_per_page);
 	
 							active_games_list.classList.add("active-games-list-animation");
 							setTimeout(() => {
@@ -175,7 +175,7 @@ export default class Expanded_Home_Active_Tournaments extends HTMLElement {
 	
 						// Make the API request for the selected page
 						makeRequest(url_with_page).then((response) => {
-							this.max_page_number = Math.ceil(response.count / response.results.length);
+							this.max_page_number = Math.ceil(response.count / items_per_page);
 	
 							active_games_list.classList.add("active-games-list-animation");
 							setTimeout(() => {
@@ -212,7 +212,7 @@ export default class Expanded_Home_Active_Tournaments extends HTMLElement {
 			
 			makeRequest(`/api/tournaments/home_expanded_active_tournaments/?page=${this.current_page}&game_name=${this.game_name}`)
 			.then((response) => {
-				this.max_page_number = Math.ceil(response.count / response.results.length);
+				this.max_page_number = Math.ceil(response.count / items_per_page);
 				updatePaginationDisplay();
 
 				active_games_list.classList.add("active-games-list-animation");

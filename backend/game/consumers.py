@@ -3,7 +3,6 @@ import logging
 import json
 from channels.db import database_sync_to_async
 from .models import Game_History, GameStats
-from .serializers import GameStatsSerializer,GameHistorySerializer
 import asyncio
 from .utils import update_stats_after_game, ELO_System, getUserData
 

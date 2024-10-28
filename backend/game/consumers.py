@@ -5,7 +5,7 @@ from channels.db import database_sync_to_async
 from .models import Game_History, GameStats
 from .serializers import GameStatsSerializer,GameHistorySerializer
 import asyncio
-from .utils import update_stats_after_game, ELO_System
+from .utils import update_stats_after_game, ELO_System, getUserData
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +132,41 @@ class GameConsumer(AsyncWebsocketConsumer):
             
 
             await self.check_queue(player, game_name)
+        
+        elif type == 'join_custom_game':
+            player_data = {
+                'id': text_data_json['player_id'],
+                'username': text_data_json['player_username'],
+                'avatar': text_data_json['player_avatar'],
+            }
+
+            game_name = text_data_json['game_name']
+            game_id= int(text_data_json['game_id'])
+        
+        
+        
+            player = Player(player_data, game_name, self)
+
+            PLAYERS[game_name][player_data["id"]] = player
+            player.is_in_queue = False
+
+            match_history = await self.get_match_history(game_id)
+
+            if match_history.player1 == None:
+                match_history.player1 = player_data["id"]
+                game_obj = Game_Room(match_history.id ,game_name, player, None)
+                GAME_ROOMS[game_obj.id] = game_obj
+            else:
+                match_history.player2 = player_data["id"]
+                game_obj = Game_Room(match_history.id ,game_name, PLAYERS[game_name][match_history.player1], player)
+                GAME_ROOMS[game_obj.id] = game_obj
+
+
+            if GAME_ROOMS[game_obj.id].player1 != None and GAME_ROOMS[game_obj.id].player2 != None:
+                await self.start_initial_game_state(GAME_ROOMS[game_obj.id])
+
+
+
 
         elif type == "cancel_match_making":
             user = text_data_json["user"]
@@ -292,6 +327,11 @@ class GameConsumer(AsyncWebsocketConsumer):
         
         return game
     
+    @database_sync_to_async
+    def get_match_history(self, game_id):
+        return Game_History.objects.get(id=game_id)
+
+
     @database_sync_to_async
     def stats_wrapper(self, game_obj, me, opponent):
 

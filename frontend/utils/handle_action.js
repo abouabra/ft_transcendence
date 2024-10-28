@@ -1,3 +1,4 @@
+
 function handle_action(action, id, data = null) {
 
 	if (action == "goto_profile") {
@@ -50,8 +51,46 @@ function handle_action(action, id, data = null) {
 			user_id: parseInt(localStorage.getItem("id")),
 			opponent_id: data.opponent_id,
 			game_type: "ranked",
-		}).then((data) => {
-			GoTo(`/play/game/${data.game_room_id}`);
+		}).then((response) => {
+			sendNotification("game_invitation_response", data.opponent_id, {
+				player1:  parseInt(localStorage.getItem("id")),
+				player2: data.opponent_id,
+				game_name: data.game_name,
+				game_id: response.game_room_id,
+			});
+
+
+			window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+			window.game_socket.onopen = () => {
+				console.log("Game socket opened | join_game");
+
+				window.game_socket.send(JSON.stringify({
+					type: "join_custom_game",
+
+					player_id: parseInt(localStorage.getItem("id")),
+					player_username: localStorage.getItem("username"),
+					player_avatar: localStorage.getItem("avatar"),
+
+					game_name: data.game_name,
+
+					game_id: response.game_room_id,
+				}));
+
+				GoTo(`/play/game/${response.game_room_id}`);
+			};
+
+			window.game_socket.onclose = function (event) {
+				console.log("Game socket closed | join_game");
+			};
+	
+			window.game_socket.onerror = function (event) {
+				console.log("Game socket error | join_game");
+			};
+
+			window.game_socket.onmessage = (event) => {
+				const data = JSON.parse(event.data);
+				console.log(`join_game | Received data:`, data);
+			};
 		});
 
 

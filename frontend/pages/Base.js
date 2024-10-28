@@ -76,6 +76,42 @@ export default class Base_Page extends HTMLElement {
 			{
 				Delete_Small_Card();
 			}
+			else if(data.type == "game_invitation_response")
+			{
+
+				window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+				window.game_socket.onopen = () => {
+					console.log("Game socket opened | game_invitation_response");
+					console.log(`game_id: ${data.game_id} | game_invitation_response`);
+	
+					window.game_socket.send(JSON.stringify({
+						type: "join_custom_game",
+	
+						player_id: parseInt(localStorage.getItem("id")),
+						player_username: localStorage.getItem("username"),
+						player_avatar: localStorage.getItem("avatar"),
+	
+						game_name: data.game_name,
+	
+						game_id: data.game_id,
+					}));
+
+					GoTo(`/play/game/${data.game_id}`);
+				};
+
+				window.game_socket.onclose = function (event) {
+					console.log("Game socket closed | game_invitation_response");
+				};
+		
+				window.game_socket.onerror = function (event) {
+					console.log("Game socket error | game_invitation_response");
+				};
+
+				window.game_socket.onmessage = (event) => {
+					const data = JSON.parse(event.data);
+					console.log(`game_invitation_response | Received data:`, data);
+				};
+			}
 			else if(data.type == "friend_request")
 			{
 

@@ -138,7 +138,8 @@ export default class Create_Server_page extends HTMLElement {
 			"img":base64,
 			"type":"Server",
 			"qr_code":qr_code,
-			"members":[localStorage.getItem("id")]
+			"members":[localStorage.getItem("id")],
+			"staffs":[localStorage.getItem("id")],
 		}
 
 		let loader_container = this.getElementsByClassName("loader-container")[0]

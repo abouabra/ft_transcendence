@@ -50,7 +50,32 @@ class CreateServerView(generics.GenericAPIView):
                 }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    def put(self, request):
+        print(request.data)
+        if (request.data['password']):
+            request.data['password'] = make_password(request.data['password'])
+        try:
+            server = Server.objects.get(name=request.data['old_name'])
+        except Server.DoesNotExist:
+            return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
+        data = request.data
+        if data['img']:
+            image = data['img'].split(',')[1]
+            image = base64.b64decode(image)
+            path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
+            with open(path_in_disk,'wb') as file:
+                file.write(image)
+        create_qr_code(data['avatar'], f"http://127.0.0.1:3000/chat/join_server/{data['name']}/",data['qr_code'].split('/')[-1])
+        server.name = data['name']
+        server.visibility = data['visibility']
+        server.avatar = data['avatar']
+        server.qr_code = data['qr_code']
+        if server.password:
+            server.password = make_password(data['password'])
+        server.save()
+        return Response({
+                "success": "Server Created Successfully"
+            }, status=status.HTTP_201_CREATED)
 class GetServerListView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
@@ -111,6 +136,7 @@ class GetServerjoinedDataView(generics.GenericAPIView):
             print("not found")
             return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
 
+
 class GetServerDataView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -166,9 +192,11 @@ class GetServerDataView(generics.GenericAPIView):
                 'name':username,
                 'status':online,
                 'member':member,
+                'staffs':server['staffs'],
                 'avatar':avatar,
                 'latest_message':latest_message,
-                'latest_timestamp':latest_timestamp
+                'latest_timestamp':latest_timestamp,
+                'qr_code':server['qr_code']
             }
             final_data.append(data)
         return Response(final_data, status.HTTP_200_OK)
@@ -203,7 +231,8 @@ class GetMessageDataView(generics.GenericAPIView):
                         'visibility':message.server.visibility,
                         'message_id':message.pk,
                         'created_at':message.timestamp,
-                        'user_id':message.sender_id
+                        'user_id':message.sender_id,
+                        'qr_code':serverrs.qr_code,
                     }
                     data.append(body)
             except Server.DoesNotExist:
@@ -246,6 +275,20 @@ class ServerInfo(generics.GenericAPIView):
                     return Response({'error':'not Chat found'}, status=status.HTTP_400_BAD_REQUEST)
                 server = ServerSerializer(server).data
                 return Response({"visibility":server['visibility']}, status.HTTP_200_OK)
+            except Server.DoesNotExist:
+                return Response({'error':'invalide query param'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({}, status.HTTP_200_OK)
+
+class LeaverServer(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def delete(self, request):
+        if (request.query_params and request.query_params['server']):
+            try:
+                server = Server.objects.get(name=request.query_params['server'])
+                if (request.user.id not in server.members):
+                    return Response({'error':'not Chat found'}, status=status.HTTP_400_BAD_REQUEST)
+                server.remove_member(request.user.id)
+                return Response({"success":"user left the server"}, status.HTTP_200_OK)
             except Server.DoesNotExist:
                 return Response({'error':'invalide query param'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({}, status.HTTP_200_OK)

@@ -22,6 +22,7 @@ class Server(models.Model):
         return check_password(passwd, self.password)
 
     members = ArrayField(models.IntegerField(), blank=True, default=list)
+    staffs = ArrayField(models.IntegerField(), blank=True, default=list)
 
     def add_member(self, member_id):
         self.members.append(member_id)

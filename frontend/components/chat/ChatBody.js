@@ -1,4 +1,4 @@
-
+import UserSideBar from "./User_sidebar.js";
 export default class ChatBody extends HTMLElement {
 	constructor() {
 		super();
@@ -37,50 +37,30 @@ export default class ChatBody extends HTMLElement {
 							</div>
 						</div>
 						<div class="messagetext"></div>
-						<div class="messagebar_input">
-							<textarea class="message_input" id="send-msg-bar1" placeholder="Type a message"></textarea>
-							<img class="send_icone" src="/assets/images/common/Iconly/Bold/Send.svg">
-						</div>
-					</div>
-					<div class="More_bar">
-						<div class="header_right_side_bar">
-							<span class="p1_bold">X</span>
-							<span class="p1_bold">Server info</span>
-						</div>
-						<div class="user_info_right_side_bar">
-							<img src="/assets/images/server_avatars/default.jpg" alt="avatar">
-							<span class="header_h3">server_name</span>
-						</div>
-						<div class="pannel_tag">
-							<div class="pannel_edit">
-								<div class="edit_icon">
-									<img src="/assets/images/common/Iconly/Bold/Edit.svg">
-								</div>
-								<span class="p2_regular">Edit</span>
+							<div class="messagebar_input">
+								<textarea class="message_input" id="send-msg-bar1" placeholder="Type a message"></textarea>
+								<img class="send_icone" src="/assets/images/server_avatars/default.jpg/images/common/Iconly/Bold/Send.svg"">
 							</div>
-							<div class="pannel_leave">
-								<div class="leave_icon">
-									<img src="/assets/images/common/Iconly/Bold/Logout.svg">
-								</div>
-								<span class="p2_regular">Leave Server</span>
-							</div>
-							<div class="pannel_delete">
-								<div class="bin_icon ">
-									<img src="/assets/images/common/Iconly/Bold/Delete.svg">
-								</div>
-								<span class="p2_regular">Delete Server</span>
-							</div>
+						</div>
+						<div class="More_bar">
+							<user-pannel type="groupsettings"></user-pannel>
 						</div>
 					</div>
 				</div>
+				<div class="Qr_code_data">
+				</div>
 			`;
-
 			this.messagecontainer = document.querySelector(".messagetext");
 			this.inputbr = this.querySelector('#send-msg-bar1');
 			//dot more block
 			let more_dot = this.querySelector(".more-dots")
 			more_dot.addEventListener('click', ()=>{
-				console.log("okokookokoko")
+				this.querySelector("user-pannel").data = result_data
+				this.querySelector("user-pannel").setAttribute('type', 'groupsettings')
+				this.querySelector(".More_bar").style.width = "70%"
+				this.querySelector(".sliding_elementimg").classList.remove("hidden")
+				this.querySelector(".sliding_elementtext").classList.remove("hidden")
+				more_dot.style.display = "none";
 			})
 
 			const inputicon = this.querySelector('.send_icone');
@@ -207,9 +187,14 @@ export default class ChatBody extends HTMLElement {
 			let content_element = divmessage_body.querySelector(".messageblockcontent")
 			let delete_msg = divmessage_body.querySelector(".delete_message");
 			let message_name = divmessage_body.querySelector(".message_name");
+				message_name.addEventListener('click', ()=>{
+				document.querySelector("user-pannel").data = data
+				document.querySelector("user-pannel").setAttribute('type', 'usersettings')
+				document.querySelector(".More_bar").style.width = "70%"
+				document.querySelector(".sliding_elementimg").classList.remove("hidden")
+				document.querySelector(".sliding_elementtext").classList.remove("hidden")
+				document.querySelector(".more-dots").style.display = "none";
 
-			message_name.addEventListener('click', ()=>{
-				GoTo(`/profile/${data.user_id}`)
 			})
 			if (data.username == localStorage.getItem("username"))
 			{
@@ -231,8 +216,6 @@ export default class ChatBody extends HTMLElement {
 					})
 				}
 
-				// divmessage_body.querySelector(".images_chat").parentNode.style.display = "none"
-				// divmessage_body.querySelector(".message_name").innerText = ''
 			}
 
 
@@ -282,3 +265,5 @@ function delete_le_message(tag , server_name, delete_type, id)
 	parent.removeChild(element_todel);
 	makeRequest(`/api/chat/get_message_data/?chat=${msg_id}&server=${server_name}&type=${delete_type}`, 'DELETE')
 }
+
+

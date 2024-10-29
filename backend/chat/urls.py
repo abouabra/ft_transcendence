@@ -9,5 +9,5 @@ urlpatterns = [
     path('get_serverlist/', views.GetServerListView.as_view(), name='get_serverlist'),
     path('server_info/', views.ServerInfo.as_view(), name='server_info'),
     path('server_JoinedData/', views.GetServerjoinedDataView.as_view(), name='server_JoinedData'),
-    
+    path('leave_server/', views.LeaverServer.as_view(), name='leave_server'),
 ]

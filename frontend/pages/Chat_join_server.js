@@ -29,7 +29,7 @@ export default class Join_Server extends HTMLElement {
                                     <input class="join_password" type="password" placeholder="password">
                                 </div>
                                 <button-component data-text="Join" class="join_button"></button-component>
-                                <button-component data-type="no-bg" data-text="Back" onclick="GoTo('/chat/')"></button-component>
+                                <button-component data-type="no-bg" data-text="Back" onclick="GoTo('/chat/browse_chat/')"></button-component>
                             </div>
                         </div>
                     </div>

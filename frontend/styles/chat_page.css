@@ -23,6 +23,7 @@ chat-page {
     flex-direction: column;
     padding-top: 20px;
     gap: 10px;
+    position: relative;
 }
 
 

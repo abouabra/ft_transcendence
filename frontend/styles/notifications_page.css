@@ -1,0 +1,40 @@
+notifications-page {
+    display: flex;
+    flex-direction: column;
+
+    display: flex;
+    align-items: center;
+	flex-direction: column;
+
+    width: 100%;
+    height: 100%;
+}
+
+.notifications_page_container {
+    display: flex;
+    width: clamp(300px, 75%, 1440px);
+    flex-direction: column;
+
+    padding: 15px 30px;
+    gap: 25px;
+    border-radius: 30px;
+    overflow: hidden;
+
+    /* min-height: 1000px; */
+    height: 100%;
+}
+
+.notifications_page_content {
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: auto;
+    height: 100%;
+    gap: 7px;
+}
+
+.notifications-bar-option-items-border
+{
+    border: 1px solid var(--platinum_40_percent);
+    border-radius: 10px;
+}

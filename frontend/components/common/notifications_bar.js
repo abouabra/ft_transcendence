@@ -151,7 +151,7 @@ export default class Notifications_Bar extends HTMLElement {
 					}
 
 					<div class="notifications-bar-option-items justify-content-center" id="see_all_notifications">
-						<span class="p2_bold" > See all notifications </span>
+						<span class="p2_bold" style="cursor: pointer;" > See all notifications </span>
 					</div>
 			`;
 
@@ -251,26 +251,6 @@ export default class Notifications_Bar extends HTMLElement {
 						});
 					});
 				}
-
-				// const decline_buttons = this.querySelectorAll(".offline_status");
-				// decline_buttons.forEach((button) => {
-				// 	button.addEventListener("click", () => {
-				// 		const notification_id = button.parentElement.parentElement.getAttribute("data-notification-id");
-				// 		makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
-				// 		.then((data) => {
-				// 			item.classList.add("notification_remove_animation");
-				// 			item.addEventListener("animationend", () => {
-				// 				item.remove();
-				// 				this.getNotifications();
-				// 			});
-							
-				// 		}).catch(error => {
-				// 			showToast("error", error);
-				// 		});
-				// 	});
-					
-				// });
-
 
 				
 			});

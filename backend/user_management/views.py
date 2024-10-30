@@ -284,20 +284,41 @@ class DeleteNotificationView(generics.GenericAPIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10 
 class NotificationsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = NotificationSerializer
-    pagination_class = PageNumberPagination
-    pagination_class.page_size = 10
+    pagination_class = CustomPagination
+    queryset = Notification.objects.all()
 
     def get(self, request):
-        paginator = self.pagination_class()
-        notifications = Notification.objects.filter(receiver=request.user).order_by(
-            "-timestamp"
-        )
-        result_page = paginator.paginate_queryset(notifications, request)
-        serialized_notifications = self.serializer_class(result_page, many=True).data
-        return paginator.get_paginated_response(serialized_notifications)
+        notifications = Notification.objects.filter(receiver=request.user, type__in=["game_invitation", "friend_request", "strike"]).order_by("-timestamp")
+        page = self.paginate_queryset(notifications)
+        if page is not None:
+            serialized_notifications = self.serializer_class(page, many=True).data
+            return self.get_paginated_response(serialized_notifications)
+
+        serialized_notifications = self.serializer_class(notifications, many=True).data
+        return Response(serialized_notifications, status=status.HTTP_200_OK)
+
+import random
+
+class GenerateRandomNotificationsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        type_choices = ["game_invitation", "friend_request"]
+        n_of_tries = 40
+        for i in range(n_of_tries):
+            Notification.objects.create(
+                sender=User.objects.get(id=1),
+                receiver=request.user,
+                type=random.choice(type_choices)
+            )
+
+        return Response({"detail": f"{n_of_tries} random notifications generated successfully"}, status=status.HTTP_200_OK)
 
 
 class FriendsBarView(generics.GenericAPIView):

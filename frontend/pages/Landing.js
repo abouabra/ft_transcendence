@@ -21,8 +21,8 @@ export default class Landing_Page extends HTMLElement {
 						</span>
 						
 						<div class="cta_buttons">
-							<button-component data-text='GET STARTED' > </button-component>
-							<button-component data-text='I ALREADY HAVE AN ACCOUNT' data-type="no-bg" > </button-component>
+							<button-component data-text='GET STARTED' data-link="/register/"> </button-component>
+							<button-component data-text='I ALREADY HAVE AN ACCOUNT' data-type="no-bg" data-link="/login/"> </button-component>
 						</div>
 
 					</div>
@@ -89,6 +89,13 @@ export default class Landing_Page extends HTMLElement {
 				<landing-page-footer></landing-page-footer>
 			</div>
 		`;
+
+		const cta_buttons = this.querySelector(".cta_buttons");
+		cta_buttons.querySelectorAll("button-component").forEach((element) => {
+			element.addEventListener("click", () => {
+				GoTo(element.getAttribute("data-link"));
+			});
+		});
 	}
 
 	connectedCallback() {}

@@ -64,6 +64,11 @@ export default class Landing_Page_Footer extends HTMLElement {
 			});
 		});
 
+		const get_started_button = this.querySelector("button-component");
+		get_started_button.addEventListener("click", () => {
+			GoTo("/register/");
+		});
+
 	}
 
 	connectedCallback() {}

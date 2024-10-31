@@ -38,3 +38,10 @@ notifications-page {
     border: 1px solid var(--platinum_40_percent);
     border-radius: 10px;
 }
+
+@media screen and (max-width: 768px) {
+    .notifications_page_container {
+        width: calc(100% - 20px);
+        margin: 10px;
+    }
+}

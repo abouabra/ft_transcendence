@@ -49,8 +49,6 @@ export default class Notifications_Page extends HTMLElement {
 			const pagination_arrow_right = this.querySelector(".pagination-item-arrow:last-child");
 			const pagination_items = this.querySelectorAll(".pagination-item .p4_bold");
 
-			
-
 
 			this.current_page = 1;
 			this.max_page_number = Math.ceil(response.count / items_per_page);
@@ -201,7 +199,7 @@ export default class Notifications_Page extends HTMLElement {
 			let message;
 			if (item.type == "friend_request") {
 				message = /*html*/`
-					<div class="d-flex align-items-center" style="gap: 10px">
+					<div class="d-flex align-items-center" style="gap: 10px;flex-wrap: wrap;">
 						<span class="p4_regular"><span class="p4_bold">${item.sender.username}</span> sent you a friend request</span>
 						<div class="d-flex" style="gap: 10px; margin-left: auto;">
 							<div class="d-flex justify-content-center align-items-center notifications-bar-option-items-accept-btn online_status">

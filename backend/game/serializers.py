@@ -6,6 +6,11 @@ class GameStatsSerializer(serializers.ModelSerializer):
         model = GameStats
         fields = "__all__"
 
+class LeaderboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GameStats
+        fields = ["user_id", "current_elo"]
+
 class GameHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Game_History

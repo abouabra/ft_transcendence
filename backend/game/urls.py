@@ -14,6 +14,6 @@ urlpatterns = [
     
     
     
-    
-    path("generate/", views.GenerateRandomGameHistoryData.as_view(), name="generate"),
+    path('leaderboard/', views.LeaderboardView.as_view(), name='leaderboard'),
+
 ]

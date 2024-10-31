@@ -313,63 +313,6 @@ class NotificationsView(generics.GenericAPIView):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import random
-
-class GenerateRandomNotificationsView(generics.GenericAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request):
-        type_choices = ["game_invitation", "friend_request"]
-        n_of_tries = 40
-        for i in range(n_of_tries):
-            Notification.objects.create(
-                sender=User.objects.get(id=1),
-                receiver=request.user,
-                type=random.choice(type_choices)
-            )
-
-        return Response({"detail": f"{n_of_tries} random notifications generated successfully"}, status=status.HTTP_200_OK)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class FriendsBarView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ShortUserSerializer

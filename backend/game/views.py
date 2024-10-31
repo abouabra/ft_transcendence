@@ -6,7 +6,7 @@ from .models import Game_History, GameStats
 import logging
 from .utils import getUserData
 from rest_framework import generics, permissions, status
-from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer
+from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer, LeaderboardSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -192,67 +192,19 @@ class GetGameInfo(generics.GenericAPIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import random
-class GenerateRandomGameHistoryData(generics.GenericAPIView):
+class LeaderboardView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = LeaderboardSerializer
 
     def get(self, request):
-        # generate random game history data
-        games_choices = ["pong", "space_invaders", "road_fighter"]
-        gamaes_types = ["ranked", "local", "ai"]
-        user_ids = [1, 2]
-        for i in range(10):
-            player1 = random.choice(user_ids)
-            player2 = user_ids[0] if player1 == user_ids[1] else user_ids[1]
-            game_name = random.choice(games_choices)
-            game_type = random.choice(gamaes_types)
-            player_1_score = random.randint(0, 10)
-            player_2_score = random.randint(0, 10)
-            player1_elo_change = random.randint(-10, 10)
-            player2_elo_change = random.randint(-10, 10)
-            winner = random.choice([1, 2])
-            game_duration = random.randint(10, 100)
+        query_params = request.query_params
+        if "game_name" in query_params and query_params["game_name"] != "":
+            game_name = query_params["game_name"]
+            leaderboard = GameStats.objects.filter(game_name=game_name).order_by('-current_elo')
+        else:
+            leaderboard = GameStats.objects.filter(game_name="pong").order_by('-current_elo')
 
-            game_history = Game_History.objects.create(
-                player1=player1,
-                player2=player2,
-                game_name=game_name,
-                game_type=game_type,
-                player_1_score=player_1_score,
-                player_2_score=player_2_score,
-                player1_elo_change=player1_elo_change,
-                player2_elo_change=player2_elo_change,
-                winner=winner,
-                game_duration=game_duration
-            )
-            game_history.save()
-
-        return Response({"message": "Game History Data Generated Successfully"}, status=status.HTTP_201_CREATED)
+        serializer = self.serializer_class(leaderboard, many=True)
+        for player in serializer.data:
+            player["user"] = getUserData(request, player["user_id"])
+        return Response(serializer.data, status=status.HTTP_200_OK)

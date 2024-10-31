@@ -12,12 +12,13 @@
 	--green: #88bd6f;
 	--blue: #3a70f4;
 }
+
+
 * {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
 	transition: unset;
-
 }
 
 a {
@@ -350,4 +351,34 @@ body {
     height: 100%;
     object-fit: cover; /* Ensure the video covers the entire area */
     transform: translate(-50%, -50%); /* Center the video */
+}
+
+
+
+
+
+
+/* Webkit scrollbar styles */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary_color);
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary_color);
+}
+
+* {
+	scrollbar-width: narrow;
+    scrollbar-color: var(--primary_color) transparent;
 }

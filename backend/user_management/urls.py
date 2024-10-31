@@ -23,6 +23,4 @@ urlpatterns = [
     path('accept_friend_request/<int:pk>/', views.AcceptFriendRequestView.as_view(), name='accept_friend_request'),
 
 
-
-    path('generate_random_notification/', views.GenerateRandomNotificationsView.as_view(), name='generate_random_notification'),
 ]

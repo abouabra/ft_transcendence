@@ -9,7 +9,6 @@ export default class Notifications_Page extends HTMLElement {
 
 		makeRequest('/api/auth/notifications/')
 		.then((response) => {
-			console.log(response);
 
 			this.innerHTML = /* html */`
 				<div class="notifications_page_container blur platinum_40_color_border"> 
@@ -50,23 +49,7 @@ export default class Notifications_Page extends HTMLElement {
 			const pagination_arrow_right = this.querySelector(".pagination-item-arrow:last-child");
 			const pagination_items = this.querySelectorAll(".pagination-item .p4_bold");
 
-			const updatePaginationDisplay = () => {
-				pagination_items.forEach((item, index) => {
-					const page_number = this.current_page + index;
-					item.innerText = page_number;
-		
-					// Hide items outside the range
-					if (page_number > this.max_page_number || page_number < 1) {
-						item.parentElement.style.display = "none";
-					} else {
-						item.parentElement.style.display = "flex";
-					}
-				});
-		
-				// Hide/show arrows based on current page position
-				pagination_arrow_left.style.display = this.current_page === 1 ? "none" : "flex";
-				pagination_arrow_right.style.display = this.current_page >= this.max_page_number ? "none" : "flex";
-			};
+			
 
 
 			this.current_page = 1;
@@ -74,13 +57,13 @@ export default class Notifications_Page extends HTMLElement {
 
 
 			// Initialize pagination
-			updatePaginationDisplay();
+			this.updatePaginationDisplay(pagination_items, pagination_arrow_left, pagination_arrow_right);
 	
 			// Handle previous page click (decrement by 1)
 			pagination_arrow_left.addEventListener("click", () => {
 				if (this.current_page > 1) {
 					this.current_page -= 1; // Decrement by 1
-					updatePaginationDisplay();
+					this.updatePaginationDisplay(pagination_items, pagination_arrow_left, pagination_arrow_right);
 	
 					pagination_items.forEach((item) => item.parentElement.classList.remove("pagination-active"));
 					pagination_items[0].parentElement.classList.add("pagination-active");
@@ -112,7 +95,7 @@ export default class Notifications_Page extends HTMLElement {
 			pagination_arrow_right.addEventListener("click", () => {
 				if (this.current_page < this.max_page_number) {
 					this.current_page += 1; // Increment by 1
-					updatePaginationDisplay();
+					this.updatePaginationDisplay(pagination_items, pagination_arrow_left, pagination_arrow_right);
 	
 					pagination_items.forEach((item) => item.parentElement.classList.remove("pagination-active"));
 					pagination_items[0].parentElement.classList.add("pagination-active");
@@ -173,8 +156,46 @@ export default class Notifications_Page extends HTMLElement {
 		});
 	}
 
+	updatePaginationDisplay (pagination_items, pagination_arrow_left, pagination_arrow_right) {
+		pagination_items.forEach((item, index) => {
+			const page_number = this.current_page + index;
+			item.innerText = page_number;
+
+			// Hide items outside the range
+			if (page_number > this.max_page_number || page_number < 1) {
+				item.parentElement.style.display = "none";
+			} else {
+				item.parentElement.style.display = "flex";
+			}
+		});
+
+		// Hide/show arrows based on current page position
+		pagination_arrow_left.style.display = this.current_page === 1 ? "none" : "flex";
+		pagination_arrow_right.style.display = this.current_page >= this.max_page_number ? "none" : "flex";
+	};
+
 	render_data(response) {
-		console.log(response);
+		const items_per_page = 10;
+		const pagination_arrow_left = this.querySelector(".pagination-item-arrow:first-child");
+		const pagination_arrow_right = this.querySelector(".pagination-item-arrow:last-child");
+		const pagination_items = this.querySelectorAll(".pagination-item .p4_bold");
+
+		const notifications_bar_status = document.querySelector(".notifications_bar_status");
+		if (notifications_bar_status) {
+			const span_count = notifications_bar_status.querySelector("span");
+			var count = parseInt(span_count.textContent);
+			count = count - response.unread_notifications;
+			span_count.textContent = count;
+			if (count < 0)
+				count = 0;
+			span_count.textContent = count;
+
+			if(count == 0)
+				notifications_bar_status.style.display = "none";
+		}
+
+		this.updatePaginationDisplay(pagination_items, pagination_arrow_left, pagination_arrow_right);
+
 		const active_games_list = this.querySelector(".notifications_page_content");
 		active_games_list.innerHTML = response.results.map((item) => {
 			let message;
@@ -236,7 +257,6 @@ export default class Notifications_Page extends HTMLElement {
 				return;
 
 
-
 			close_button.addEventListener("click", () => {
 				const notification_id = item.getAttribute("data-notification-id");
 				makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
@@ -244,10 +264,17 @@ export default class Notifications_Page extends HTMLElement {
 					item.classList.add("notification_remove_animation");
 					item.addEventListener("animationend", () => {
 						item.remove();
-						makeRequest('/api/auth/notifications/')
-						.then((response) => {
-							this.current_page = 1;
-							this.render_data(response);
+						if(response.results.length == 1)
+						{
+							this.current_page = this.current_page - 1 > 0 ? this.current_page - 1 : 1;
+							this.max_page_number = this.max_page_number - 1 > 0 ? this.max_page_number - 1 : 1;
+						}
+						makeRequest(`/api/auth/notifications/?page=${this.current_page}`)
+						.then((data) => {
+							this.render_data(data);
+						})
+						.catch(error => {
+							showToast("error", error);
 						});
 					});
 				}).catch(error => {
@@ -257,13 +284,10 @@ export default class Notifications_Page extends HTMLElement {
 
 			const span_texts = document.querySelectorAll(".notifications-bar-option-items div div span span");
 			span_texts.forEach((span_text) => {
-
 				if(span_text)
 				{
 					span_text.addEventListener("click", () => {
-						
 						notifications_bar_options.classList.remove("show");
-						
 						const user_id = item.getAttribute("data-sender-id");
 						GoTo(`/profile/${user_id}`);
 					});
@@ -281,10 +305,13 @@ export default class Notifications_Page extends HTMLElement {
 						item.classList.add("notification_remove_animation");
 						item.addEventListener("animationend", () => {
 							item.remove();
-							makeRequest('/api/auth/notifications/')
+							if(response.results.length == 1)
+							{
+								this.current_page = this.current_page - 1 > 0 ? this.current_page - 1 : 1;
+								this.max_page_number = this.max_page_number - 1 > 0 ? this.max_page_number - 1 : 1;
+							}
+							makeRequest(`/api/auth/notifications/?page=${this.current_page}`)
 							.then((response) => {
-								this.current_page = 1;
-								
 								this.render_data(response);
 							});
 						});
@@ -303,15 +330,21 @@ export default class Notifications_Page extends HTMLElement {
 					const notification_id = item.getAttribute("data-notification-id");
 
 					makeRequest(`/api/auth/accept_friend_request/${data_sender_id}/`, "GET")
-					.then((data) => {
-						makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
+					.then((data) => {})
+					.catch(error => { showToast("error", error) });
+
+					makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
 						.then((data) => {
 							item.classList.add("notification_remove_animation");
 							item.addEventListener("animationend", () => {
 								item.remove();
-								makeRequest('/api/auth/notifications/')
+								if(response.results.length == 1)
+								{
+									this.current_page = this.current_page - 1 > 0 ? this.current_page - 1 : 1;
+									this.max_page_number = this.max_page_number - 1 > 0 ? this.max_page_number - 1 : 1;
+								}
+								makeRequest(`/api/auth/notifications/?page=${this.current_page}`)
 								.then((response) => {
-									this.current_page = 1;
 									this.render_data(response);
 								});
 							});
@@ -319,9 +352,6 @@ export default class Notifications_Page extends HTMLElement {
 						}).catch(error => {
 							showToast("error", error);
 						});
-					}).catch(error => {
-						showToast("error", error);
-					});
 				});
 			}
 

@@ -297,11 +297,41 @@ class NotificationsView(generics.GenericAPIView):
         notifications = Notification.objects.filter(receiver=request.user, type__in=["game_invitation", "friend_request", "strike"]).order_by("-timestamp")
         page = self.paginate_queryset(notifications)
         if page is not None:
+            unread_notifications = 0
             serialized_notifications = self.serializer_class(page, many=True).data
-            return self.get_paginated_response(serialized_notifications)
+            for notification in page:
+                if not notification.is_read:
+                    unread_notifications += 1
+                notification.is_read = True
+                notification.save()
+            response = self.get_paginated_response(serialized_notifications)
+            response.data["unread_notifications"] = unread_notifications
+            return response
 
         serialized_notifications = self.serializer_class(notifications, many=True).data
         return Response(serialized_notifications, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import random
 
@@ -319,6 +349,25 @@ class GenerateRandomNotificationsView(generics.GenericAPIView):
             )
 
         return Response({"detail": f"{n_of_tries} random notifications generated successfully"}, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class FriendsBarView(generics.GenericAPIView):
@@ -360,6 +409,12 @@ class AcceptFriendRequestView(generics.GenericAPIView):
     def get(self, request, pk):
         try:
             sender = User.objects.get(id=pk)
+            if sender in request.user.friends.all():
+                return Response (
+                    {"detail": "User is already your friend"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             request.user.friends.add(sender)
             return Response(
                 {"detail": "Friend request accepted successfully"},

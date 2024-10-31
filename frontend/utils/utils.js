@@ -49,7 +49,7 @@ async function makeRequest(url, method = "GET", data = null) {
 
 		if (response.status >= 400 && response.status != 404) {
 			error = await response.json();
-			throw new Error(error);
+			throw new Error(error.detail || "Something went wrong");
 		}
 
 		// Parse JSON response
@@ -65,16 +65,15 @@ async function makeRequest(url, method = "GET", data = null) {
 		return jsonResponse;
 	} catch (error) {
 		// Handle error response
-		const errorResponse = {
-			response_code: 500,
-			detail: error.message,
-		};
+		// const errorResponse = {
+		// 	response_code: 500,
+		// 	detail: error.message,
+		// };
+		throw error;
 
 		// if (!BANNED_TOAST_URLS.includes(url)) {
 			// handleToastNotifications(errorResponse);
 		// }
-
-		return errorResponse;
 	}
 }
 

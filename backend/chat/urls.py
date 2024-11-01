@@ -7,7 +7,9 @@ urlpatterns = [
     path('get_server_data/', views.GetServerDataView.as_view(), name='get_server_data'),
     path('get_message_data/', views.GetMessageDataView.as_view(), name='get_message_data'),
     path('get_serverlist/', views.GetServerListView.as_view(), name='get_serverlist'),
-    path('server_info/', views.ServerInfo.as_view(), name='server_info'),
+    path('server_info/', views.ServerInfoVisibility.as_view(), name='server_info'),
     path('server_JoinedData/', views.GetServerjoinedDataView.as_view(), name='server_JoinedData'),
     path('leave_server/', views.LeaverServer.as_view(), name='leave_server'),
+    path('manage_user/', views.Serverusermanager.as_view(), name='Serverusermanager'),
+    
 ]

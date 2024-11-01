@@ -39,7 +39,7 @@ export default class ChatBody extends HTMLElement {
 						<div class="messagetext"></div>
 							<div class="messagebar_input">
 								<textarea class="message_input" id="send-msg-bar1" placeholder="Type a message"></textarea>
-								<img class="send_icone" src="/assets/images/server_avatars/default.jpg/images/common/Iconly/Bold/Send.svg"">
+								<img class="send_icone" src="/assets/images/common/Iconly/Bold/Send.svg">
 							</div>
 						</div>
 						<div class="More_bar">
@@ -56,10 +56,17 @@ export default class ChatBody extends HTMLElement {
 			let more_dot = this.querySelector(".more-dots")
 			more_dot.addEventListener('click', ()=>{
 				this.querySelector("user-pannel").data = result_data
-				this.querySelector("user-pannel").setAttribute('type', 'groupsettings')
-				this.querySelector(".More_bar").style.width = "70%"
+
+				if (result_data.visibility === "protected")
+				{
+					this.querySelector("user-pannel").setAttribute('type', 'protectedsettings')
+				}
+				else
+					this.querySelector("user-pannel").setAttribute('type', 'groupsettings')
+				this.querySelector(".More_bar").style.width = "50%"
 				this.querySelector(".sliding_elementimg").classList.remove("hidden")
 				this.querySelector(".sliding_elementtext").classList.remove("hidden")
+				this.querySelector("user-pannel").style.whiteSpace = "nowrap"
 				more_dot.style.display = "none";
 			})
 
@@ -189,11 +196,16 @@ export default class ChatBody extends HTMLElement {
 			let message_name = divmessage_body.querySelector(".message_name");
 				message_name.addEventListener('click', ()=>{
 				document.querySelector("user-pannel").data = data
-				document.querySelector("user-pannel").setAttribute('type', 'usersettings')
-				document.querySelector(".More_bar").style.width = "70%"
+				let type = "protectedsettings"
+				if (data.visibility !== "protected")
+					type = "usersettings"
+				document.querySelector("user-pannel").setAttribute('type', type)
+				document.querySelector(".More_bar").style.width = "50%"
 				document.querySelector(".sliding_elementimg").classList.remove("hidden")
 				document.querySelector(".sliding_elementtext").classList.remove("hidden")
 				document.querySelector(".more-dots").style.display = "none";
+				this.querySelector("user-pannel").style.whiteSpace = "nowrap"
+
 
 			})
 			if (data.username == localStorage.getItem("username"))

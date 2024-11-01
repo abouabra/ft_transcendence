@@ -51,14 +51,15 @@ class CreateServerView(generics.GenericAPIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def put(self, request):
-        print(request.data)
-        if (request.data['password']):
-            request.data['password'] = make_password(request.data['password'])
+
         try:
             server = Server.objects.get(name=request.data['old_name'])
         except Server.DoesNotExist:
             return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
+        if (request.user.id not in server.staffs):
+            return Response({"error":"you are not staff of this server"}, status.HTTP_400_BAD_REQUEST)
         data = request.data
+
         if data['img']:
             image = data['img'].split(',')[1]
             image = base64.b64decode(image)
@@ -70,12 +71,14 @@ class CreateServerView(generics.GenericAPIView):
         server.visibility = data['visibility']
         server.avatar = data['avatar']
         server.qr_code = data['qr_code']
-        if server.password:
-            server.password = make_password(data['password'])
+        print(f"nmade password = {server.password}")
+        server.password = make_password(data['password'])
+        print(f"made password = {server.password}")
         server.save()
         return Response({
                 "success": "Server Created Successfully"
             }, status=status.HTTP_201_CREATED)
+
 class GetServerListView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
@@ -112,7 +115,8 @@ class GetServerjoinedDataView(generics.GenericAPIView):
                     "server_name":server_name,
                     "visibility":server.visibility,
                     "avatar":server.avatar,
-                    "members":len(server.members)
+                    "members":len(server.members),
+                    "staffs":server.staffs
                 }
             return Response(data, status.HTTP_200_OK)
         except Server.DoesNotExist:
@@ -127,7 +131,6 @@ class GetServerjoinedDataView(generics.GenericAPIView):
                     if server.check_passwd(request.data['password']):
                         server.add_member(request.user.id)
                         return Response({"success":"user joined the server", "server_name":server.name}, status.HTTP_200_OK)
-                print("wring password")
                 return Response({"error":"Wrong password"}, status.HTTP_400_BAD_REQUEST)
             else:
                 server.add_member(request.user.id)
@@ -190,14 +193,17 @@ class GetServerDataView(generics.GenericAPIView):
                 'server_name':server_name,
                 'user_id':user_id,
                 'name':username,
+                'username':username,
                 'status':online,
                 'member':member,
                 'staffs':server['staffs'],
+                'banned':server['banned'],
                 'avatar':avatar,
                 'latest_message':latest_message,
                 'latest_timestamp':latest_timestamp,
                 'qr_code':server['qr_code']
             }
+            print(data)
             final_data.append(data)
         return Response(final_data, status.HTTP_200_OK)
 
@@ -211,17 +217,15 @@ class GetMessageDataView(generics.GenericAPIView):
             try:
                 serverrs = Server.objects.get(name=request.query_params['chat'])
                 messages = serverrs.server_message.exclude(blocked__contains=[request.user.id]).order_by('timestamp')
-                id = -1
-                if serverrs.visibility == 'protected':
-                    id1,id2 = serverrs.name.split('_')
-                    id = id2
-                    if (id1 != request.user.id):
-                        id = id1
+
                 member_user = serverrs.members
                 alluserdata = {}
                 for member_id in member_user:
                     alluserdata[member_id] = getUserData(request,member_id)
                 for message in messages:
+                    if (message.sender_id not in member_user):
+                       member_user.append(message.sender_id)
+                       alluserdata[message.sender_id] = getUserData(request,message.sender_id)
                     userdata = alluserdata[message.sender_id]
                     body = {
                         'content':message.content,
@@ -233,6 +237,8 @@ class GetMessageDataView(generics.GenericAPIView):
                         'created_at':message.timestamp,
                         'user_id':message.sender_id,
                         'qr_code':serverrs.qr_code,
+                        'staffs':serverrs.staffs,
+                        'banned':serverrs.banned
                     }
                     data.append(body)
             except Server.DoesNotExist:
@@ -265,7 +271,7 @@ class GetMessageDataView(generics.GenericAPIView):
             return Response({'error':'No message was Found'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ServerInfo(generics.GenericAPIView):
+class ServerInfoVisibility(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         if (request.query_params and request.query_params['server']):
@@ -288,7 +294,29 @@ class LeaverServer(generics.GenericAPIView):
                 if (request.user.id not in server.members):
                     return Response({'error':'not Chat found'}, status=status.HTTP_400_BAD_REQUEST)
                 server.remove_member(request.user.id)
+                if (len(server.members) == 0):
+                    print(settings.BASE_DIR)
+                    os.remove(os.path.join(settings.BASE_DIR, server.avatar))
+                    os.remove(os.path.join(settings.BASE_DIR, server.qr_code))
+                    server.delete()
                 return Response({"success":"user left the server"}, status.HTTP_200_OK)
             except Server.DoesNotExist:
                 return Response({'error':'invalide query param'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({}, status.HTTP_200_OK)
+
+class Serverusermanager(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def put(self, request):
+
+        try:
+            server = Server.objects.get(name=request.data['server_name'])
+            if request.data['action'] == "ban":
+                server.banned.append(request.data['user_id'])
+            else:
+                server.banned.remove(request.data['user_id'])
+            server.save()
+        except Server.DoesNotExist:
+            return Response({'error':'server not found'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"success":"user banned"}, status.HTTP_200_OK)
+

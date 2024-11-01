@@ -11,6 +11,9 @@ export default class UserSideBar extends HTMLElement
 
     renderPannels(title, data, server_result)
     {
+        let username = server_result.username
+        if (username.length > 15)
+            username = username.slice(0, 15) + "..."
         this.innerHTML = /* html */`
 
             <div class="header_right_side_bar">
@@ -19,7 +22,7 @@ export default class UserSideBar extends HTMLElement
             </div>
             <div class="user_info_right_side_bar">
                 <img src="${server_result.avatar}" alt="avatar" class="sliding_elementimg hidden">
-                <span class="header_h3 sliding_elementtext hidden">${server_result.server_name}</span>
+                <span class="header_h3 sliding_elementtext hidden">${username}</span>
             </div>
             <div class="pannel_tag">
                 ${ data.map((item) => {
@@ -78,12 +81,13 @@ export default class UserSideBar extends HTMLElement
         if (name === 'type') {
             if (newValue === 'groupsettings' && oldValue) {
                 let server_item = [
-                    {"pannel": "pannel_edit" ,"icon": "/assets/images/common/Iconly/Bold/Edit.svg", "text": "Edit", "red": false, "onclick": EditPanel, 'args': this._data.server_name},
                     {"pannel": "pannel_share" ,"icon": "/assets/images/common/Iconly/Bold/Scan.svg", "text": "Share", "red": false, "onclick": Qr_codedisplay, 'args': this._data.qr_code},
                     {"pannel": "pannel_leave" ,"icon": "/assets/images/common/Iconly/Bold/Logout.svg", "text": "Leave Server", "red": true, "onclick": LeavePanel, 'args': this._data.server_name}]
                 if (this._data.staffs.includes(parseInt(localStorage.getItem("id"))))
                 {
                     server_item.push({"pannel": "pannel_delete" ,"icon": "/assets/images/common/Iconly/Bold/Delete.svg", "text": "Delete Server", "red": true, "onclick": DeletePanel, 'args': this._data.server_name})
+                    server_item.unshift({"pannel": "pannel_edit" ,"icon": "/assets/images/common/Iconly/Bold/Edit.svg", "text": "Edit", "red": false, "onclick": EditPanel, 'args': this._data.server_name})
+
                 }
                 let title = "Server info"
                 this.renderPannels(title, server_item, this._data)
@@ -92,15 +96,31 @@ export default class UserSideBar extends HTMLElement
             {
 
                 let title = "User info"
-                let user_server_item = [{"pannel": "pannel_view" ,"icon": "/assets/images/common/Iconly/Bold/Profile.svg", "text": "View profile", "red": false, "onclick":''},
+                let user_server_item = [{"pannel": "pannel_view" ,"icon": "/assets/images/common/Iconly/Bold/Profile.svg", "text": "View profile", "red": false, "onclick":ViewProfile, 'args':this._data.user_id},
+                {"pannel": "pannel_game" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to game", "red": false, "onclick":''},
+                {"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick":''},
+                {"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":''}]
+
+                if (this._data.staffs.includes(this._data.user_id))
+                    user_server_item.push({"pannel": "pannel_adminrmv" ,"icon": "/assets/images/common/Iconly/Bold/Tick Square.svg", "text": "Remove administrator privileges", "red": false, "onclick":''})
+                else
+                    user_server_item.push({"pannel": "pannel_adminprev" ,"icon": "/assets/images/common/Iconly/Bold/Tick Square.svg", "text": "Give administrator privileges", "red": false, "onclick":''})
+                if (this._data.banned.includes(this._data.user_id))
+                    user_server_item.push({"pannel": "pannel_unban" ,"icon": "/assets/images/common/Iconly/Bold/Danger.svg", "text": "Unban from server", "red": true, "onclick":unbanneuser, 'args':[this.server_name, this._data.user_id]})
+                else
+                    user_server_item.push({"pannel": "pannel_ban" ,"icon": "/assets/images/common/Iconly/Bold/Danger.svg", "text": "Ban from server", "red": true, "onclick":banneuser, 'args':[this.server_name, this._data.user_id]})
+
+                this.renderPannels(title, user_server_item,this._data)
+            }
+            else if (newValue === 'protectedsettings')
+            {
+                let title = "User info"
+                let user_server_item = [{"pannel": "pannel_view" ,"icon": "/assets/images/common/Iconly/Bold/Profile.svg", "text": "View profile", "red": false, "onclick":ViewProfile, 'args':this._data.user_id},
                 {"pannel": "pannel_game" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to game", "red": false, "onclick":''},
                 {"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick":''},
                 {"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":''},
-                {"pannel": "pannel_adminprev" ,"icon": "/assets/images/common/Iconly/Bold/Tick Square.svg", "text": "Give administrator privileges", "red": false, "onclick":''},
-                {"pannel": "pannel_adminrmv" ,"icon": "/assets/images/common/Iconly/Bold/Tick Square.svg", "text": "Remove administrator privileges", "red": false, "onclick":''},
-                {"pannel": "pannel_ban" ,"icon": "/assets/images/common/Iconly/Bold/Danger.svg", "text": "Ban from server", "red": true, "onclick":''},
-                {"pannel": "pannel_unban" ,"icon": "/assets/images/common/Iconly/Bold/Danger.svg", "text": "Unban from server", "red": true, "onclick":''}]
-                this._data.server_name = this._data.username
+                {"pannel": "pannel_delete" ,"icon": "/assets/images/common/Iconly/Bold/Delete.svg", "text": "Delete", "red": true, "onclick": '', 'args':this._data.server_name},]
+
                 this.renderPannels(title, user_server_item,this._data)
             }
         }
@@ -140,6 +160,11 @@ function Qr_codedisplay(qr_code)
 
 }
 
+function ViewProfile(user_id)
+{
+    GoTo(`/profile/${user_id}`)
+}
+
 function EditPanel(server_name)
 {
     GoTo(`/chat/edit_server/${server_name}`)
@@ -147,9 +172,7 @@ function EditPanel(server_name)
 
 function DeletePanel(server_name)
 {
-    makeRequest('/api/chat/delete_server/', 'Delete', {"server": server_name}).then(data => {}).catch(error => {
-        showToast("error", error)
-    })
+    console.log("delete");
 }
 
 function LeavePanel(server_name)
@@ -157,6 +180,27 @@ function LeavePanel(server_name)
 
     makeRequest(`/api/chat/leave_server/?server=${server_name}`, 'Delete').then(data => {
         GoTo('/chat/browse_chat/')
+    }).catch(error => {
+        showToast("error", error)
+    })
+}
+
+function banneuser(data)
+{
+    const server_name = data[0];
+    const id = data[1];
+    makeRequest(`/api/chat/manage_user/`, 'PUT', {"action":"ban","user_id":id, "server_name":server_name}).then(data => {
+        showToast("success", "User banned")
+    }).catch(error => {
+        showToast("error", error)
+    })
+}
+function unbanneuser(data)
+{
+    const server_name = data[0];
+    const id = data[1];
+    makeRequest(`/api/chat/manage_user/`, 'PUT', {"action":"unban","user_id":id,"server_name":server_name}).then(data => {
+        showToast("success", "User banned")
     }).catch(error => {
         showToast("error", error)
     })

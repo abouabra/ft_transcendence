@@ -23,6 +23,7 @@ class Server(models.Model):
 
     members = ArrayField(models.IntegerField(), blank=True, default=list)
     staffs = ArrayField(models.IntegerField(), blank=True, default=list)
+    banned = ArrayField(models.IntegerField(), blank=True, default=list)
 
     def add_member(self, member_id):
         self.members.append(member_id)

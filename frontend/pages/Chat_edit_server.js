@@ -7,6 +7,12 @@ export default class Edit_Server_page extends HTMLElement {
 		this.server_name = location.pathname.split('/').pop()
 
         makeRequest(`/api/chat/server_JoinedData/?server_name=${this.server_name}`).then(data=> {
+			if (!data.staffs.includes(parseInt(localStorage.getItem('id'))))
+			{
+				showToast("error", "You are not allowed to edit this server");
+				GoTo(`/chat/${this.server_name}`)
+			}
+			else{
 			console.log(this.server_name)
 			this.innerHTML = /* html */`
 			<div class="w-100 h-100 d-flex align-items-center">
@@ -110,7 +116,6 @@ export default class Edit_Server_page extends HTMLElement {
 		};
 		reader.readAsDataURL(file);
 		
-		
 	});
 });
 
@@ -174,7 +179,7 @@ makeRequest('/api/chat/create_server/', 'PUT', body)
 });
 
 });
-})
+	}})
 }
 
 connectedCallback() {}

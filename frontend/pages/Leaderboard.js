@@ -14,8 +14,8 @@ export default class Leaderboard_Page extends HTMLElement {
 				<div class="leaderboard_page_container blur platinum_40_color_border"> 
 					
 				<div class="leaderboard_page_header">
-					<span class="header_h1">Leaderboard</span>
-					<div class="leaderboard_page_header_filter">
+					<span class="header_h1" style="margin: auto;">Leaderboard</span>
+					<div class="leaderboard_page_header_filter"  style="margin: auto;">
 						<div class="leaderboard_page_header_filter_item leaderboard_page_active_filter" data-name="pong">
 							<span class="p4_bold">Pong</span>
 						</div>
@@ -54,11 +54,7 @@ export default class Leaderboard_Page extends HTMLElement {
 					makeRequest(`/api/game/leaderboard/?game_name=${game_name}`)
 					.then((response) => {
 						// triple the response to make it look like there are more users
-						response = response.concat(response).concat(response);
-						response = response.concat(response).concat(response);
-
-
-
+						
 						this.render_data(response);
 					});
 				});
@@ -68,41 +64,67 @@ export default class Leaderboard_Page extends HTMLElement {
 	}
 
 	render_data(response) {
+		response = response.concat(response).concat(response);
+		response = response.concat(response).concat(response);
+
+		console.log(response);
 		const leaderboard_page_content = this.querySelector('.leaderboard_page_content');
 		leaderboard_page_content.innerHTML = /* html */`
 			<div class="leaderboard_page_top_3_container">
+				${response[2] != null ? /* html */`
 				<div class="leaderboard_page_rank_3_container blur platinum_40_color_border">
-					<img class="leaderboard_page_rank_3_avatar" src=${response[2].user.avatar} alt="avatar">
-					
-				<div class="d-flex align-items-center justify-content-center flex-column" style="margin-top: 40px">
-						<span class="p2_bold ">${response[2].user.username}</span>
+					<div class="leaderboard_page_top_3_rank_container" >
+							<img class="leaderboard_page_rank_3_avatar" src=${response[2].user.avatar} alt="avatar">
+							<div class="leaderboard_page_rank_diamond" style="background-color: var(--blue);">
+								<span class="p2_bold" style="rotate: -45deg">3</span>
+							</div>
+						</div>
+					<div class="leaderboard_page_top_3_text_container" style="margin-top: 55px">
+						<span class="p2_bold leaderboard_page_top_3_text_item" data-id="${response[2].user.id}">${response[2].user.username}</span>
 						<span class="p2_bold primary_color_color">${response[2].current_elo}</span>
 					</div>
 				</div>
+				` : ''}
+
+
 				<div class="leaderboard_page_rank_1_container blur platinum_40_color_border">
-					<img class="leaderboard_page_rank_1_avatar" src=${response[1].user.avatar} alt="avatar">
-					
-					<div class="d-flex align-items-center justify-content-center flex-column" style="margin-top: 40px;gap: 10px">
-						<span class="header_h2 ">${response[1].user.username}</span>
-						<span class="p1_bold primary_color_color">${response[1].current_elo}</span>
+					<div class="leaderboard_page_top_3_rank_container" >
+						<img src="/assets/images/leaderboard_page/crown.svg" alt="crown" class="leaderboard_page_crown">
+						<img class="leaderboard_page_rank_1_avatar" src=${response[0].user.avatar} alt="avatar">
+						<div class="leaderboard_page_rank_diamond" style="background-color: var(--red);">
+							<span class="p2_bold" style="rotate: -45deg">1</span>
+						</div>
 					</div>
-				</div>
-				<div class="leaderboard_page_rank_2_container blur platinum_40_color_border">
-					<img class="leaderboard_page_rank_2_avatar" src=${response[0].user.avatar} alt="avatar">
-					<div class="d-flex align-items-center justify-content-center flex-column" style="margin-top: 40px;gap: 3px">
-						<span class="header_h3">${response[0].user.username}</span>
+					<div class="leaderboard_page_top_3_text_container" style="margin-top: 40px;gap: 10px">
+						<span class="header_h2 leaderboard_page_top_3_text_item" data-id="${response[0].user.id}">${response[0].user.username}</span>
 						<span class="p1_bold primary_color_color">${response[0].current_elo}</span>
 					</div>
 				</div>
+
+				${response[1] != null ? /* html */`
+					<div class="leaderboard_page_rank_2_container blur platinum_40_color_border">
+						<div class="leaderboard_page_top_3_rank_container" >
+							<img class="leaderboard_page_rank_2_avatar" src=${response[1].user.avatar} alt="avatar">
+							<div class="leaderboard_page_rank_diamond" style="background-color: var(--green);">
+								<span class="p2_bold" style="rotate: -45deg">2</span>
+							</div>
+						</div>
+						
+						<div class="leaderboard_page_top_3_text_container" style="margin-top: 40px;gap: 3px">
+							<span class="header_h3 leaderboard_page_top_3_text_item" data-id="${response[1].user.id}">${response[1].user.username}</span>
+							<span class="p1_bold primary_color_color">${response[1].current_elo}</span>
+						</div>
+					</div>
+				` : ''}
+
 			</div>
 		`;
+		
+		
+		
 		response.forEach((row, index) => {
-			if(row.user.username === 'local_user') return;
-			if(index <= 2) {
-				console.log(row);
-				return;
-			}
-
+			// if(row.user.username === 'local_user') return;
+			if(index <= 2) return; 
 
 			leaderboard_page_content.innerHTML += /* html */`
 				<div class="leaderboard_page_content_item">
@@ -114,6 +136,15 @@ export default class Leaderboard_Page extends HTMLElement {
 			`;
 		});
 
+		// loop through leaderboard_page_top_3_text_item
+		const leaderboard_page_top_3_text_item = this.querySelectorAll('.leaderboard_page_top_3_text_item');
+		leaderboard_page_top_3_text_item.forEach((item) => {
+			item.addEventListener('click', () => {
+				const user_id = item.getAttribute('data-id');
+				GoTo(`/profile/${user_id}`);
+			});
+		});
+
 		const leaderboard_page_content_item_usernames = this.querySelectorAll('.leaderboard_page_content_item_username');
 		leaderboard_page_content_item_usernames.forEach((item) => {
 			item.addEventListener('click', () => {
@@ -121,6 +152,8 @@ export default class Leaderboard_Page extends HTMLElement {
 				GoTo(`/profile/${user_id}`);
 			});
 		});
+
+
 	
 	}
 

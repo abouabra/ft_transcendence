@@ -65,11 +65,12 @@ async function makeRequest(url, method = "GET", data = null) {
 		return jsonResponse;
 	} catch (error) {
 		// Handle error response
-		// const errorResponse = {
-		// 	response_code: 500,
-		// 	detail: error.message,
-		// };
-		throw error;
+		const errorResponse = {
+			response_code: 500,
+			detail: error.message,
+		};
+		return errorResponse;
+		// throw error;
 
 		// if (!BANNED_TOAST_URLS.includes(url)) {
 			// handleToastNotifications(errorResponse);

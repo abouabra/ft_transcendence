@@ -25,18 +25,17 @@ game-page{
     flex-wrap: wrap;
 }
 
-.game-page-body{
+.game-page-body {
     display: flex;
     width: 100%;
     height: auto;
     aspect-ratio: 16/9;
-    
+
     justify-content: center;
     align-items: center;
     overflow: hidden;
     
     position: relative;
-
 }
 
 .game-page-user-data-container

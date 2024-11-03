@@ -190,7 +190,6 @@ class Setup {
     }
 
     animate() {
-        
         if (!this.player.isAlive || !this.opponent.isAlive)
         {
             let loser = this.player.isAlive ? "opponent" : "player";
@@ -234,7 +233,6 @@ class Setup {
         let secondsDisplay = seconds < 10 ? '0' + seconds : seconds;
         
         timer.textContent = minutesDisplay + ' : ' + secondsDisplay;
-            
 
         this.stats.update();
         this.renderer.render(this.scene, this.camera);

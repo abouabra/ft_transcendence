@@ -7,7 +7,7 @@ import logging
 from .utils import getUserData
 from rest_framework import generics, permissions, status
 from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer, LeaderboardSerializer
-
+from .utils import update_stats_after_game
 
 logger = logging.getLogger(__name__)
 
@@ -172,7 +172,6 @@ class GetGameInfo(generics.GenericAPIView):
 
     def get(self, request, pk):
         try:
-
             logged_in_user_id = request.user.id
             game_obj = Game_History.objects.get(id=pk)
             game_info = ShortGameHistorySerializer(game_obj).data
@@ -191,6 +190,55 @@ class GetGameInfo(generics.GenericAPIView):
                 {"detail": "Error encountered while fetching the game"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+class PongEndGame(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            game_id = request.data["game_id"]
+            score1 = request.data["score1"]
+            score2 = request.data["score2"]
+            time = request.data["time"]
+
+            game = Game_History.objects.get(id=game_id)
+            
+            if score1 > score2:
+                winner = game.player1
+            elif score2 > score1:
+                winner = game.player2
+            else:
+                winner = 0
+            game.winner = winner
+            game.player_1_score = score1
+            game.player_2_score = score2
+            game.game_duration = time
+            game.has_ended = True
+            game.save()
+
+            update_stats_after_game(game.player1, game.player2, game.game_name, game_id)
+            loser = game.player1 if winner == game.player2 else game.player2
+            if winner == 0:
+                return Response({
+                    "draw": True,
+                    "player1": getUserData(request, game.player1),
+                    "player2": getUserData(request, game.player2),
+                }, status=status.HTTP_200_OK)
+
+            return Response({
+                "winner": getUserData(request, winner),
+                "loser": getUserData(request, loser),
+            }, status=status.HTTP_200_OK)
+
+        except Game_History.DoesNotExist:
+            return Response({"detail": "Game Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while ending the game"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
 
 class LeaderboardView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)

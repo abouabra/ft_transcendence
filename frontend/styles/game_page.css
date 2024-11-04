@@ -183,3 +183,11 @@ game-page{
     font-weight: 700;
     font-size: 35px;
 }
+
+
+
+#pong-canvas {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+}

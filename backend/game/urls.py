@@ -11,7 +11,7 @@ urlpatterns = [
     
     path("construct_game/", views.ConstructGameHistoryData.as_view(), name="construct_game"),
     path("get_game_info/<int:pk>", views.GetGameInfo.as_view(), name="get_game_info"),
-    
+    path("pong/end/", views.PongEndGame.as_view(), name="pong_end"),
     
     
     path('leaderboard/', views.LeaderboardView.as_view(), name='leaderboard'),

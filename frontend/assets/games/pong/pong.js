@@ -1,4 +1,4 @@
-import Stats from '/stats.module.js';
+import {Stats} from '/assets/games/space_invaders/js/three-defs.js';
 
 // Constants
 const GAME_CONSTANTS = {
@@ -7,13 +7,14 @@ const GAME_CONSTANTS = {
 		RANKED: "ranked",
 	},
 	COLORS: {
-		BACKGROUND: "#000",
+		BACKGROUND: "#000000aa",
 		PRIMARY: "#fff"
 	},
 	ITEM_SIZE: 16,
 	BASE_SPEED: 10,
-	BALL_SPEED_CAP: 100,
-	SCORE_TO_WIN: 11,
+	BALL_SPEED_CAP: 23,
+
+	SCORE_TO_WIN: 5,
 	TIME_TO_WIN: 5,
 	INC_SPEED: 1,
 };
@@ -25,7 +26,8 @@ class InputManager {
 		this.keyMap = {
 			ARROW_UP: "ArrowUp",
 			ARROW_DOWN: "ArrowDown",
-			KEY_W: "z",
+			KEY_W: "w",
+			KEY_Z: "z",
 			KEY_S: "s",
 			F_KEY: "f",
 		};
@@ -35,7 +37,7 @@ class InputManager {
 
 	setupEventListeners() {
 		window.addEventListener("keydown", (e) => {
-			if(e.key == 'f') fullScreen("game-canvas");
+			if(e.key == 'f') fullScreen("pong-canvas");
 			else this.keys[e.key] = true
 		});
 		window.addEventListener("keyup", (e) => (this.keys[e.key] = false));
@@ -123,7 +125,7 @@ class Paddle extends GameObject {
 				this.position.y += this.velocity.y;
 
 		} else {
-			if (inputManager.isKeyPressed(inputManager.keyMap.KEY_W))
+			if (inputManager.isKeyPressed(inputManager.keyMap.KEY_W) || inputManager.isKeyPressed(inputManager.keyMap.KEY_Z))
 				this.position.y -= this.velocity.y;
 
 			if (inputManager.isKeyPressed(inputManager.keyMap.KEY_S))
@@ -164,8 +166,10 @@ class Paddle extends GameObject {
 class PongGame {
 	constructor(canvasId, gameMode) {
 		this.canvas = document.getElementById(canvasId);
-		this.ctx = this.canvas.getContext("2d");
+
+		this.ctx = this.canvas.getContext("2d", { willReadFrequently: true });
 		this.gameState = "running";
+
 
 
 		if(!this.canvas || !this.ctx) {
@@ -181,7 +185,11 @@ class PongGame {
 		}
 
 		this.gameMode = gameMode == "local" ? GAME_CONSTANTS.MODES.LOCAL : GAME_CONSTANTS.MODES.RANKED;
+		
 		this.gameStartTime = new Date();
+		this.gameTimer = document.getElementById('game-page-game-timer');
+		this.user1Score = document.getElementById('game-page-user-1-score');
+		this.user2Score = document.getElementById('game-page-user-2-score');
 		
         this.stats = new Stats();
 		document.querySelector("body").appendChild(this.stats.dom);
@@ -235,17 +243,27 @@ class PongGame {
 		}
 	}
 
+	updateStatsHeader() {
+		const timeDiff = new Date() - this.gameStartTime;
+		const minutes = Math.floor(timeDiff / 60000);
+		const seconds = Math.floor((timeDiff % 60000) / 1000);
+		this.gameTimer.innerText = `${minutes.toString().padStart(2, "0")} : ${seconds.toString().padStart(2, "0")}`;
+	
+		this.user1Score.innerText = this.leftPaddle.score;
+		this.user2Score.innerText = this.rightPaddle.score;
+	}
+
+
+
 	update() {
+
 		this.ball.update(this.canvas);
 		this.leftPaddle.update(this.inputManager, this.canvas);
-		this.leftPaddle.timeout -= 1000 / 60;
 
 		this.stats.update();
 
-		if (this.gameMode === GAME_CONSTANTS.MODES.LOCAL) {
+		if (this.gameMode === GAME_CONSTANTS.MODES.LOCAL)
 			this.rightPaddle.update(this.inputManager, this.canvas);
-			this.rightPaddle.timeout -= 1000 / 60;
-		}
 
 		this.checkCollisions();
 		this.checkScore();
@@ -261,12 +279,10 @@ class PongGame {
 		if (this.ball.position.x + this.ball.size.x >= this.canvas.width) {
 			this.leftPaddle.score++;
 			this.ball.respawn(this.canvas);
-			console.log(`Left: ${this.leftPaddle.score} - Right: ${this.rightPaddle.score} - Time: ${new Date() - this.gameStartTime}`);
 		}
 		if (this.ball.position.x <= 0) {
 			this.rightPaddle.score++;
 			this.ball.respawn(this.canvas);
-			console.log(`Left: ${this.leftPaddle.score} - Right: ${this.rightPaddle.score} - Time: ${new Date() - this.gameStartTime}`);
 		}
 	}
 
@@ -301,17 +317,18 @@ class PongGame {
 	}
 
 	gameLoop = () => {
-		if (this.gameState === "game_over") {
-			return;
-		}
+		this.updateStatsHeader();
+
+		if (this.gameState === "game_over") return;
 
 		this.update();
 		this.draw();
 
 		if (this.isGameOver()) {
 			this.gameState = "game_over";
-			// Assuming send_game_data is defined elsewhere
-			// send_game_data('game_over');
+			console.log("Game Over");
+			
+			this.endGame();
 			return;
 		}
 
@@ -320,6 +337,25 @@ class PongGame {
 
 	start() {
 		this.gameLoop();
+	}
+
+	endGame() {
+		this.stats.dom.style.display = "none";
+		
+		const game_id = parseInt(localStorage.getItem("game_id"));
+		makeRequest("/api/game/pong/end/", "POST", {
+			game_id: game_id,
+			score1: this.leftPaddle.score,
+			score2: this.rightPaddle.score,
+			time: parseInt((new Date() - this.gameStartTime) / 1000)
+		})
+		.then((data) => {
+			const game_page = document.querySelector("game-page");
+			if(game_page)
+				game_page.display_game_results({ winner: data.winner, loser: data.loser });
+		})
+
+		
 	}
 }
 
@@ -343,8 +379,4 @@ function fullScreen(canvasId) {
 	}
 }
 
-// Game initialization
-document.addEventListener("DOMContentLoaded", () => {
-	const game = new PongGame("game-canvas", "local");
-	game.start();
-});
+export { PongGame };

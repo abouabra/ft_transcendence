@@ -2,17 +2,30 @@ import { Player } from '/assets/games/space_invaders/js/Player.js';
 import { Opponent } from '/assets/games/space_invaders/js/Opponent.js';
 import { Setup } from '/assets/games/space_invaders/js/Setup.js';
 
+import { PongGame } from '/assets/games/pong/pong.js';
+
 export default class Game_Page extends HTMLElement {
 	constructor() {
 		super();
 
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/game_page.css'));
-
 			
 
 		const game_id = window.location.pathname.split("/")[3];
 		localStorage.setItem("game_id", game_id);
+
+		// pong game
+		this.game = null;
+
+		// space invaders game
+		this.player = null;
+		this.opponent = null;
+		this.setup =  null;
+
+		// shared
+		this.player1_score = null;
+		this.player2_score = null;
 
 		makeRequest(`/api/game/get_game_info/${game_id}`)
 		.then((data) => {
@@ -35,6 +48,15 @@ export default class Game_Page extends HTMLElement {
 
 			this.starting_time = new Date().getTime();
 			localStorage.setItem("starting_time", this.starting_time);
+
+			this.game_name = data.game_name;
+			this.game_type = data.game_type;
+			
+			// this.display_game_results({
+			// 	winner: data.player1,
+			// 	loser: data.player2
+			// })
+			
 			this.render_data(data);
 
 		})
@@ -43,12 +65,8 @@ export default class Game_Page extends HTMLElement {
 			GoTo("/play/");
 			return;
 		});
-		this.player = null;
-		this.opponent = null;
-
-		this.setup =  null;
-		this.player1_score = null;
-		this.player2_score = null;
+	
+		
 		
 	}	
 
@@ -125,9 +143,9 @@ export default class Game_Page extends HTMLElement {
 		this.player2_score = this.querySelector("#game-page-user-2-score");
 
 		if(data.game_name == "space_invaders")
-		{
 			this.space_invaders();
-		}
+		else if(data.game_name == "pong")
+			this.pong(data.game_type);
 	}
 
 	space_invaders()
@@ -175,9 +193,7 @@ export default class Game_Page extends HTMLElement {
 		window.game_socket.onmessage = null;
 		window.game_socket.onmessage = (event) => {
 			const response = JSON.parse(event.data);
-			// console.log("Game.js response", response);
-			// console.log(`position: ${response.data.position} quaternion: ${response.data.quaternion}`);
-			
+
 			if(response.type == "si_from_server_to_client")
 			{
 				if(this.opponent.mesh && response.data.position && response.data.quaternion)
@@ -211,21 +227,45 @@ export default class Game_Page extends HTMLElement {
 		};
 	}
 
+	pong(game_type) {
+		const game_canvas = this.querySelector("#game-canvas");
+		game_canvas.innerHTML = /* html */`
+			<canvas id="pong-canvas"></canvas>
+		`;
+
+		this.game = new PongGame("pong-canvas", game_type);
+		this.game.start();
+	}
+
 	display_game_results(result)
 	{
+		const isDraw = result.draw || false;
+
 		this.innerHTML += /* html */`
 			<div class="display_game_results_bg">
 				<div class="display_game_results_container">
 					<div class="display_game_results_winner">
-						<span class="winner_header">Winner</span>
+						${isDraw ?  /* html */ `
+							<span class="winner_header" style="color: var(--blue);">Draw</span>
+							` :  /* html */ `
+							<span class="winner_header">Winner</span>
+						`}
 						<img src="${result.winner.avatar}" alt="winner avatar" class="display_game_results_winner_avatar">
 						<span class="header_h1">${result.winner.username}</span>
 					</div>
-					<div class="display_game_results_loser">
-						<span class="loser_header">Loser</span>
-						<img src="${result.loser.avatar}" alt="loser avatar" class="display_game_results_loser_avatar">
-						<span class="p2_bold">${result.loser.username}</span>
-					</div>
+					${isDraw ?  /* html */ `
+						<div class="display_game_results_winner">
+							<span class="winner_header" style="color: var(--blue);">Draw</span>
+							<img src="${result.loser.avatar}" alt="loser avatar" class="display_game_results_winner_avatar">
+							<span class="header_h1">${result.loser.username}</span>
+						</div>
+						` :  /* html */ `
+						<div class="display_game_results_loser">
+							<span class="loser_header">Loser</span>
+							<img src="${result.loser.avatar}" alt="loser avatar" class="display_game_results_loser_avatar">
+							<span class="p2_bold">${result.loser.username}</span>
+						</div>
+					`}
 
 					<button-component data-text="Go to profile" onclick="GoTo('/profile/${result.winner.id}')"></button-component>
 				</div>
@@ -237,6 +277,15 @@ export default class Game_Page extends HTMLElement {
 	connectedCallback() {}
 
 	disconnectedCallback() {
+
+		if(this.game)
+		{
+			console.log("disconnected from game page");
+			this.game.endGame();
+			return;
+		}
+
+
 		if(this.setup && this.setup.opponentTracker)
 		{
 			this.setup.opponentTracker.destroy();
@@ -260,6 +309,10 @@ export default class Game_Page extends HTMLElement {
 			game_room_id: parseInt(localStorage.getItem('game_id')),
 			game_time : delta_time_in_sec
 		}));
+
+		localStorage.removeItem("game_id");
+		localStorage.removeItem("opponent_id");
+		localStorage.removeItem("starting_time");
 
 		window.game_socket.close();
 		delete window.game_socket;

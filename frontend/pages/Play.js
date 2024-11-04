@@ -315,6 +315,13 @@ export default class Play_Page extends HTMLElement {
 				game_name: this.selected_game,
 			}));
 			window.game_socket.close();
+			delete window.game_socket;
+			window.game_socket = null;
+
+			if(this.updateTimerID)
+				clearInterval(this.updateTimerID);
+
+
 			this.render_first_stage();
 		});
 	}

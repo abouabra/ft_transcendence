@@ -11,12 +11,14 @@ const GAME_CONSTANTS = {
 		PRIMARY: "#fff"
 	},
 	ITEM_SIZE: 16,
-	BASE_SPEED: 10,
+	BASE_SPEED: 7,
 	BALL_SPEED_CAP: 23,
 
-	SCORE_TO_WIN: 5,
+	SCORE_TO_WIN: 11,
 	TIME_TO_WIN: 5,
 	INC_SPEED: 1,
+
+	TIMOUT_DURATION: 200,
 };
 
 // Input handler class
@@ -64,6 +66,11 @@ class Vector2D {
 		this.x *= scalar;
 		this.y *= scalar;
 	}
+
+	set(x, y) {
+		this.x = x;
+		this.y = y;
+	}
 }
 
 // Base class for game objects
@@ -102,6 +109,7 @@ class Ball extends GameObject {
 	respawn(canvas) {
 		this.position.x = canvas.width / 2;
 		this.position.y = Math.random() * (canvas.height - canvas.height * 0.4) + canvas.height * 0.4;
+
 		this.velocity.x = Math.sign(this.velocity.x) * -1 * GAME_CONSTANTS.BASE_SPEED;
 		this.velocity.y = Math.sign(this.velocity.y) * -1 * GAME_CONSTANTS.BASE_SPEED;
 	}
@@ -184,6 +192,9 @@ class PongGame {
 			return;
 		}
 
+		this.timout = 0.0;
+		this.isScoring = false;
+
 		this.gameMode = gameMode == "local" ? GAME_CONSTANTS.MODES.LOCAL : GAME_CONSTANTS.MODES.RANKED;
 		
 		this.gameStartTime = new Date();
@@ -199,6 +210,14 @@ class PongGame {
 		this.initializeGameObjects();
 
 		this.setupResizeHandler();
+
+		if(window.game_socket) {
+			console.log("Game socket exists");
+			window.game_socket.send(JSON.stringify({
+				type: "si_clients_ready",
+				game_room_id: parseInt(localStorage.getItem('game_id')),
+			}));
+		}
 	}
 
 	setupCanvas() {
@@ -256,8 +275,11 @@ class PongGame {
 
 
 	update() {
+		if (parseInt(localStorage.getItem("id")) === parseInt(localStorage.getItem("player1_id")))
+			this.ball.update(this.canvas);
 
-		this.ball.update(this.canvas);
+		this.timout += (1000 / 60)
+
 		this.leftPaddle.update(this.inputManager, this.canvas);
 
 		this.stats.update();
@@ -266,8 +288,9 @@ class PongGame {
 			this.rightPaddle.update(this.inputManager, this.canvas);
 
 		this.checkCollisions();
-		this.checkScore();
 		this.send_ws_data();
+		
+		this.checkScore();
 	}
 
 	checkCollisions() {
@@ -276,26 +299,59 @@ class PongGame {
 	}
 
 	checkScore() {
-		if (this.ball.position.x + this.ball.size.x >= this.canvas.width) {
-			this.leftPaddle.score++;
-			this.ball.respawn(this.canvas);
-		}
-		if (this.ball.position.x <= 0) {
-			this.rightPaddle.score++;
-			this.ball.respawn(this.canvas);
+		if (this.timout < GAME_CONSTANTS.TIMOUT_DURATION) return;
+	
+		if (!this.isScoring) {
+			// Check if ball is COMPLETELY past the right boundary
+			if (this.ball.position.x > this.canvas.width) {
+				this.isScoring = true;
+				this.leftPaddle.score++;
+				this.ball.respawn(this.canvas);
+				this.timout = 0.0;
+				setTimeout(() => {
+					this.isScoring = false;
+				}, 100);
+			}
+			// Check if ball is COMPLETELY past the left boundary
+			if (this.ball.position.x + this.ball.size.x < 0) {
+				this.isScoring = true;
+				this.rightPaddle.score++;
+				this.ball.respawn(this.canvas);
+				this.timout = 0.0;
+				setTimeout(() => {
+					this.isScoring = false;
+				}, 100);
+			}
 		}
 	}
 
 	send_ws_data() {
-		return;
+		if (!window.game_socket || window.game_socket.readyState !== WebSocket.OPEN)
+			return;
 
 		const data = {
             type: "si_send_from_client_to_server",
             user_id: parseInt(localStorage.getItem("id")),
             game_id: parseInt(localStorage.getItem("game_id")),
+			paddle_position: this.leftPaddle.position.y / this.canvas.height,
+			score: this.leftPaddle.score,
+			ball: {
+				x: this.ball.position.x,
+				y: this.ball.position.y
+			},
+			canvas_width: this.canvas.width,
+			canvas_height: this.canvas.height,
         };
 
         window.game_socket.send(JSON.stringify(data));
+	}
+
+	ws_update(data) {
+		this.rightPaddle.position.y = data.position * this.canvas.height;
+		this.rightPaddle.score = data.score;
+
+		if(data.ball)
+			this.ball.position.set(data.ball.x, data.ball.y);
 	}
 
 	draw() {
@@ -308,8 +364,12 @@ class PongGame {
 	}
 
 	isGameOver() {
-		if (this.leftPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN || this.rightPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN)
+		if ((this.gameMode === GAME_CONSTANTS.MODES.RANKED && this.leftPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN)
+			|| (this.gameMode === GAME_CONSTANTS.MODES.LOCAL && this.rightPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN))
+		{
+			console.log("Score reached");
 			return true;
+		}
 
 		const timeDiff = new Date() - this.gameStartTime;
 		const minutes = Math.floor(timeDiff / 60000);
@@ -341,19 +401,43 @@ class PongGame {
 
 	endGame() {
 		this.stats.dom.style.display = "none";
-		
 		const game_id = parseInt(localStorage.getItem("game_id"));
-		makeRequest("/api/game/pong/end/", "POST", {
-			game_id: game_id,
-			score1: this.leftPaddle.score,
-			score2: this.rightPaddle.score,
-			time: parseInt((new Date() - this.gameStartTime) / 1000)
-		})
-		.then((data) => {
-			const game_page = document.querySelector("game-page");
-			if(game_page)
-				game_page.display_game_results({ winner: data.winner, loser: data.loser });
-		})
+		
+		if(this.gameMode === GAME_CONSTANTS.MODES.LOCAL)
+		{
+			makeRequest("/api/game/pong/end/", "POST", {
+				game_id: game_id,
+				score1: this.leftPaddle.score,
+				score2: this.rightPaddle.score,
+				time: parseInt((new Date() - this.gameStartTime) / 1000)
+			})
+			.then((data) => {
+				const game_page = document.querySelector("game-page");
+				if(game_page)
+					game_page.display_game_results({ winner: data.winner, loser: data.loser });
+			})
+		}
+		else {
+			let uid = -1;
+			if(this.leftPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN)
+				uid = parseInt(localStorage.getItem("id"));
+			else
+				uid = parseInt(localStorage.getItem("opponent_id"));
+	
+			const current_time = new Date().getTime();
+			const delta_time_in_sec = (current_time - parseInt(localStorage.getItem('starting_time'))) / 1000;
+			console.log("delta time in seconds", delta_time_in_sec);
+			
+			if(!window.game_socket) return;
+
+			window.game_socket.send(JSON.stringify({
+				type: "game_over",
+				user_id: uid,
+				game_room_id: parseInt(localStorage.getItem('game_id')),
+				game_time : delta_time_in_sec
+			}));
+			console.log("i am dead | i am ", uid);
+		}
 
 		
 	}

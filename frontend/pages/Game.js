@@ -61,6 +61,7 @@ export default class Game_Page extends HTMLElement {
 
 		})
 		.catch((error) => {
+			console.log("Game.js error", error);
 			showToast("error", "You are not part of this game");
 			GoTo("/play/");
 			return;
@@ -75,14 +76,17 @@ export default class Game_Page extends HTMLElement {
 	{
 		const current_id = parseInt(localStorage.getItem("id"));
 		
+		localStorage.setItem("player1_id", data.player1.id);
+		localStorage.setItem("player2_id", data.player2.id);
+
 		if(data.player2.id == current_id)
 		{
 			let tmp = data.player2;
 			data.player2 = data.player1;
 			data.player1 = tmp;
 
-			localStorage.setItem("opponent_id", data.player2.id);
 		}
+		localStorage.setItem("opponent_id", data.player2.id);
 
 
 		this.innerHTML = /* html */`
@@ -146,6 +150,58 @@ export default class Game_Page extends HTMLElement {
 			this.space_invaders();
 		else if(data.game_name == "pong")
 			this.pong(data.game_type);
+
+
+		if(!window.game_socket) return;
+
+		// remove the old event listener and add a new one
+		window.game_socket.onmessage = null;
+		window.game_socket.onmessage = (event) => {
+			const response = JSON.parse(event.data);
+			// console.log("Game.js onmessage", response);
+
+			if(response.type == "si_from_server_to_client")
+			{
+				if(this.game_name == "space_invaders" && this.opponent.mesh && response.data.position && response.data.quaternion)
+				{
+					this.opponent.ws_update(response.data.position, response.data.quaternion);
+					this.player.health = response.health;
+					this.setup.opponent.score = response.data.score;
+					this.player2_score.innerText = response.data.score;
+				}
+
+				if(this.game_name == "pong" && response.data)
+				{
+					this.game.ws_update(response.data);
+				}
+
+			}
+			else if(response.type == "game_over")
+			{
+				console.log("Game Over onmessage");
+
+				console.log("Game Over winner is", response.winner);
+				console.log("Game Over loser is", response.loser);
+				
+				if(this.game_name == "pong")
+					this.game.stats.dom.style.display = "none";
+
+				if(this.player)
+					this.player.isAlive = false;
+				
+				window.game_socket.close();
+				delete window.game_socket;
+				window.game_socket = null;
+
+				if(this.setup && this.setup.opponentTracker)
+				{
+					this.setup.opponentTracker.destroy();
+					this.setup.opponentTracker = null;
+				}
+				
+				this.display_game_results(response);
+			}
+		};
 	}
 
 	space_invaders()
@@ -189,42 +245,7 @@ export default class Game_Page extends HTMLElement {
 		this.opponent.setSetup(this.setup);
 
 
-		// remove the old event listener and add a new one
-		window.game_socket.onmessage = null;
-		window.game_socket.onmessage = (event) => {
-			const response = JSON.parse(event.data);
-
-			if(response.type == "si_from_server_to_client")
-			{
-				if(this.opponent.mesh && response.data.position && response.data.quaternion)
-				{
-					this.opponent.ws_update(response.data.position, response.data.quaternion);
-					this.player.health = response.health;
-					this.setup.opponent.score = response.data.score;
-					this.player2_score.innerText = response.data.score;
-				}
-			}
-			else if(response.type == "game_over")
-			{
-				console.log("Game Over onmessage");
-				console.log("Player 1 score", this.player.score);
-				console.log("Player 2 score", this.opponent.score);
-
-				console.log("Game Over winner is", response.winner);
-				console.log("Game Over loser is", response.loser);
-				this.player.isAlive = false;
-				
-				window.game_socket.close();
-
-				if(this.setup && this.setup.opponentTracker)
-				{
-					this.setup.opponentTracker.destroy();
-					this.setup.opponentTracker = null;
-				}
-				
-				this.display_game_results(response);
-			}
-		};
+		
 	}
 
 	pong(game_type) {
@@ -267,7 +288,7 @@ export default class Game_Page extends HTMLElement {
 						</div>
 					`}
 
-					<button-component data-text="Go to profile" onclick="GoTo('/profile/${result.winner.id}')"></button-component>
+					<button-component data-text="Go to winner profile" onclick="GoTo('/profile/${result.winner.id}')"></button-component>
 				</div>
 			</div>
 		`;
@@ -278,7 +299,7 @@ export default class Game_Page extends HTMLElement {
 
 	disconnectedCallback() {
 
-		if(this.game)
+		if(this.game && this.game_type == "local")
 		{
 			console.log("disconnected from game page");
 			this.game.endGame();
@@ -313,15 +334,18 @@ export default class Game_Page extends HTMLElement {
 		localStorage.removeItem("game_id");
 		localStorage.removeItem("opponent_id");
 		localStorage.removeItem("starting_time");
+		localStorage.removeItem("initial_data");
+
 
 		window.game_socket.close();
 		delete window.game_socket;
+		window.game_socket = null;
 		
-		this.player.isAlive = false;
+		if(this.player) this.player.isAlive = false;
 
-		delete this.player;
-		delete this.opponent;
-		delete this.setup;
+		if(this.player) delete this.player;
+		if(this.opponent) delete this.opponent;
+		if(this.setup) delete this.setup;
 	}
 
 	attributeChangedCallback(name, oldValue, newValue) {}

@@ -27,6 +27,7 @@ class Game_Room():
         self.client_ready = 0
         self.game_time = 0
         self.finished_peacefully = False
+        self.ball_position = None
 
     def __str__(self):
         return f"{self.game_name} - {self.player1} - {self.player2}"
@@ -42,6 +43,9 @@ class Player():
 
         self.position = None
         self.quaternion = None
+
+        self.canvas_width = 1
+        self.canvas_height = 1
         
         self.health = -1
         self.score = 0
@@ -65,11 +69,12 @@ class Player():
             'quaternion': self.quaternion,
             'score': self.score,
         }
-
-
-
-
-
+    
+    def get_pong_data(self):
+        return {
+            'position': self.position,
+            'score': self.score,
+        }
 
 
 class GameConsumer(AsyncWebsocketConsumer):
@@ -201,8 +206,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             if(game_obj.game_task != None):
                 game_obj.game_task.cancel()
             
-
-            
             await self.stats_wrapper(game_obj, me, opponent)
 
 
@@ -262,18 +265,28 @@ class GameConsumer(AsyncWebsocketConsumer):
             'player1': player1.get_user_info(),
             'player2': player2.get_user_info(),
             "game_room_id": game_obj.id,
+        }
 
-            "initial_data": {
+        if game_obj.game_name == "space_invaders":
+            message["initial_data"] = {
                 player1.user_id: {'x': 0, 'y': 0, 'z': 50},
                 player2.user_id: {'x': 0, 'y': 0, 'z': -50},
             }
-        }
+        elif game_obj.game_name == "pong":
+            game_obj.ball_position = {'x': 0, 'y': 20}
+            
+            message["initial_data"] = {
+                "ball": game_obj.ball_position,
+            }
 
         await player1.ws_obj.send(text_data=json.dumps(message))
         await player2.ws_obj.send(text_data=json.dumps(message))
 
     async def start_game_task(self, game_obj):
-        game_obj.game_task = asyncio.create_task(self.space_invaders_game_loop(game_obj.id))
+        if game_obj.game_name == "space_invaders":
+            game_obj.game_task = asyncio.create_task(self.space_invaders_game_loop(game_obj.id))
+        if game_obj.game_name == "pong":
+            game_obj.game_task = asyncio.create_task(self.pong_game_loop(game_obj.id))
 
 
     async def space_invaders_game_loop(self, game_id):
@@ -298,26 +311,68 @@ class GameConsumer(AsyncWebsocketConsumer):
             await player2.ws_obj.send(text_data=json.dumps(message))
 
 
+    async def pong_game_loop(self, game_id):
+        game_obj = GAME_ROOMS[game_id]
+
+        
+        player1 = game_obj.player1
+        player2 = game_obj.player2
+
+        while True:
+            await asyncio.sleep(1/60)
+            message = {
+                'type': 'si_from_server_to_client',
+                'data' : player2.get_pong_data(),
+            }
+
+            await player1.ws_obj.send(text_data=json.dumps(message))
+
+            x_relative = game_obj.ball_position['x'] / player1.canvas_width
+            y_relative = game_obj.ball_position['y'] / player1.canvas_height
+
+            x_relative = 1 - x_relative
+            # y_relative = 1 - y_relative
+
+            new_ball_position = {
+                'x': x_relative * player2.canvas_width,
+                'y': y_relative * player2.canvas_height,
+            }
+
+            message['data'] = player1.get_pong_data()
+            message['data']["ball"] = new_ball_position
+
+            await player2.ws_obj.send(text_data=json.dumps(message))
+
+
 
     async def si_send_from_client_to_server(self, text_data_json):
         try:
-            player = PLAYERS['space_invaders'][text_data_json["user_id"]]
-            
-            player.position = text_data_json['position']
-            player.quaternion = text_data_json['quaternion']
-            player.score = text_data_json['score']
-            
             game_id = text_data_json["game_id"]
             game = GAME_ROOMS[game_id]
-            opponent = game.player1 if game.player2 == player else game.player2
+            
 
-            PLAYERS['space_invaders'][opponent.user_id].health = text_data_json['opponent_health']
+            player = PLAYERS[game.game_name][text_data_json["user_id"]]
+            opponent = game.player1 if game.player2 == player else game.player2
+            
+            if game.game_name == "space_invaders":
+                player.position = text_data_json['position']
+                player.quaternion = text_data_json['quaternion']
+                player.score = text_data_json['score']
+                PLAYERS['space_invaders'][opponent.user_id].health = text_data_json['opponent_health']
         
+            elif game.game_name == "pong":
+                player.position = text_data_json['paddle_position']
+                player.score = text_data_json['score']
+                player.canvas_width = text_data_json['canvas_width']
+                player.canvas_height = text_data_json['canvas_height']
+
+
+                if game.player1.user_id == player.user_id:
+                    game.ball_position['x'] = float(text_data_json['ball']['x'])
+                    game.ball_position['y'] = float(text_data_json['ball']['y'])
 
         except Exception as e:
             pass
-
-
 
     @database_sync_to_async
     def create_match_history(self, user_1_id, user_2_id, game_name):

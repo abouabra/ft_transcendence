@@ -26,8 +26,6 @@ class JoinedServersView(generics.GenericAPIView):
         servers_data = self.serializer_class(all_servers, many=True).data
         
         return Response(servers_data, status=status.HTTP_200_OK)
-    def post(self, request):
-        serializer = ServerSerializer(data=request.data)
 
 class CreateServerView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -136,7 +134,6 @@ class GetServerjoinedDataView(generics.GenericAPIView):
                 server.add_member(request.user.id)
             return Response({"success":"user joined the server", "server_name":server.name}, status.HTTP_200_OK)
         except Server.DoesNotExist:
-            print("not found")
             return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
 
 
@@ -203,7 +200,6 @@ class GetServerDataView(generics.GenericAPIView):
                 'latest_timestamp':latest_timestamp,
                 'qr_code':server['qr_code']
             }
-            print(data)
             final_data.append(data)
         return Response(final_data, status.HTTP_200_OK)
 
@@ -257,6 +253,8 @@ class GetMessageDataView(generics.GenericAPIView):
         try:
             message_delete = Message.objects.get(pk=data['message_id'])
             server = Server.objects.get(name=data['server_name'])
+            if (request.user.id in server.banned):
+                return Response({'error':'You dont have permission'}, status=status.HTTP_403_FORBIDDEN)
             if data['delete_type'] == "for_everyone":
                 message_delete.delete()
 
@@ -295,7 +293,6 @@ class LeaverServer(generics.GenericAPIView):
                     return Response({'error':'not Chat found'}, status=status.HTTP_400_BAD_REQUEST)
                 server.remove_member(request.user.id)
                 if (len(server.members) == 0):
-                    print(settings.BASE_DIR)
                     os.remove(os.path.join(settings.BASE_DIR, server.avatar))
                     os.remove(os.path.join(settings.BASE_DIR, server.qr_code))
                     server.delete()
@@ -311,10 +308,18 @@ class Serverusermanager(generics.GenericAPIView):
 
         try:
             server = Server.objects.get(name=request.data['server_name'])
+            if (request.user.id not in server.staffs):
+                return Response({'error':'You dont have permission'}, status=status.HTTP_403_FORBIDDEN)
+            if (request.user.id in server.banned):
+                return Response({'error':'You are banned from this server'}, status=status.HTTP_403_FORBIDDEN)
             if request.data['action'] == "ban":
                 server.banned.append(request.data['user_id'])
-            else:
+            elif request.data['action'] == "unban":
                 server.banned.remove(request.data['user_id'])
+            elif request.data['action'] == "add_staff":
+                server.staffs.append(request.data['user_id'])
+            elif request.data['action'] == "remove_staff":
+                server.staffs.remove(request.data['user_id'])
             server.save()
         except Server.DoesNotExist:
             return Response({'error':'server not found'}, status=status.HTTP_400_BAD_REQUEST)

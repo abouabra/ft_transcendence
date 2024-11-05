@@ -36,7 +36,7 @@ class Server(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.visibility} - {len(self.members)} members"
-    
+        
 
 class Message(models.Model):
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='server_message')

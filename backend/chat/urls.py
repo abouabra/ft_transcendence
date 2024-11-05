@@ -11,5 +11,5 @@ urlpatterns = [
     path('server_JoinedData/', views.GetServerjoinedDataView.as_view(), name='server_JoinedData'),
     path('leave_server/', views.LeaverServer.as_view(), name='leave_server'),
     path('manage_user/', views.Serverusermanager.as_view(), name='Serverusermanager'),
-    
+
 ]

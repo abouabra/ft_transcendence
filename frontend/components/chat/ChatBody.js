@@ -2,7 +2,7 @@ import UserSideBar from "./User_sidebar.js";
 export default class ChatBody extends HTMLElement {
 	constructor() {
 		super();
-
+		this.blocked = false;
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_server.css'));
 
@@ -11,9 +11,14 @@ export default class ChatBody extends HTMLElement {
 
 		let result_data = ''
 		this.server_name = location.pathname.split('/').pop()
-		makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then(data => {
-
+		makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then((data) => {
 			result_data = data[0]
+			if (result_data.banned.includes(parseInt(localStorage.getItem("id"))))
+				this.blocked = true
+			else
+				this.blocked = false
+			let result_stringify = JSON.stringify(result_data)
+
 			let name_dt = result_data.name
 			if (result_data.name.length > 20)
 				name_dt = result_data.name.slice(0, 20) + "..."
@@ -26,7 +31,7 @@ export default class ChatBody extends HTMLElement {
 								<div class="d-flex flex-column align-items-start">
 									<span class="p1_bold">${name_dt}</span>
 									${ result_data.visibility === "protected" ? `<span class="p3_regular platinum_40_color">${result_data.status}</span>`
-										: `<span class="p3_regular platinum_40_color">Total members: ${result_data.member.length+1}</span>`
+										:`<span class="p3_regular platinum_40_color">Total members: ${result_data.member.length+1}</span>`
 									}
 								</div>
 							</div>
@@ -43,31 +48,45 @@ export default class ChatBody extends HTMLElement {
 							</div>
 						</div>
 						<div class="More_bar">
-							<user-pannel type="groupsettings"></user-pannel>
+							<user-pannel data-text='${result_stringify}' type="groupsettings"></user-pannel>
 						</div>
 					</div>
 				</div>
 				<div class="Qr_code_data">
 				</div>
 			`;
+        	const chatbod = document.querySelector(".chatbodymain")
 			this.messagecontainer = document.querySelector(".messagetext");
 			this.inputbr = this.querySelector('#send-msg-bar1');
-			//dot more block
-			let more_dot = this.querySelector(".more-dots")
-			more_dot.addEventListener('click', ()=>{
-				this.querySelector("user-pannel").data = result_data
 
-				if (result_data.visibility === "protected")
-				{
-					this.querySelector("user-pannel").setAttribute('type', 'protectedsettings')
-				}
-				else
-					this.querySelector("user-pannel").setAttribute('type', 'groupsettings')
-				this.querySelector(".More_bar").style.width = "50%"
-				this.querySelector(".sliding_elementimg").classList.remove("hidden")
-				this.querySelector(".sliding_elementtext").classList.remove("hidden")
-				this.querySelector("user-pannel").style.whiteSpace = "nowrap"
-				more_dot.style.display = "none";
+			let more_dot = this.querySelector(".more-dots")
+			if (result_data.visibility === "protected")
+				this.querySelector("user-pannel").setAttribute('type', 'protectedsettings')
+
+			let UserPannel = this.querySelector("user-pannel")
+			//Right side bar event click
+			more_dot.addEventListener('click', ()=>{
+				makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then((data) => {
+					result_data = data[0]
+					result_stringify = JSON.stringify(result_data)
+					if (this.blocked == false)
+					{
+						UserPannel.setAttribute("data-text",result_stringify)
+						UserPannel.setAttribute("type","groupsettings")
+						this.querySelector(".More_bar").style.width = "50%"
+						this.querySelector(".sliding_elementimg").classList.remove("hidden")
+						this.querySelector(".sliding_elementtext").classList.remove("hidden")
+						UserPannel.style.whiteSpace = "nowrap"
+						more_dot.style.display = "none";
+						chatbod.style.opacity = 1;
+
+					}
+					else
+					{
+						chatbod.style.opacity = 0.5;
+                		showToast("error", "You are banned from this server")
+					}
+				})
 			})
 
 			const inputicon = this.querySelector('.send_icone');
@@ -80,26 +99,50 @@ export default class ChatBody extends HTMLElement {
 						"avatar":localStorage.getItem('avatar'),
 						"username": localStorage.getItem('username'),
 						"user_id": localStorage.getItem("id"),
-						"server_name": window.location.pathname.substring(6)
+						"server_name":result_data.server_name
 					}))
 				}
 			}
+			//Send message event
 			inputicon.addEventListener('click', () => {
-				send_message_event(this.inputbr.value.trim(), this.socket)
-				this.inputbr.value = ''
-				this.inputbr.style.height = "44px"
+				if (this.blocked == false)
+				{
+					send_message_event(this.inputbr.value.trim(), this.socket)
+					this.inputbr.value = ''
+					this.inputbr.style.height = "44px"
+				}
+				else
+				{
+					chatbod.style.opacity = 0.5;
+                	showToast("error", "You are banned from this server")
+				}
 			})
 			this.inputbr.addEventListener('input', (event) => {
-				this.textAreaAdjust();
+				if (this.blocked == false)
+				{
+					this.textAreaAdjust();
+				}
+				else
+				{
+					chatbod.style.opacity = 0.5;
+                	showToast("error", "You are banned from this server")
+				}
 			});
 
 			this.inputbr.addEventListener('keydown', (event) => {
-				if (event.key === 'Enter' && !event.shiftKey)
+				if (event.key === 'Enter' && !event.shiftKey && this.blocked == false)
 				{
 					event.preventDefault();
 					send_message_event(this.inputbr.value.trim(), this.socket)
 					this.inputbr.value = ""
 					this.textAreaAdjust();
+					chatbod.style.opacity = 1;
+				}
+				if (this.blocked == true)
+				{
+					event.preventDefault();
+					chatbod.style.opacity = 0.5;
+                	showToast("error", "You are banned from this server")
 				}
 			});
 
@@ -138,12 +181,11 @@ export default class ChatBody extends HTMLElement {
 		this.textAreaAdjust();	
 	}
 	append_message(data) {
-
 		this.render_messageblock(data)
 	}
 
 
-	render_messageblock(data, index)
+	render_messageblock(data)
 	{
 		const dateObject = new Date(data.timestamp);
 		const hour_past = new Date() - dateObject;
@@ -194,19 +236,40 @@ export default class ChatBody extends HTMLElement {
 			let content_element = divmessage_body.querySelector(".messageblockcontent")
 			let delete_msg = divmessage_body.querySelector(".delete_message");
 			let message_name = divmessage_body.querySelector(".message_name");
-				message_name.addEventListener('click', ()=>{
-				document.querySelector("user-pannel").data = data
-				let type = "protectedsettings"
-				if (data.visibility !== "protected")
-					type = "usersettings"
-				document.querySelector("user-pannel").setAttribute('type', type)
-				document.querySelector(".More_bar").style.width = "50%"
-				document.querySelector(".sliding_elementimg").classList.remove("hidden")
-				document.querySelector(".sliding_elementtext").classList.remove("hidden")
-				document.querySelector(".more-dots").style.display = "none";
-				this.querySelector("user-pannel").style.whiteSpace = "nowrap"
+			let UserPannel = this.querySelector("user-pannel")
+			const chatbod = document.querySelector(".chatbodymain")
+			message_name.addEventListener('click', ()=>{
 
+					makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then(svdata => {
+						console.log("calledddddddd")
+						data.staffs = svdata[0].staffs
+						data.banned = svdata[0].banned
+						if (data.banned.includes(parseInt(localStorage.getItem("id"))))
+						{
+							this.blocked = true
+							chatbod.style.opacity = 0.5;
+                			showToast("error", "You are banned from this server")
+						}
+						else
+						{
+							this.blocked = false
+							chatbod.style.opacity = 1;
+						}
+						if (this.blocked == false)
+						{
+							UserPannel.setAttribute("data-text",JSON.stringify(data))
+							let type = "protectedsettings"
+							if (data.visibility !== "protected")
+								type = "usersettings"
+							UserPannel.setAttribute('type', type)
+							document.querySelector(".More_bar").style.width = "50%"
+							document.querySelector(".sliding_elementimg").classList.remove("hidden")
+							document.querySelector(".sliding_elementtext").classList.remove("hidden")
+							document.querySelector(".more-dots").style.display = "none";
 
+							UserPannel.style.whiteSpace = "nowrap"
+						}
+					})
 			})
 			if (data.username == localStorage.getItem("username"))
 			{
@@ -224,7 +287,8 @@ export default class ChatBody extends HTMLElement {
 					delete_msg.style.height = "88px"
 					let delete_foreveryone = divmessage_body.querySelector("#delete_for_everyone");
 					delete_foreveryone.addEventListener('click', ()=>{
-						delete_le_message(divmessage_body, this.server_name, "for_everyone", data.message_id)
+						if (this.blocked == false)
+							delete_le_message(divmessage_body, this.server_name, "for_everyone", data.message_id)
 					})
 				}
 
@@ -237,7 +301,16 @@ export default class ChatBody extends HTMLElement {
 
 			
 			delete_forme.addEventListener('click', ()=>{
-				delete_le_message(divmessage_body, this.server_name, "for_me", data.message_id)
+				if (this.blocked == false)
+				{
+					delete_le_message(divmessage_body, this.server_name, "for_me", data.message_id)
+					chatbod.style.opacity = 1;
+				}
+				else
+				{
+					chatbod.style.opacity = 0.5;
+					showToast("error", "You are banned from this server")
+				}
 			})
 			
 			divmessage_body.querySelector(".message_dot").addEventListener('click', ()=>{
@@ -251,6 +324,7 @@ export default class ChatBody extends HTMLElement {
 })
 
 divmessage_body.querySelector(".message_cnt").addEventListener('mouseleave', ()=>{
+
 	delete_msg.style.display = "none"
 })
 }

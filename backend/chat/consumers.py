@@ -9,7 +9,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         print(f"room = {self.room_name} connecting")
         self.room_group_name = f"chat_{self.room_name}"
-
         # Join room group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
@@ -20,19 +19,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Receive message from WebSocket
     async def receive(self, text_data):
-
         text_data_json = json.loads(text_data)
-        print(text_data_json)
-        print(text_data_json)
-        print(text_data_json)
-        print(text_data_json)
-        print(text_data_json)
-        print(text_data_json)
-        print(text_data_json)
+        print(f"chat data = {text_data_json}")
         message = text_data_json["content"]
         server_name = text_data_json["server_name"]
         user_id = text_data_json["user_id"]
         server_chat = await self.get_server(server_name)
+        if (user_id in server_chat.banned):
+            print("User is banned")
+            print("User is banned")
+            print("User is banned")
+            print("User is banned")
+            print("User is banned")
+            print("User is banned")
+            return
         db_msg = await self.create_message(server_chat, user_id, message)
         text_data_json["message_id"] = db_msg.id
         print(f"Message send by {user_id} channel: {server_name} message: {message}")
@@ -62,4 +62,42 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = event["message"]
         print(f"Message received by {self.room_name} channel: {text_data_json}")
         # Send message to WebSocket
+        await self.send(text_data=json.dumps(text_data_json))
+
+class ChatConsumerUserPermition(AsyncWebsocketConsumer):
+
+    async def connect(self):
+        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        print(f"room_permition = {self.room_name} connecting")
+        print(f"okay = {self.scope['user']}")
+        self.room_group_name = f"chat_{self.room_name}_permition"
+
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        my_id = text_data_json["sender"]
+        user_id = text_data_json["user_id"]
+        changed = text_data_json["permition_to_change"]
+        server_name = text_data_json["server_name"]
+        event = {
+            "type" : "permition_message",
+            "message": f"{changed}",
+            "my_id": my_id,
+        }
+        await self.channel_layer.group_send(self.room_group_name, event)
+
+    @database_sync_to_async
+    def get_server(self, name):
+        try:
+            return Server.objects.get(name=name)
+        except Server.DoesNotExist:
+            return None
+
+    async def permition_message(self, event):
+        text_data_json = {"message":event["message"], "my_id":event["my_id"]}
         await self.send(text_data=json.dumps(text_data_json))

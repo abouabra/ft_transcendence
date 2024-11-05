@@ -246,9 +246,22 @@ export default class Notifications_Bar extends HTMLElement {
 							}).catch(error => {
 								showToast("error", error);
 							});
-						}).catch(error => {
-							showToast("error", error);
+						})
+						.catch(error => { 
+							showToast("error", "User is already your friend") 
+							makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
+							.then((data) => {
+								item.classList.add("notification_remove_animation");
+								item.addEventListener("animationend", () => {
+									item.remove();
+									this.getNotifications();
+								});
+								
+							}).catch(error => {
+								showToast("error", error);
+							});
 						});
+							
 					});
 				}
 

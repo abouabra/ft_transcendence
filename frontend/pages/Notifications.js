@@ -329,7 +329,7 @@ export default class Notifications_Page extends HTMLElement {
 
 					makeRequest(`/api/auth/accept_friend_request/${data_sender_id}/`, "GET")
 					.then((data) => {})
-					.catch(error => { showToast("error", error) });
+					.catch(error => { showToast("error", "User is already your friend") });
 
 					makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
 						.then((data) => {

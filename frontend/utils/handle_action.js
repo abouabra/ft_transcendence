@@ -20,7 +20,6 @@ function handle_action(action, id, data = null) {
 			extra_data = {...extra_data, ...data};
 		sendNotification("game_invitation", id, extra_data);
 
-
 		Make_Small_Card("waiting_for_accept_game", null, null, null, extra_data.game_name, extra_data.username, extra_data.avatar, null, id);
 	}
 	else if (action == "invite_to_space_invaders") {
@@ -98,7 +97,11 @@ function handle_action(action, id, data = null) {
 
 	else if (action == "go_to_direct") {
 		console.log("Going to direct", id);
-
+		const current_user_id = parseInt(localStorage.getItem("id"));
+		const sorted_ids = [current_user_id, id].sort((a, b) => a - b);
+		const chat_id = `/chat/${sorted_ids[0]}_${sorted_ids[1]}`;
+		GoTo(chat_id);
+		return;
 	}
 	else if (action == "goto_settings")
 	{

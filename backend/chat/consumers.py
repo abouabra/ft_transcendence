@@ -25,7 +25,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         server_name = text_data_json["server_name"]
         user_id = text_data_json["user_id"]
         server_chat = await self.get_server(server_name)
-        if (user_id in server_chat.banned):
+        print(f"server_chat = {server_chat.banned}")
+        if (int(user_id) in server_chat.banned):
             print("User is banned")
             print("User is banned")
             print("User is banned")
@@ -80,14 +81,14 @@ class ChatConsumerUserPermition(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        my_id = text_data_json["sender"]
         user_id = text_data_json["user_id"]
         changed = text_data_json["permition_to_change"]
         server_name = text_data_json["server_name"]
         event = {
             "type" : "permition_message",
             "message": f"{changed}",
-            "my_id": my_id,
+            "user_id":user_id,
+            "action":text_data_json["action"]
         }
         await self.channel_layer.group_send(self.room_group_name, event)
 
@@ -99,5 +100,5 @@ class ChatConsumerUserPermition(AsyncWebsocketConsumer):
             return None
 
     async def permition_message(self, event):
-        text_data_json = {"message":event["message"], "my_id":event["my_id"]}
+        text_data_json = {"message":event["message"], "user_id":event["user_id"], "action":event["action"]}
         await self.send(text_data=json.dumps(text_data_json))

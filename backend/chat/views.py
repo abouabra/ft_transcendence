@@ -325,3 +325,19 @@ class Serverusermanager(generics.GenericAPIView):
             return Response({'error':'server not found'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"success":"user banned"}, status.HTTP_200_OK)
 
+class BlockUserView(generics.GenericAPIView):
+    
+    def post(self, request):
+        server_name = request.data['server_name']
+        user_toblock = request.data['user_id']
+        try:
+            server = Server.objects.get(name=server_name)
+            if (server.visibility != 'protected'):
+                return Response({'error':'server not protected'}, status=status.HTTP_403_FORBIDDEN)
+            if (request.data['action'] == 'Block'):
+                server.banned.append(user_toblock)
+            elif (request.data['action'] == 'Unblock'):
+                server.banned.remove(user_toblock)
+            server.save()
+        except Server.DoesNotExist:
+            return Response({'error':'chat not found'}, status=status.HTTP_400_BAD_REQUEST)

@@ -15,8 +15,7 @@ export default class ChatBody extends HTMLElement {
 			result_data = data[0]
 			if (result_data.banned.includes(parseInt(localStorage.getItem("id"))))
 				this.blocked = true
-			else
-				this.blocked = false
+
 			let result_stringify = JSON.stringify(result_data)
 
 			let name_dt = result_data.name
@@ -56,23 +55,29 @@ export default class ChatBody extends HTMLElement {
 				</div>
 			`;
         	const chatbod = document.querySelector(".chatbodymain")
+			if (this.blocked == true)
+				chatbod.style.opacity = 0.5;
 			this.messagecontainer = document.querySelector(".messagetext");
 			this.inputbr = this.querySelector('#send-msg-bar1');
 
 			let more_dot = this.querySelector(".more-dots")
-			if (result_data.visibility === "protected")
-				this.querySelector("user-pannel").setAttribute('type', 'protectedsettings')
-
 			let UserPannel = this.querySelector("user-pannel")
 			//Right side bar event click
 			more_dot.addEventListener('click', ()=>{
 				makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then((data) => {
 					result_data = data[0]
 					result_stringify = JSON.stringify(result_data)
+					if (result_data.banned.includes(parseInt(localStorage.getItem("id"))))
+						this.blocked = true
+					else
+						this.blocked = false
+					let typeserver = "groupsettings"
 					if (this.blocked == false)
 					{
+						if (result_data.visibility === "protected")
+							typeserver = "protectedsettings"
 						UserPannel.setAttribute("data-text",result_stringify)
-						UserPannel.setAttribute("type","groupsettings")
+						UserPannel.setAttribute("type",typeserver)
 						this.querySelector(".More_bar").style.width = "50%"
 						this.querySelector(".sliding_elementimg").classList.remove("hidden")
 						this.querySelector(".sliding_elementtext").classList.remove("hidden")
@@ -105,7 +110,8 @@ export default class ChatBody extends HTMLElement {
 			}
 			//Send message event
 			inputicon.addEventListener('click', () => {
-				if (this.blocked == false)
+				this.blocked = chatbod.blocked
+				if (this.blocked === false)
 				{
 					send_message_event(this.inputbr.value.trim(), this.socket)
 					this.inputbr.value = ''
@@ -118,19 +124,22 @@ export default class ChatBody extends HTMLElement {
 				}
 			})
 			this.inputbr.addEventListener('input', (event) => {
-				if (this.blocked == false)
+				this.blocked = chatbod.blocked
+				if (this.blocked === false)
 				{
 					this.textAreaAdjust();
 				}
 				else
 				{
+					this.inputbr.value = ""
 					chatbod.style.opacity = 0.5;
                 	showToast("error", "You are banned from this server")
 				}
 			});
 
 			this.inputbr.addEventListener('keydown', (event) => {
-				if (event.key === 'Enter' && !event.shiftKey && this.blocked == false)
+				this.blocked = chatbod.blocked
+				if (event.key === 'Enter' && !event.shiftKey && this.blocked === false)
 				{
 					event.preventDefault();
 					send_message_event(this.inputbr.value.trim(), this.socket)
@@ -138,7 +147,7 @@ export default class ChatBody extends HTMLElement {
 					this.textAreaAdjust();
 					chatbod.style.opacity = 1;
 				}
-				if (this.blocked == true)
+				if (this.blocked === true)
 				{
 					event.preventDefault();
 					chatbod.style.opacity = 0.5;

@@ -13,27 +13,30 @@ export default class UserSideBar extends HTMLElement
         this.socket = new WebSocket(`ws:/localhost:8000/chat/userpermition/${this.server_name}`)
 
         const chatbody = document.querySelector(".chatbodymain")
-        if (chatbody.blocked)
-        {
-            chatbody.style.opacity = 0.5;
-            chatbody.addEventListener('click', (e)=>{
-                e.preventDefault()
-                e.stopPropagation()
-                showToast("error", "You are banned from this server")
-            })
-        }
-        else
-        {
-            chatbody.style.opacity = 1;
-        }
+
         this.socket.onmessage = (event) => {
 
             let data = JSON.parse(event.data)
             if (data.message === "banning" && send === false)
             {
-                console.log(`wilikkke ${this.server_name}`)
                 if (_data)
+                {
+                    if (data.action === "ban" && data.user_id == localStorage.getItem("id"))
+                    {
+                        console.log("enteringgggggggggg11111")
+                        console.log(data)
+                        chatbody.style.opacity = 0.5;
+                        chatbody.blocked = true;
+                    }
+                    else
+                    {
+                        console.log("enteringgggggggggg222222")
+                        console.log(data)
+                        chatbody.style.opacity = 1;
+                        chatbody.blocked = false;
+                    }
                     banning([_data,this.server_name, null])
+                }
             }
             if (data.message === "change_privilages" && send === false)
             {
@@ -85,7 +88,8 @@ export default class UserSideBar extends HTMLElement
                     if (pannel)
                     {
                         pannel.addEventListener('click', ()=>{
-                             item.onclick(item.args)
+                            console.log(`adding onclick ${item.pannel}`)
+                            item.onclick(item.args)
                         })
                     }
                 }
@@ -161,7 +165,6 @@ export default class UserSideBar extends HTMLElement
                 server_item.push({"pannel": "pannel_game" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to game", "red": false, "onclick":''})
                 server_item.push({"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick":''})
                 server_item.push({"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":''})
-                server_item.push({"pannel": "pannel_delete" ,"icon": "/assets/images/common/Iconly/Bold/Delete.svg", "text": "Delete", "red": true, "onclick": '', 'args':_data.server_name})
             }
         }
         this.renderPannels(title, server_item,_data)
@@ -290,25 +293,10 @@ function banning(data)
                 showToast("success", `User ${action}ned from server`)
                 document.querySelector(".pannel_ban").querySelector("span").innerText = text;
                 send = true
-                socket.send(JSON.stringify({"user_id": id, "permition_to_change": "banning", "server_name": server_name,"sender":localStorage.getItem("id")}))
-
+                socket.send(JSON.stringify({"user_id": id, "action":action, "permition_to_change": "banning", "server_name": server_name,"sender":localStorage.getItem("id")}))
             }).catch(error => {
                 showToast("error", error)
             })
-        }
-        if (data.user_id === parseInt(localStorage.getItem("id")))
-        {
-            const chatbody = document.querySelector(".chatbodymain")
-            if(action === "unban")
-            {
-                chatbody.blocked = true
-                chatbody.style.opacity = 0.5;
-            }
-            else
-            {
-                chatbody.blocked = false
-                chatbody.style.opacity = 1;
-            }
         }
     })
     

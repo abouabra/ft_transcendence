@@ -111,7 +111,7 @@ export default class ChatBody extends HTMLElement {
 			//Send message event
 			inputicon.addEventListener('click', () => {
 				this.blocked = chatbod.blocked
-				if (this.blocked == false)
+				if (this.blocked === false)
 				{
 					send_message_event(this.inputbr.value.trim(), this.socket)
 					this.inputbr.value = ''
@@ -125,12 +125,13 @@ export default class ChatBody extends HTMLElement {
 			})
 			this.inputbr.addEventListener('input', (event) => {
 				this.blocked = chatbod.blocked
-				if (this.blocked == false)
+				if (this.blocked === false)
 				{
 					this.textAreaAdjust();
 				}
 				else
 				{
+					this.inputbr.value = ""
 					chatbod.style.opacity = 0.5;
                 	showToast("error", "You are banned from this server")
 				}

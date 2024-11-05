@@ -165,7 +165,6 @@ export default class UserSideBar extends HTMLElement
                 server_item.push({"pannel": "pannel_game" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to game", "red": false, "onclick":''})
                 server_item.push({"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick":''})
                 server_item.push({"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":''})
-                server_item.push({"pannel": "pannel_block" ,"icon": "/assets/images/common/Iconly/Bold/Danger.svg", "text": "Block", "red": true, "onclick":BlockUser, 'args':_data})
             }
         }
         this.renderPannels(title, server_item,_data)
@@ -188,21 +187,6 @@ export default class UserSideBar extends HTMLElement
 }
 
 customElements.define("user-pannel", UserSideBar);
-
-
-function BlockUser(data)
-{
-    console.log("blocking")
-    let action = "Block"
-    if (data.banned.includes(data.user_id))
-        action = "Unblock"
-    makeRequest(`/api/chat/block_user/`, 'POST', {"user_id":data.user_id, "server_name":data.server_name, 'action':action}).then(data => {
-        this.querySelector(".pannel_block").querySelector("span").innerText = action
-        showToast("success", `User blocked`)
-    }).catch(error => {
-        showToast("error", error)
-    })
-}
 
 
 function Qr_codedisplay(qr_code)

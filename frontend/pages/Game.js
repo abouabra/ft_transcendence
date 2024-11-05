@@ -305,6 +305,8 @@ export default class Game_Page extends HTMLElement {
 			this.game.endGame();
 			return;
 		}
+		if(this.game && this.game.stats)
+			this.game.stats.dom.style.display = "none";
 
 
 		if(this.setup && this.setup.opponentTracker)

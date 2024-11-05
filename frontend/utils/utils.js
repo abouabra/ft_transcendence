@@ -40,17 +40,21 @@ async function makeRequest(url, method = "GET", data = null) {
 
 	try {
 		let response = await fetch(fullUrl, options);
-
 		// If unauthorized, try refreshing the token and retrying
 		if (response.status === 401) {
 			await refreshAccessToken();
 			return await makeRequest(url, method, data); // Retry with incremented depth
 		}
+		if (response.status >= 400) 
+		{
+			let data = await response.json()
+			
 
-		if (response.status >= 400 && response.status != 404) {
-			error = await response.json();
-			throw new Error(error.detail || "Something went wrong");
+			throw new Error(data.error);
 		}
+
+
+
 
 		// Parse JSON response
 		const jsonResponse = await response.json();
@@ -64,17 +68,8 @@ async function makeRequest(url, method = "GET", data = null) {
 
 		return jsonResponse;
 	} catch (error) {
-		// Handle error response
-		const errorResponse = {
-			response_code: 500,
-			detail: error.message,
-		};
-		return errorResponse;
-		// throw error;
-
-		// if (!BANNED_TOAST_URLS.includes(url)) {
-			// handleToastNotifications(errorResponse);
-		// }
+		throw new Error(error);
+	
 	}
 }
 

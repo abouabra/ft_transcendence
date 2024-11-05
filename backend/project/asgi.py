@@ -6,6 +6,7 @@ from channels.security.websocket import AllowedHostsOriginValidator
 
 import user_management.routing
 import game.routing
+import chat.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 
@@ -15,8 +16,9 @@ application = ProtocolTypeRouter({
     "http": default_asgi_application,
     "websocket": AllowedHostsOriginValidator(
         AuthMiddlewareStack(
-            URLRouter(user_management.routing.websocket_urlpatterns
-                       + game.routing.websocket_urlpatterns),
+            URLRouter(chat.routing.websocket_urlpatterns
+                      + user_management.routing.websocket_urlpatterns 
+                      + game.routing.websocket_urlpatterns)
         )
     )
 })

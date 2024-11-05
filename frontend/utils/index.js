@@ -16,8 +16,13 @@ const routes = {
     "^/profile/\\d+$": "profile-page",
     "^/settings/$": "settings-page",
     
-    "^/chat/$": "chat-page",
     "^/chat/create_server/$": "create-server-page",
+    "^/chat/edit_server/[^\/]+$": "edit-server-page",
+    "^/chat/$": "chat-page",
+    "^/chat/[^\/]+$": "chat-page",
+    "^/chat/browse_chat/$": "chat-browse",
+    "^/chat/join_server/$": "join-server",
+
 
     "^/play/$": "play-page",
     "^/play/game/[^/]+$" : "game-page",

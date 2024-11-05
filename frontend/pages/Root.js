@@ -17,6 +17,10 @@ import Play_Page from "./Play.js";
 import Home_Page from "./Home.js";
 import Tournament_Page from "./Tournament.js";
 import Chat_Page from "./Chat.js";
+import Chat_Browse from "./Chat_browse_server.js";
+import Create_Server_page from "./Chat_creat_server.js";
+import Edit_Server_page from "./Chat_edit_server.js";
+import Chat_join_server from "./Chat_join_server.js";
 import Leaderboard_Page from "./Leaderboard.js";
 import Notifications_Page from "./Notifications.js";
 import Profile_Page from "./Profile.js";
@@ -48,7 +52,9 @@ export default class Root_Page extends HTMLElement {
 
 	disconnectedCallback() {}
 
-	attributeChangedCallback(name, oldValue, newValue) {}
+	attributeChangedCallback(name, oldValue, newValue) {
+		
+	}
 }
 
 customElements.define("root-page", Root_Page);

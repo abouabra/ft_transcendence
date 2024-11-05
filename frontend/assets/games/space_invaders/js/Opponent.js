@@ -60,7 +60,6 @@ class Opponent {
         this.mesh.position.copy(this.position);
         this.mesh.quaternion.copy(this.quaternion);
 
-
         this.moveForward();
     
         if(this.thrustEffect) this.thrustEffect.update(deltaTime);

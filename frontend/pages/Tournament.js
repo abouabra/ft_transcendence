@@ -8,6 +8,7 @@ export default class Tournament_Page extends HTMLElement {
 
 		this.innerHTML = /* html */`
 			<h1> Tournament Page </h1>
+			<span>start</span>
 		`;
 	}
 

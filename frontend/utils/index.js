@@ -64,24 +64,33 @@ async function handleLocationChange() {
         return;
     }
 
-    const response = await makeRequest("/api/auth/is_authenticated/");
-	const isAuthenticated = response.response_code === 200;
-   
-	if (!isAuthenticated && path !== ("/"))
-	{
-		GoTo("/");
-        return;
-	}
+    try {
+        const response = await makeRequest("/api/auth/is_authenticated/");
 
+        if (!root_div.querySelector("base-page")) {
+            root_div.innerHTML = /*html*/ `<base-page></base-page>`;
+        }
 
-    if (!root_div.querySelector("base-page")) {
-        root_div.innerHTML = /*html*/ `<base-page></base-page>`;
+        const base_page = document.getElementById("base_page");
+        base_page.innerHTML = `<${component}></${component}>`;
+
+        update_active_sidebar();
     }
+    catch (error) {
+        if (path !== ("/"))
+            GoTo("/");
+        
+        return;
+    }
+    // const response = await makeRequest("/api/auth/is_authenticated/");
+	// const isAuthenticated = response.response_code === 200;
+   
+	// if (!isAuthenticated && path !== ("/"))
+	// {
+	// 	GoTo("/");
+    //     return;
+	// }
 
-    const base_page = document.getElementById("base_page");
-    base_page.innerHTML = `<${component}></${component}>`;
-
-    update_active_sidebar();
 
 }
 

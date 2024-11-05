@@ -293,8 +293,9 @@ class LeaverServer(generics.GenericAPIView):
                     return Response({'error':'not Chat found'}, status=status.HTTP_400_BAD_REQUEST)
                 server.remove_member(request.user.id)
                 if (len(server.members) == 0):
-                    os.remove(os.path.join(settings.BASE_DIR, server.avatar))
-                    os.remove(os.path.join(settings.BASE_DIR, server.qr_code))
+                    print(f"full path = {settings.BASE_DIR}")
+                    os.remove(f"{settings.BASE_DIR}{server.avatar}")
+                    os.remove(f"{settings.BASE_DIR}{server.qr_code}")
                     server.delete()
                 return Response({"success":"user left the server"}, status.HTTP_200_OK)
             except Server.DoesNotExist:

@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from .utils import delete_user_stats
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class User(AbstractUser):
     class Meta:
@@ -9,6 +13,9 @@ class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
     avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/avatars/default.jpg")
     status = models.CharField(max_length=255, blank=False, null=False, default="offline")
+
+    two_factor_auth = models.BooleanField(default=False)
+    otp_secret = models.CharField(max_length=128 , blank=True, null=True)
 
     PLAYING_CHOICES = (
         (None, None),
@@ -49,3 +56,15 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.sender.username} -> {self.receiver.username} : {self.type}"
+
+
+@receiver(pre_delete, sender=User)
+def delete_user_notification(sender, instance, **kwargs):
+    notifications = Notification.objects.filter(sender=instance)
+    notifications.delete()
+    notifications = Notification.objects.filter(receiver=instance)
+    notifications.delete()
+    request = {"COOKIES": {}}
+    access_token = str(RefreshToken.for_user(instance).access_token)
+    request["COOKIES"]["access_token"] = access_token
+    delete_user_stats(request, instance.id)

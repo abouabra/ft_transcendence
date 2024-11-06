@@ -21,9 +21,7 @@ async function refreshAccessToken() {
 	}
 }
 
-const TOAST_URLS = ["/api/auth/is_authenticated/", "/api/auth/token/refresh/"];
-
-async function makeRequest(url, method = "GET", data = null) {
+async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
 	const fullUrl = `${BACKEND_DOMAIN}${url}`;
 
 	const headers = new Headers({
@@ -38,44 +36,40 @@ async function makeRequest(url, method = "GET", data = null) {
 		body: data ? JSON.stringify(data) : null,
 	};
 
-	try {
-		let response = await fetch(fullUrl, options);
-		// If unauthorized, try refreshing the token and retrying
-		if (response.status === 401) {
-			await refreshAccessToken();
-			return await makeRequest(url, method, data); // Retry with incremented depth
-		}
-		if (response.status >= 400) 
-		{
-			let data = await response.json()
-			
-
-			throw new Error(data.error);
-		}
-
-
-
-
-		// Parse JSON response
-		const jsonResponse = await response.json();
-		jsonResponse.response_code = response.status;
-
-
-		// Handle toast notifications
-		// if (TOAST_URLS.includes(url)) {
-		// 	handleToastNotifications(jsonResponse);
-		// }
-
-		return jsonResponse;
-	} catch (error) {
-		throw new Error(error);
+	let response = await fetch(fullUrl, options);
 	
+	if (response.status === 401) {
+		if (response.url === `${BACKEND_DOMAIN}/api/auth/login/`) {
+			let response_data = await response.json();
+			throw new Error(response_data.error);
+		} else if (retryCount > 0) {  // Limit the number of retries
+			try {
+				await refreshAccessToken();
+				return await makeRequest(url, method, data, retryCount - 1);
+			} catch (error) {
+				let response_data = await response.json();
+				throw new Error(response_data.error);
+			}
+		} else {
+			throw new Error("Failed to refresh token after retrying.");
+		}
 	}
+
+	if (response.status >= 400) {
+		let response_data = await response.json();
+		throw new Error(response_data.error);
+	}
+
+	// Parse JSON response
+	const jsonResponse = await response.json();
+	jsonResponse.response_code = response.status;
+
+	return jsonResponse;
 }
+
 
 // Function to handle toast notifications based on response
 function handleToastNotifications(response) {
-	// const toastType = response.response_code >= 400 ? "error" : "success";
 	const toastType = "error";
 	const toastData = JSON_TO_DATA(response);
 
@@ -260,3 +254,37 @@ function update_active_sidebar() {
 			element.classList.add("active_side_bar_item");
 	});
 }
+
+
+
+function change_display(first ,second) {
+	const display_1 = document.querySelector(first);
+	const display_2 = document.querySelector(second);
+
+	display_1.outerHTML="";
+	display_2.style.display = "block";
+};
+
+const handle_first_one = (type, element ) => async (event) => {
+	event.preventDefault();
+
+	const email = element.querySelector('input[name="email"]').value;
+	if (!email) {
+		showToast("error", "email is required");
+		return;
+	}
+
+	const data = {
+		email,
+		type
+	};
+
+	try {
+		const response = await makeRequest('/api/auth/verification_email/', 'POST', data);
+		change_display("#displaay", "#displaaay");
+		const response2 = await makeRequest('/api/auth/send-email/', 'POST', data);
+	} catch (error) {
+		showToast("error", error.message);
+	}
+};
+

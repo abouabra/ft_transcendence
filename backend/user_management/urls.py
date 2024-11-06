@@ -1,10 +1,9 @@
 from django.urls import path
 from . import views
 
-urlpatterns = [
+urlpatterns = [  
     path('is_authenticated/', views.IsAuthenticatedView.as_view(), name='is_authenticated'),
 
-    path('token/', views.LoginView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', views.RefreshTokenView.as_view(), name='token_refresh'),
     path('logout/', views.LogoutView.as_view(), name='token_obtain_pair'),
 
@@ -23,4 +22,12 @@ urlpatterns = [
     path('accept_friend_request/<int:pk>/', views.AcceptFriendRequestView.as_view(), name='accept_friend_request'),
 
 
+    path('signup/', views.Account.as_view(), name='Account'),
+    path('login/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('verification_email/', views.VerificationEmail.as_view(), name='verification_email'),
+    path('send-email/', views.SendEmailView.as_view(), name='send_email'),
+    path('forgot_password/', views.Forgot_password.as_view(), name='forgot_pass'),
+    path('2fa/', views.TwoFactorAuth.as_view(), name='two_factor_auth'),
+    path('after_google/', views.get_user_data, name='after_google'),
+    path('callback/', views.intra_42_callback, name='callback'),
 ]

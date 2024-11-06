@@ -64,9 +64,6 @@ export default class Leaderboard_Page extends HTMLElement {
 	}
 
 	render_data(response) {
-		response = response.concat(response).concat(response);
-		response = response.concat(response).concat(response);
-
 		console.log(response);
 		const leaderboard_page_content = this.querySelector('.leaderboard_page_content');
 		leaderboard_page_content.innerHTML = /* html */`

@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('create_tournament_stats/<int:user_id>/', views.CreateTournamentStatsView.as_view(), name='create_tournament_stats'),
+    path('delete_tournament_stats/<int:user_id>/', views.DeleteTournamentStatsView.as_view(), name='delete_tournament_stats'),
     
     path("home_active_tournaments/", views.HomeActiveTournamentsView.as_view(), name="home_active_tournaments"),
 

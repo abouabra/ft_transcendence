@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/chat/', include('chat.urls')),
     path('api/game/', include('game.urls')),
     path('api/tournaments/', include('tournaments.urls')),
+    path('oauth/', include('social_django.urls', namespace='social')),
 ]

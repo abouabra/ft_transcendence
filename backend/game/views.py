@@ -15,6 +15,14 @@ class CreateGameStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, user_id):
+        # check if the user already has a game stats
+        try:
+            GameStats.objects.get(user_id=user_id, game_name="pong")
+            return Response({"message": "Game Stats Already Exists"}, status=status.HTTP_200_OK)
+        
+        except GameStats.DoesNotExist:
+            pass
+
         # create a new game stats for the user
         pong_game_stats = GameStats.objects.create(user_id=user_id, game_name="pong")
         pong_game_stats.save()
@@ -28,6 +36,30 @@ class CreateGameStatsView(generics.GenericAPIView):
         return Response({"message": "Game Stats Created Successfully"}, status=status.HTTP_201_CREATED)
     
 
+class DeleteGameStatsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def delete(self, request, user_id):
+        try:
+            pong_game_stats = GameStats.objects.get(user_id=user_id, game_name="pong")
+            pong_game_stats.delete()
+
+            space_invaders_game_stats = GameStats.objects.get(user_id=user_id, game_name="space_invaders")
+            space_invaders_game_stats.delete()
+
+            road_fighter_game_stats = GameStats.objects.get(user_id=user_id, game_name="road_fighter")
+            road_fighter_game_stats.delete()
+        
+            return Response({"message": "Game Stats Deleted Successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except GameStats.DoesNotExist:
+            return Response({"message": "Game Stats Does Not Exist"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while deleting game stats"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        
 
 class HomeLeaderboardView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)

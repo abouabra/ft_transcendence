@@ -59,12 +59,14 @@ export default class Base_Page extends HTMLElement {
 			if(data.type != "cancel_game_invitation")
 			{
 				const notifications_bar_status = document.querySelector(".notifications_bar_status");
-				if(notifications_bar_status.style.display == "" || notifications_bar_status.style.display == "none")
+				if(notifications_bar_status && (notifications_bar_status.style.display == "" || notifications_bar_status.style.display == "none"))
 					notifications_bar_status.style.display = "flex";
 
 
-				const counter_span = notifications_bar_status.querySelector("span");
-				counter_span.textContent = parseInt(counter_span.textContent) + 1;
+				if(notifications_bar_status) {
+					const counter_span = notifications_bar_status.querySelector("span");
+					counter_span.textContent = parseInt(counter_span.textContent) + 1;
+				}
 			}
 
 

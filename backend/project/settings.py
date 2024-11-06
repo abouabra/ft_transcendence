@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "chat",
     "game",
     "tournaments",
+    "social_django",
 ]
 
 MIDDLEWARE = [
@@ -83,8 +84,10 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-
+    'project.middlewares.JWTFromCookieMiddleware',
     "project.middlewares.JsonResponseMiddleware",
+    'social_django.middleware.SocialAuthExceptionMiddleware',
+
 ]
 
 ROOT_URLCONF = "project.urls"
@@ -169,7 +172,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # REST_FRAMEWORK
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "project.authentication.CookieJWTAuthentication",
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
 
@@ -264,5 +267,18 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+
+LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/api/auth/after_google/'
+LOGOUT_REDIRECT_URL = 'http://0.0.0.0:3000/'
+
 
 

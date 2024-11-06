@@ -21,6 +21,27 @@ class CreateTournamentStatsView(generics.GenericAPIView):
 
         return Response({"message": "Tournament Stats Created Successfully"}, status=status.HTTP_201_CREATED)
 
+class DeleteTournamentStatsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def delete(self, request, user_id):
+        # delete the game stats for the user
+        try:
+            pong_tournament_stats = TournamentStats.objects.filter(user_id=user_id, game_name="pong")
+            pong_tournament_stats.delete()
+
+
+            space_invaders_tournament_stats = TournamentStats.objects.filter(user_id=user_id, game_name="space_invaders")
+            space_invaders_tournament_stats.delete()
+
+            road_fighter_tournament_stats = TournamentStats.objects.filter(user_id=user_id, game_name="road_fighter")
+            road_fighter_tournament_stats.delete()
+
+            return Response({"message": "Tournament Stats Deleted Successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({"message": "Tournament Stats Not Found"}, status=status.HTTP_404_NOT_FOUND)        
+
+
 
 class HomeActiveTournamentsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)

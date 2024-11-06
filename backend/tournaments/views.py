@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from .models import Tournament_Bracket, Tournament_History, TournamentStats
+from .models import Tournament_Bracket, Tournament_History, TournamentStats, TournamentRoom
 from rest_framework.pagination import PageNumberPagination
-from .serializers import TournamentBracketSerializer, TournamentHistorySerializer, TournamentStatsSerializer
+from .serializers import TournamentBracketSerializer, TournamentHistorySerializer, TournamentStatsSerializer, TournamentRoomSerializer
 
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -70,6 +70,13 @@ class HomeExpandedActiveTournamentsView(generics.GenericAPIView):
         return self.get_paginated_response(serializer.data)
 
 
+class GetTournamentsData(generics.GenericAPIView):
+    # permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        tournaments = TournamentRoom.objects.all()
+        serializer = TournamentRoomSerializer(tournaments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 

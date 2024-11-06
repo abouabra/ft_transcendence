@@ -8,6 +8,7 @@ urlpatterns = [
 
     path("home_expanded_active_tournaments/", views.HomeExpandedActiveTournamentsView.as_view(), name="home_expanded_active_tournaments"),
 
+    path("getTournamentsData/", views.GetTournamentsData.as_view(), name="getTournamentsData"),
 
     path("generate/", views.GenerateRandomTournamentHistoryData.as_view(), name="generate"),
 ]

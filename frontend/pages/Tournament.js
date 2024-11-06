@@ -1,3 +1,4 @@
+import Tournament_Browse from "./Tournament_search.js";
 
 export default class Tournament_Page extends HTMLElement {
 	constructor() {
@@ -7,8 +8,7 @@ export default class Tournament_Page extends HTMLElement {
 		head.appendChild(createLink('/styles/tournament_page.css'));
 
 		this.innerHTML = /* html */`
-			<h1> Tournament Page </h1>
-			<span>start</span>
+			<tournament-browse></tournament-browse>
 		`;
 	}
 

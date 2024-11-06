@@ -6,12 +6,17 @@ export default class ChatBody extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_server.css'));
 
-		const socket = new WebSocket('ws://localhost:8000/chat/f1');
+		this.server_name = location.pathname.split('/').pop()
+		const socket = new WebSocket(`ws://localhost:8000/chat/${this.server_name}`);
 		this.socket = socket
 
 		let result_data = ''
-		this.server_name = location.pathname.split('/').pop()
-		makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then((data) => {
+		
+		makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET')
+		.then((data) => {
+		makeRequest(`/api/auth/full_user/${data[0].user_id}/`)
+		.then((response) => {
+			data[0].friends_list = response.friends
 			result_data = data[0]
 			if (result_data.banned.includes(parseInt(localStorage.getItem("id"))))
 				this.blocked = true
@@ -63,8 +68,13 @@ export default class ChatBody extends HTMLElement {
 			let more_dot = this.querySelector(".more-dots")
 			let UserPannel = this.querySelector("user-pannel")
 			//Right side bar event click
-			more_dot.addEventListener('click', ()=>{
+			more_dot.addEventListener('click', () => {
+				
 				makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then((data) => {
+				makeRequest(`/api/auth/full_user/${data[0].user_id}/`)
+				.then((response) => {
+					data[0].friends_list = response.friends
+
 					result_data = data[0]
 					result_stringify = JSON.stringify(result_data)
 					if (result_data.banned.includes(parseInt(localStorage.getItem("id"))))
@@ -92,6 +102,7 @@ export default class ChatBody extends HTMLElement {
                 		showToast("error", "You are banned from this server")
 					}
 				})
+				})
 			})
 
 			const inputicon = this.querySelector('.send_icone');
@@ -108,9 +119,10 @@ export default class ChatBody extends HTMLElement {
 					}))
 				}
 			}
+
 			//Send message event
 			inputicon.addEventListener('click', () => {
-				this.blocked = chatbod.blocked
+				// this.blocked = chatbod.blocked
 				if (this.blocked === false)
 				{
 					send_message_event(this.inputbr.value.trim(), this.socket)
@@ -123,8 +135,9 @@ export default class ChatBody extends HTMLElement {
                 	showToast("error", "You are banned from this server")
 				}
 			})
+
 			this.inputbr.addEventListener('input', (event) => {
-				this.blocked = chatbod.blocked
+				// this.blocked = chatbod.blocked
 				if (this.blocked === false)
 				{
 					this.textAreaAdjust();
@@ -138,7 +151,7 @@ export default class ChatBody extends HTMLElement {
 			});
 
 			this.inputbr.addEventListener('keydown', (event) => {
-				this.blocked = chatbod.blocked
+				// this.blocked = chatbod.blocked
 				if (event.key === 'Enter' && !event.shiftKey && this.blocked === false)
 				{
 					event.preventDefault();
@@ -174,6 +187,8 @@ export default class ChatBody extends HTMLElement {
 			this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
 		}
 	})
+	})
+
 
 	}
 	
@@ -240,7 +255,7 @@ export default class ChatBody extends HTMLElement {
 						</div>
 					</div>
 				</div>
-				`
+			`;
 
 			let content_element = divmessage_body.querySelector(".messageblockcontent")
 			let delete_msg = divmessage_body.querySelector(".delete_message");
@@ -248,37 +263,40 @@ export default class ChatBody extends HTMLElement {
 			let UserPannel = this.querySelector("user-pannel")
 			const chatbod = document.querySelector(".chatbodymain")
 			message_name.addEventListener('click', ()=>{
+					makeRequest(`/api/auth/full_user/${data.user_id}/`)
+					.then((response) => {
+						data.friends_list = response.friends
+						makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then(svdata => {
+							console.log("calledddddddd")
+							data.staffs = svdata[0].staffs
+							data.banned = svdata[0].banned
+							if (data.banned.includes(parseInt(localStorage.getItem("id"))))
+							{
+								this.blocked = true
+								chatbod.style.opacity = 0.5;
+								showToast("error", "You are banned from this server")
+							}
+							else
+							{
+								this.blocked = false
+								chatbod.style.opacity = 1;
+							}
+							if (this.blocked == false)
+							{
+								UserPannel.setAttribute("data-text",JSON.stringify(data))
+								let type = "protectedsettings"
+								if (data.visibility !== "protected")
+									type = "usersettings"
+								UserPannel.setAttribute('type', type)
+								document.querySelector(".More_bar").style.width = "50%"
+								document.querySelector(".sliding_elementimg").classList.remove("hidden")
+								document.querySelector(".sliding_elementtext").classList.remove("hidden")
+								document.querySelector(".more-dots").style.display = "none";
 
-					makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then(svdata => {
-						console.log("calledddddddd")
-						data.staffs = svdata[0].staffs
-						data.banned = svdata[0].banned
-						if (data.banned.includes(parseInt(localStorage.getItem("id"))))
-						{
-							this.blocked = true
-							chatbod.style.opacity = 0.5;
-                			showToast("error", "You are banned from this server")
-						}
-						else
-						{
-							this.blocked = false
-							chatbod.style.opacity = 1;
-						}
-						if (this.blocked == false)
-						{
-							UserPannel.setAttribute("data-text",JSON.stringify(data))
-							let type = "protectedsettings"
-							if (data.visibility !== "protected")
-								type = "usersettings"
-							UserPannel.setAttribute('type', type)
-							document.querySelector(".More_bar").style.width = "50%"
-							document.querySelector(".sliding_elementimg").classList.remove("hidden")
-							document.querySelector(".sliding_elementtext").classList.remove("hidden")
-							document.querySelector(".more-dots").style.display = "none";
-
-							UserPannel.style.whiteSpace = "nowrap"
-						}
-					})
+								UserPannel.style.whiteSpace = "nowrap"
+							}
+						})
+				})
 			})
 			if (data.username == localStorage.getItem("username"))
 			{

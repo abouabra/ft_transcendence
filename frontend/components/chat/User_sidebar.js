@@ -1,5 +1,6 @@
 let send = false;
 let _data = ''
+
 export default class UserSideBar extends HTMLElement
 {
     
@@ -110,6 +111,7 @@ export default class UserSideBar extends HTMLElement
         return _data;
     }
     set data(newVal) {
+        console.log("SETTER CALLED")    
         _data = newVal;
     }
 
@@ -134,20 +136,25 @@ export default class UserSideBar extends HTMLElement
             {
                 server_item.push({"pannel": "pannel_delete" ,"icon": "/assets/images/common/Iconly/Bold/Delete.svg", "text": "Delete Server", "red": true, "onclick": DeletePanel, 'args': _data})
                 server_item.unshift({"pannel": "pannel_edit" ,"icon": "/assets/images/common/Iconly/Bold/Edit.svg", "text": "Edit", "red": false, "onclick": EditPanel, 'args': _data})
-
             }
         }
         else if (type === 'usersettings')
         {
             title = "User info"
-            server_item = [{"pannel": "pannel_view" ,"icon": "/assets/images/common/Iconly/Bold/Profile.svg", "text": "View profile", "red": false, "onclick":ViewProfile, 'args':_data.user_id},
+            server_item = [
+                {"pannel": "pannel_view" ,"icon": "/assets/images/common/Iconly/Bold/Profile.svg", "text": "View profile", "red": false, "onclick":ViewProfile, 'args':_data.user_id},
 
-            {"pannel": "pannel_pong" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Pong", "red": false, "onclick":invite_user_to_pong, 'args': _data},
-            {"pannel": "pannel_space_invaders" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Space Invaders", "red": false, "onclick":invite_user_to_space_invaders, 'args': _data},
+                {"pannel": "pannel_pong" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Pong", "red": false, "onclick":invite_user_to_pong, 'args': _data},
+                {"pannel": "pannel_space_invaders" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Space Invaders", "red": false, "onclick":invite_user_to_space_invaders, 'args': _data},
 
-            {"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick": send_user_to_direct, 'args':_data.user_id},
-            {"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":send_friend_request, 'args':_data.user_id}
-        ]
+                {"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick": send_user_to_direct, 'args':_data.user_id},
+                
+            ]
+            
+            console.log("before if condition", _data.friends_list)
+            
+            if(!_data.friends_list.includes(parseInt(localStorage.getItem("id"))) && _data.user_id != localStorage.getItem("id"))
+                server_item.push({"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":send_friend_request, 'args':_data.user_id})
 
             if (_data.visibility != "protected" && _data.staffs.includes(parseInt(localStorage.getItem("id"))) && _data.user_id !== parseInt(localStorage.getItem("id")))
             {
@@ -173,7 +180,8 @@ export default class UserSideBar extends HTMLElement
 
                 server_item.push({"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick": send_user_to_direct, 'args':_data.user_id})
 
-                server_item.push({"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":send_friend_request, 'args':_data.user_id})
+                if(!_data.friends_list.includes(parseInt(localStorage.getItem("id"))) && _data.user_id != localStorage.getItem("id"))
+                    server_item.push({"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":send_friend_request, 'args':_data.user_id})
             }
         }
         this.renderPannels(title, server_item,_data)
@@ -186,6 +194,8 @@ export default class UserSideBar extends HTMLElement
         if (name === 'data-text')
         {
             _data = JSON.parse(this.getAttribute('data-text'))
+            
+            console.log(_data.friends_list)
         }
         else if (name === 'type')
         {
@@ -196,7 +206,6 @@ export default class UserSideBar extends HTMLElement
 }
 
 customElements.define("user-pannel", UserSideBar);
-
 
 function Qr_codedisplay(qr_code)
 {

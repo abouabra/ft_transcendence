@@ -1,16 +1,28 @@
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import UserSerializer, NotificationSerializer, ShortUserSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
-import logging
-from .serializers import LoginSerializer
-from .decorators import check_if_logged_in
-from datetime import datetime, timezone
+from . import utils
+from .models import User
 from .models import User, Notification
+from .serializers import SerializerSignup, ValidEmail
+from .serializers import UserSerializer, NotificationSerializer, ShortUserSerializer
+from .utils import set_refresh_and_access_token, init_user_stats
+from datetime import datetime, timezone
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.http import  HttpResponseRedirect
+from rest_framework import generics, permissions
+from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+import base64, hmac, hashlib, urllib.parse
+import logging
+import pyotp
+import qrcode
+import requests
+import secrets
 
 logger = logging.getLogger(__name__)
 
@@ -63,57 +75,24 @@ class RefreshTokenView(generics.GenericAPIView):
             return response
 
 
-class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        try:
+            response = super().post(request, *args, **kwargs)
+            username = request.data.get('username')
             try:
-                username = request.data["username"]
+                user = User.objects.get(username = username)
+            except:
+                return Response({"error":"User not found"}, status=404)
+            if not user.two_factor_auth:
+                utils.set_refresh_and_access_token(response)
+            response.data["user_is_auth"] = user.two_factor_auth
+            return response
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return Response({"error": str(e)},status=status.HTTP_401_UNAUTHORIZED)
 
-                user = User.objects.get(username=username)
-                user.status = "online"
-                user.save()
 
-                refresh = RefreshToken.for_user(user)
-
-                response = Response()
-                response.set_cookie(
-                    key="refresh_token",
-                    value=str(refresh),
-                    httponly=True,
-                    samesite="Strict",
-                    expires=datetime.fromtimestamp(refresh["exp"], tz=timezone.utc),
-                )
-                
-                response.set_cookie(
-                    key="access_token",
-                    value=str(refresh.access_token),
-                    httponly=True,
-                    samesite="Strict",
-                    expires=datetime.fromtimestamp(
-                        refresh.access_token["exp"], tz=timezone.utc
-                    ),
-                )
-
-                response.data = {"detail": "Logged in successfully"}
-                response.status_code = status.HTTP_200_OK
-
-                return response
-            except User.DoesNotExist:
-                return Response(
-                    {"detail": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
-                )
-            except Exception as e:
-                logger.error(f"==============\n\n {str(e)} \n\n==============")
-                return Response(
-                    {"detail": "Error encountered while logging in"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -175,6 +154,25 @@ class UserView(generics.GenericAPIView):
                 {"detail": "Error encountered while fetching the user"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+        
+class UserByUserNameView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ShortUserSerializer
+    
+    def get(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+            return Response(self.serializer_class(user).data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while fetching the user"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 class FullUserView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -203,9 +201,7 @@ class SearchUsersView(generics.ListAPIView):
     def post(self, request):
         search_query = request.data.get("search_query")
         if search_query:
-            users = User.objects.filter(username__icontains=search_query).order_by(
-                "username"
-            )[:5]
+            users = User.objects.filter(username__icontains=search_query, is_staff=False).order_by("username")[:5]
             return Response(
                 self.serializer_class(users, many=True).data, status=status.HTTP_200_OK
             )
@@ -267,20 +263,33 @@ class DeleteNotificationView(generics.GenericAPIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10 
 class NotificationsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = NotificationSerializer
-    pagination_class = PageNumberPagination
-    pagination_class.page_size = 10
+    pagination_class = CustomPagination
+    queryset = Notification.objects.all()
 
     def get(self, request):
-        paginator = self.pagination_class()
-        notifications = Notification.objects.filter(receiver=request.user).order_by(
-            "-timestamp"
-        )
-        result_page = paginator.paginate_queryset(notifications, request)
-        serialized_notifications = self.serializer_class(result_page, many=True).data
-        return paginator.get_paginated_response(serialized_notifications)
+        notifications = Notification.objects.filter(receiver=request.user, type__in=["game_invitation", "friend_request", "strike"]).order_by("-timestamp")
+        page = self.paginate_queryset(notifications)
+        if page is not None:
+            unread_notifications = 0
+            serialized_notifications = self.serializer_class(page, many=True).data
+            for notification in page:
+                if not notification.is_read:
+                    unread_notifications += 1
+                notification.is_read = True
+                notification.save()
+            response = self.get_paginated_response(serialized_notifications)
+            response.data["unread_notifications"] = unread_notifications
+            return response
+
+        serialized_notifications = self.serializer_class(notifications, many=True).data
+        return Response(serialized_notifications, status=status.HTTP_200_OK)
+
 
 
 class FriendsBarView(generics.GenericAPIView):
@@ -322,6 +331,12 @@ class AcceptFriendRequestView(generics.GenericAPIView):
     def get(self, request, pk):
         try:
             sender = User.objects.get(id=pk)
+            if sender in request.user.friends.all():
+                return Response (
+                    {"detail": "User is already your friend"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             request.user.friends.add(sender)
             return Response(
                 {"detail": "Friend request accepted successfully"},
@@ -337,3 +352,341 @@ class AcceptFriendRequestView(generics.GenericAPIView):
                 {"detail": "Error encountered while accepting the friend request"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+
+
+
+def intra_42_callback(request):
+    code = request.GET.get('code')
+    if code:
+        token_url = "https://api.intra.42.fr/oauth/token"
+        data = {
+            "grant_type": "authorization_code",
+            "client_id": settings.INTRA_UID,
+            "client_secret": settings.INTRA_SECRET,
+            "code": code,
+            "redirect_uri": "http://127.0.0.1:8000/api/auth/callback/"
+        }
+        
+        response = requests.post(token_url, data=data)
+        token_data = response.json()
+        access_token = token_data.get("access_token")
+        if access_token:
+            user_info_url = "https://api.intra.42.fr/v2/me"
+            headers = {
+                "Authorization": f"Bearer {access_token}"
+            }
+            user_info_response = requests.get(user_info_url, headers=headers)
+            user_data = user_info_response.json()
+
+            email = user_data.get("email")
+            username = user_data.get("login")
+            if User.objects.filter(email=email).exists():
+                user = User.objects.get(email=email)
+            else:
+                random_password = secrets.token_urlsafe(16)
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=random_password,
+                )
+            refresh = RefreshToken.for_user(user)
+            jwt_access_token = str(refresh.access_token)
+            jwt_refresh_token = str(refresh)
+
+            redirect_url = 'http://127.0.0.1:3000/home/'
+            response = HttpResponseRedirect(redirect_url)
+            response.set_cookie("access_token", jwt_access_token, httponly=True, samesite="Lax")
+            response.set_cookie("refresh_token", jwt_refresh_token, httponly=True, samesite="Lax")
+            response.delete_cookie('csrftoken')
+            response.delete_cookie('sessionid')
+            return response
+        
+    redirect_url = 'http://127.0.0.1:3000/login/'
+    response = HttpResponseRedirect(redirect_url)
+    return response
+
+
+
+@login_required
+def get_user_data(request):
+    userModel = User.objects.get(email=request.user.email)
+
+    refresh = RefreshToken.for_user(userModel)
+    access_token = str(refresh.access_token)
+    refresh_token = str(refresh)
+    redirect_url = 'http://127.0.0.1:3000/home/'
+    response =  HttpResponseRedirect(redirect_url)
+    
+    request.COOKIES['access_token'] = access_token
+    init_user_stats(request, request.user.id)
+    
+    response.delete_cookie('csrftoken')
+    response.delete_cookie('sessionid')
+    set_refresh_and_access_token(response, (access_token, refresh_token))    
+    return response
+   
+
+def encode_data(data):
+    secret_key = settings.SECRET_KEY
+    secret_key_bytes = secret_key.encode('utf-8')
+    data_bytes = data.encode('utf-8')
+    hmac_obj = hmac.new(secret_key_bytes, data_bytes, hashlib.sha256)
+    hmac_digest = hmac_obj.digest()
+    base64_encoded = base64.b64encode(hmac_digest)
+    base64_message = base64_encoded.decode('utf-8')
+    return base64_message
+
+class Account(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = SerializerSignup(data = request.data)
+        if serializer.is_valid():
+            instance = serializer.save()
+            access_token = str(RefreshToken.for_user(instance).access_token)
+            request.COOKIES['access_token'] = access_token
+            init_user_stats(request, serializer.data['id'])
+            return Response(serializer.data, status=201)
+        first_error = list(serializer.errors.items())[0]
+        return Response({"error" : str(first_error[1][0])}, status=400)
+        
+        
+    def get(self, request):
+        token = request.GET.get('token')
+        email = request.GET.get('email')
+        if (email and token and token == encode_data(email)):
+            return Response("success", status=200)
+        else:
+            return Response({"error": "copy the link from the email exact"}, status=400)
+        
+   
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        try:
+            response = super().post(request, *args, **kwargs)
+            username = request.data.get('username')
+            try:
+                user = User.objects.get(username = username)
+            except:
+                return Response({"error":"User not found"}, status=404)
+            if not user.two_factor_auth:
+                utils.set_refresh_and_access_token(response)
+            response.data["user_is_auth"] = user.two_factor_auth
+            return response
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return Response({"error": str(e)},status=status.HTTP_401_UNAUTHORIZED)
+
+class SendEmailView(APIView):
+    permission_classes = [AllowAny]
+        
+        
+    def post(self, request):
+        type = request.data.get("type")
+        print(type)
+        email = request.data.get("email")
+        encode_email = urllib.parse.quote(encode_data(email))
+        if type == "forgot":
+            subject = "Password Reset"
+            message = "Password Reset"
+            content_html = f'''
+                <div class="content">
+                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/user_management/frontend/assets/images/user_management/gamepad_17507234.png" >
+                    <span>Password Reset</span>
+                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/user_management/frontend/assets/images/user_management/gamepad_17507234.png" >
+                    <p>
+                    Seems like you forgot your password for Fesablanca. if this is true, click below to reset your password.
+                    </p>
+                    <a href="http://0.0.0.0:3000/forgot_password/?email={email}&token={encode_email}" class="button">Reset My Password</a>
+                    <div class="footer">
+                    <p>
+                        If you did not forgot your password you can safely ignore this email.
+                    </p>
+                    <p>&copy; 2024 Fesablanca. All rights reserved.</p>
+                    </div>
+                </div>
+            '''
+        elif type == "signup":
+            subject = "Verification email"
+            message = "Verification email"
+            content_html = f'''
+            <div class="content">
+                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/user_management/frontend/assets/images/user_management/gamepad_17507234.png" >
+                    <span>Hello !</span>
+                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/user_management/frontend/assets/images/user_management/gamepad_17507234.png" >
+                    
+                    <p>
+                    Thank you for registering with Fesablanca.<br><br>To complete your registration, please verify your email by clicking the button below:
+                    </p>
+                    <a href="http://0.0.0.0:3000/signup/?email={email}&token={encode_email}" class="button">Verify email address</a>
+                    <p>
+                    If the button doesn't work, you can also copy and paste the following link into your browser:
+                    </p>
+                    <p><a href="#" class="link">http://0.0.0.0:3000/signup/?email={email}&token={encode_email}</a></p>
+                    <div class="footer">
+                    <p>
+                        If you did not sign up for a Fesablanca account, please ignore this email.
+                    </p>
+                    <p>&copy; 2024 Fesablanca. All rights reserved.</p>
+                    </div>
+                </div>
+            '''
+        html_message = f'''
+        <html>
+            <head>
+                <style>
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+                body {{
+                    margin: 0;
+                    padding: 0;
+
+                }}
+                .background {{
+                    padding: 20px;
+                    box-sizing: border-box;
+                    display: flex;
+                    justify-content: center!important;
+                    align-items: center!important;
+                    background-image: url("https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/user_management/frontend/assets/images/Background.jpg");
+                }}
+                .content {{
+                    font-size:1rem;
+                    font-family: "popins", sans-serif;
+                    text-align: center;
+                    color: #e6e7e7!important;
+                    backdrop-filter: blur(20px);
+                    background-color: rgba(39, 41, 46, 0.2);
+                    border: 1px solid rgba(230, 231, 231, 0.4);
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin: auto;
+                }}
+                .manette{{
+                    width: 3rem;
+                    height: auto;
+                }}
+                span{{
+                    font-size: 2rem;
+                    color: #e6e7e7!important;
+                    padding-left: 1rem;
+                    padding-right: 1rem;
+                    
+                }}
+                .button{{
+                    color: #17181b!important;
+                    background-color: #d64b3a!important;
+                    border: 0px;
+                    padding: 0.7rem 1.2rem 0.7rem 1.2rem;
+                    border-radius: 10px;
+                    text-decoration: none!important;
+                }}
+                .button:hover{{
+                    opacity: 0.8;
+                    cursor: pointer;
+                }}
+                .link{{
+                    color: #d64b3a!important;
+                }}
+                .link:hover{{
+                    opacity: 0.8;
+                }}
+                p{{
+                    line-height: 1.4rem;
+                }}
+                </style>
+            </head>
+            <body>
+                <div class="background">
+                {content_html}
+                </div>
+            </body>
+        </html>
+'''
+        send_mail(
+            subject,
+            message,
+            None,
+            [email],
+            fail_silently=False,
+            html_message=html_message,
+        )
+        return Response("success", status=200)
+
+class VerificationEmail(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = {'email': request.data.get('email')}
+        typee = request.data.get('type')
+        serializer = ValidEmail(data=email)
+        if serializer.is_valid():
+            if typee == "signup" and User.objects.filter(email=email['email']).exists():
+                return Response({"error": "Email already exists."}, status=400)
+            elif typee == "forgot" and not User.objects.filter(email=email['email']).exists():
+                return Response({"error": "Email doesn't exists."}, status=400)
+            return Response({"message": "Email is valid and can be used."}, status=200)
+        else:
+            return Response({"error": "Enter a valid email address."}, status=400)
+
+
+class Forgot_password(APIView):
+    permission_classes = [AllowAny,]
+    
+    def post(self, request):
+        email = request.data.get('email')
+        user = User.objects.get(email=email)
+        password = request.data.get('password')
+        password_confirm = request.data.get('password_confirm')
+
+        if password != password_confirm:
+            return Response({"error": "Passwords do not match."}, status=400)
+
+        user.set_password(password)
+        user.save()
+
+        return Response("success", status=200)
+
+
+class TwoFactorAuth(TokenObtainPairView):
+    permission_classes = (permissions.AllowAny,)
+
+    def put(self, request):
+        username = request.data.get('username')
+        userobj = User.objects.get(username = username)
+        if(not userobj.two_factor_auth):
+            secret = pyotp.random_base32()
+            userobj.otp_secret = secret
+            print("here 1", userobj.otp_secret, userobj.email)
+            userobj.two_factor_auth=True
+            userobj.save()
+            uri = f"otpauth://totp/MyApp:{userobj.email}?secret={userobj.otp_secret}&issuer=MyApp"
+            qr = qrcode.make(uri)
+            qr.save('qrcode.png')
+            return Response({"user_is_auth": userobj.two_factor_auth}, status=200)
+        else:
+            print("here 2", userobj.otp_secret, userobj.email)
+            userobj.two_factor_auth=False
+            userobj.save()
+            return Response({"user_is_auth": userobj.two_factor_auth}, status=200)
+        
+            
+
+
+    def post(self, request, *args, **kwargs):
+        username=request.data.get('username')
+        user = User.objects.get(username = username)
+        otp = request.data.get('otp')
+        totp = pyotp.TOTP(user.otp_secret)
+        if totp.verify(otp):
+            print("success")  
+            response = super().post(request, *args, **kwargs)
+            utils.set_refresh_and_access_token(response)
+            return response
+        else:
+            print("faild")
+            return Response({"error": "code incorrect."}, status=400)
+        
+
+    

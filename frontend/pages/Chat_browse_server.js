@@ -12,6 +12,7 @@ export default class Chat_Browse extends HTMLElement {
         .then(data =>{
             data.forEach(element =>
             {
+                console.log(element)
                 let name_dt = element.server_name
                 if (element.server_name.length > 15)
                     name_dt = element.server_name.slice(0, 15) + "..."
@@ -32,9 +33,20 @@ export default class Chat_Browse extends HTMLElement {
                             </div>
                         </div>
                         <div class="join_server" data-id="${element.server_name}">
-                            <div class="server_visibility_lock">
-                                ${element.visibility === "private" ? `<img src="/assets/images/common/Iconly/Bold/Lock.svg" class="icon_lock">`: `<img src="/assets/images/common/Iconly/Bold/Unlock.svg" class="icon_lock">`}
-                                <button-component data-text="join" id="${element.server_name}"></button-component>
+                            <div class="server_visibility_lock" 
+                            ${element.member.includes(parseInt(localStorage.getItem('id'))) ? `style="opacity: 0.5;"` : ``}
+                            >
+                                ${!element.member.includes(parseInt(localStorage.getItem('id'))) ? 
+                                    /* html */`
+                                    ${element.visibility === "private" ? `<img src="/assets/images/common/Iconly/Bold/Lock.svg" class="icon_lock">`: `<img src="/assets/images/common/Iconly/Bold/Unlock.svg" class="icon_lock">`}
+                                ` :  /* html */``}
+
+                               ${element.member.includes(parseInt(localStorage.getItem('id'))) ? 
+                                /* html */`
+                                    <button-component data-text="already joined" id="${element.server_name}"></button-component>
+                                ` :  /* html */`
+                                    <button-component data-text="join" id="${element.server_name}"></button-component>
+                                `}
                             </div>
                         </div>
                     </div>
@@ -62,6 +74,8 @@ export default class Chat_Browse extends HTMLElement {
             
             `
             let joinbtn = this.querySelectorAll(".join_server")
+            joinbtn = Array.from(joinbtn).filter((element) => element.querySelector("button-component").getAttribute('data-text') === "join")
+            console.log(joinbtn)
             joinbtn.forEach((element, i) => {
                 element.addEventListener('click', ()=>{
                     GoTo(`/chat/join_server/?server_name=${element.getAttribute('data-id')}`)

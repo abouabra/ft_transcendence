@@ -11,8 +11,7 @@ export default class Friends_Servers_Bar extends HTMLElement {
 			<friends-bar></friends-bar>
 			<servers-bar></servers-bar>
 		`;
-
-		setInterval(() => {
+		this.intervalID = setInterval(() => {
 			this.innerHTML = /*html*/`
 				<friends-bar></friends-bar>
 				<servers-bar></servers-bar>
@@ -22,6 +21,9 @@ export default class Friends_Servers_Bar extends HTMLElement {
 
 
 	set_n_elements(){
+		if(this.intervalID == null)
+			return;
+
 		const containerHeight = document.querySelector('friends-servers-bar').clientHeight;
 		const friendsBar = document.querySelector('friends-bar');
 		const serversBar = document.querySelector('servers-bar');
@@ -40,6 +42,7 @@ export default class Friends_Servers_Bar extends HTMLElement {
 	}
 
 	connectedCallback() {
+
 		window.addEventListener("DOMContentLoaded", () => {
 			this.set_n_elements();
 		});
@@ -49,7 +52,11 @@ export default class Friends_Servers_Bar extends HTMLElement {
 		});
 	}
 
-	disconnectedCallback() {}
+	disconnectedCallback() {
+		console.log("clearing interval");
+		clearInterval(this.intervalID);
+		this.intervalID = null;
+	}
 
 	attributeChangedCallback(name, oldValue, newValue) {
 	}

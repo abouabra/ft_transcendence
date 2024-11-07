@@ -10,13 +10,25 @@ export default class Small_Cards extends HTMLElement {
         let type = this.getAttribute("data-type"); // join_game, waiting_for_accept_game,              log_out, delete_server, leave_server, delete_account
         const server_id = this.getAttribute("data-server-id");
         
-        const game_id = this.getAttribute("data-game-id");
 
         const id_who_invited_you = this.getAttribute("data-id_who_invited_you");
         const username_who_invited_you = this.getAttribute("data-username_who_invited_you");
         const avatar_who_invited_you = this.getAttribute("data-avatar_who_invited_you");
 
         const game_name = this.getAttribute("data-game-name");
+        this.game_names_enum = {
+            "Pong": "pong",
+            "Space Invaders": "space_invaders",
+            "Road Fighter": "road_fighter",
+        };
+        this.db_game_name = this.game_names_enum[game_name] || null;
+        
+        this.extra_data = {
+            game_name: this.db_game_name,
+            opponent_id: id_who_invited_you,
+        };
+        console.log("game_name: ", game_name, " game_names_enum", this.extra_data);
+        console.log("extra_data: ", JSON.stringify(this.extra_data));
 
         const id_waiting_for = this.getAttribute("data-id_waiting_for");
         const username_waiting_for = this.getAttribute("data-username_waiting_for");
@@ -34,8 +46,8 @@ export default class Small_Cards extends HTMLElement {
             "delete_account": {head: "Delete Account", action_btn: "Delete" ,  action_type: "delete_account", id: localStorage.getItem('id')},
 
 
-            "join_game":      {head: "Join Game ?",      action_btn: "Join" ,    action_type: "join_game",      id: game_id},
-            "waiting_for_accept_game": {head: "Waiting for", action_btn: "Cancel" , action_type: "cancel_game_invitation", id: game_id},
+            "join_game":      {head: "Join Game ?",      action_btn: "Join" ,    action_type: "join_game",      id: 0},
+            "waiting_for_accept_game": {head: "Waiting for", action_btn: "Cancel" , action_type: "cancel_game_invitation", id: 0},
             
         };
 
@@ -97,7 +109,7 @@ export default class Small_Cards extends HTMLElement {
                     ${type == "waiting_for_accept_game" ? "" : /*html*/ `
                         <button-component data-text="Cancel" data-type="no-bg" onclick="Delete_Small_Card()"></button-component>
                     `}
-                    <button-component data-text="${this.headers[type].action_btn}" onclick="handle_action('${this.headers[type].action_type}', ${this.headers[type].id})" ></button-component>
+                    <button-component data-text="${this.headers[type].action_btn}" onclick="handle_action('${this.headers[type].action_type}', ${this.headers[type].id}, '${JSON.stringify(this.extra_data).replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
                 </div>
             </div>
         `;
@@ -113,8 +125,6 @@ export default class Small_Cards extends HTMLElement {
         const cancel_btn = this.querySelector("button-component[data-text='Cancel']");
         if(cancel_btn != null) {
             cancel_btn.addEventListener("click", () => {
-                
-                
                 // sendNotification("cancel_game_invitation", this.headers[type].id);
                 const logged_in_user_id = localStorage.getItem("id");
                 console.log("logged_in_user_id: ", logged_in_user_id);
@@ -123,11 +133,10 @@ export default class Small_Cards extends HTMLElement {
                 // const type = id_who_invited_you == logged_in_user_id ? "join_game" : "waiting_for_accept_game";
                 console.log("type: ", type);
 
-                if ( type == "join_game")
+                if (type == "join_game")
                     sendNotification("cancel_game_invitation", id_who_invited_you, {game_id: this.headers[type].id});
                 else if (type == "waiting_for_accept_game")
                     sendNotification("cancel_game_invitation", id_waiting_for, {game_id: this.headers[type].id});
-
 
                 Delete_Small_Card();
             });

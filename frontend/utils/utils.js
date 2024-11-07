@@ -21,9 +21,7 @@ async function refreshAccessToken() {
 	}
 }
 
-const TOAST_URLS = ["/api/auth/is_authenticated/", "/api/auth/token/refresh/"];
-
-async function makeRequest(url, method = "GET", data = null) {
+async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
 	const fullUrl = `${BACKEND_DOMAIN}${url}`;
 
 	const headers = new Headers({
@@ -38,44 +36,40 @@ async function makeRequest(url, method = "GET", data = null) {
 		body: data ? JSON.stringify(data) : null,
 	};
 
-	try {
-		let response = await fetch(fullUrl, options);
-		// If unauthorized, try refreshing the token and retrying
-		if (response.status === 401) {
-			await refreshAccessToken();
-			return await makeRequest(url, method, data); // Retry with incremented depth
-		}
-		if (response.status >= 400) 
-		{
-			let data = await response.json()
-			
-
-			throw new Error(data.error);
-		}
-
-
-
-
-		// Parse JSON response
-		const jsonResponse = await response.json();
-		jsonResponse.response_code = response.status;
-
-
-		// Handle toast notifications
-		// if (TOAST_URLS.includes(url)) {
-		// 	handleToastNotifications(jsonResponse);
-		// }
-
-		return jsonResponse;
-	} catch (error) {
-		throw new Error(error);
+	let response = await fetch(fullUrl, options);
 	
+	if (response.status === 401) {
+		if (response.url === `${BACKEND_DOMAIN}/api/auth/login/`) {
+			let response_data = await response.json();
+			throw new Error(response_data.error);
+		} else if (retryCount > 0) {  // Limit the number of retries
+			try {
+				await refreshAccessToken();
+				return await makeRequest(url, method, data, retryCount - 1);
+			} catch (error) {
+				let response_data = await response.json();
+				throw new Error(response_data.error);
+			}
+		} else {
+			throw new Error("Failed to refresh token after retrying.");
+		}
 	}
+
+	if (response.status >= 400) {
+		let response_data = await response.json();
+		throw new Error(response_data.error);
+	}
+
+	// Parse JSON response
+	const jsonResponse = await response.json();
+	jsonResponse.response_code = response.status;
+
+	return jsonResponse;
 }
+
 
 // Function to handle toast notifications based on response
 function handleToastNotifications(response) {
-	// const toastType = response.response_code >= 400 ? "error" : "success";
 	const toastType = "error";
 	const toastData = JSON_TO_DATA(response);
 
@@ -206,10 +200,10 @@ function sendNotification(type, receiver_id, extra_data = null)
 }
 
 
-function Make_Small_Card(type, server_id = null, game_id = null, username_who_invited_you = null, avatar_who_invited_you = null, game_name = null, username_waiting_for = null, avatar_waiting_for = null, data_id_who_invited_you=null, data_id_waiting_for=null)
+function Make_Small_Card(type, server_id = null, username_who_invited_you = null, avatar_who_invited_you = null, game_name = null, username_waiting_for = null, avatar_waiting_for = null, data_id_who_invited_you=null, data_id_waiting_for=null)
 {
 	const center_part = document.getElementById("base_page");
-	center_part.innerHTML += `<small-cards data-type="${type}" data-server-id="${server_id}" data-game-id="${game_id}" data-username_who_invited_you="${username_who_invited_you}" data-avatar_who_invited_you="${avatar_who_invited_you}" data-game-name="${game_name}" data-username_waiting_for="${username_waiting_for}" data-avatar_waiting_for="${avatar_waiting_for}" data-id_who_invited_you="${data_id_who_invited_you}" data-id_waiting_for="${data_id_waiting_for}"></small-cards>`;
+	center_part.innerHTML += `<small-cards data-type="${type}" data-server-id="${server_id}" data-username_who_invited_you="${username_who_invited_you}" data-avatar_who_invited_you="${avatar_who_invited_you}" data-game-name="${game_name}" data-username_waiting_for="${username_waiting_for}" data-avatar_waiting_for="${avatar_waiting_for}" data-id_who_invited_you="${data_id_who_invited_you}" data-id_waiting_for="${data_id_waiting_for}"></small-cards>`;
 
 	// example for logout small card
 	// Make_Small_Card("logout");
@@ -246,3 +240,51 @@ function Delete_Small_Card() {
 		}, 1000);
 	}
 }
+
+function update_active_sidebar() {
+	const elements = document.querySelectorAll("side-bar-item");
+	const current_path = window.location.pathname;
+	const active_element = document.querySelector(".active_side_bar_item");
+	
+	if(active_element) 
+		active_element.classList.remove("active_side_bar_item");
+
+	elements.forEach((element) => {
+		if (current_path.includes(element.getAttribute("data-link")))
+			element.classList.add("active_side_bar_item");
+	});
+}
+
+
+
+function change_display(first ,second) {
+	const display_1 = document.querySelector(first);
+	const display_2 = document.querySelector(second);
+
+	display_1.outerHTML="";
+	display_2.style.display = "block";
+};
+
+const handle_first_one = (type, element ) => async (event) => {
+	event.preventDefault();
+
+	const email = element.querySelector('input[name="email"]').value;
+	if (!email) {
+		showToast("error", "email is required");
+		return;
+	}
+
+	const data = {
+		email,
+		type
+	};
+
+	try {
+		const response = await makeRequest('/api/auth/verification_email/', 'POST', data);
+		change_display("#displaay", "#displaaay");
+		const response2 = await makeRequest('/api/auth/send-email/', 'POST', data);
+	} catch (error) {
+		showToast("error", error.message);
+	}
+};
+

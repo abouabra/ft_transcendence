@@ -5,9 +5,17 @@ export default class Notifications_Bar extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/common.css"));
 
+
+		this.innerHTML = /*html*/ `
+			<div class="notifications_bar_icon">
+				<img src="/assets/images/common/Iconly/Light/Notification.svg" alt="search" class="notifications_bar_icon_img">
+				<div class="notifications_bar_status hide">
+					<span class="p5_regular">0</span>	
+				</div> 
+			</div>
+		`;
 		makeRequest("/api/auth/notifications_brief/")
 		.then((data) => {
-
 			this.innerHTML = /*html*/ `
 				<div class="notifications_bar_icon">
 					<img src="/assets/images/common/Iconly/Light/Notification.svg" alt="search" class="notifications_bar_icon_img">
@@ -143,7 +151,7 @@ export default class Notifications_Bar extends HTMLElement {
 					}
 
 					<div class="notifications-bar-option-items justify-content-center" id="see_all_notifications">
-						<span class="p2_bold" > See all notifications </span>
+						<span class="p2_bold" style="cursor: pointer;" > See all notifications </span>
 					</div>
 			`;
 
@@ -238,31 +246,24 @@ export default class Notifications_Bar extends HTMLElement {
 							}).catch(error => {
 								showToast("error", error);
 							});
-						}).catch(error => {
-							showToast("error", error);
+						})
+						.catch(error => { 
+							showToast("error", "User is already your friend") 
+							makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
+							.then((data) => {
+								item.classList.add("notification_remove_animation");
+								item.addEventListener("animationend", () => {
+									item.remove();
+									this.getNotifications();
+								});
+								
+							}).catch(error => {
+								showToast("error", error);
+							});
 						});
+							
 					});
 				}
-
-				// const decline_buttons = this.querySelectorAll(".offline_status");
-				// decline_buttons.forEach((button) => {
-				// 	button.addEventListener("click", () => {
-				// 		const notification_id = button.parentElement.parentElement.getAttribute("data-notification-id");
-				// 		makeRequest(`/api/auth/delete_notifications/${notification_id}/`, "DELETE")
-				// 		.then((data) => {
-				// 			item.classList.add("notification_remove_animation");
-				// 			item.addEventListener("animationend", () => {
-				// 				item.remove();
-				// 				this.getNotifications();
-				// 			});
-							
-				// 		}).catch(error => {
-				// 			showToast("error", error);
-				// 		});
-				// 	});
-					
-				// });
-
 
 				
 			});

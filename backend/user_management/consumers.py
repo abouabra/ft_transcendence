@@ -9,9 +9,15 @@ logger = logging.getLogger(__name__)
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        self.user_id = 0
+        self.goup_name = 0
         await self.accept()
 
     async def disconnect(self, close_code):
+        if self.user_id:
+            await self.set_status(self.user_id, 'offline')
+            group_name = f'user_{self.user_id}'
+            await self.channel_layer.group_discard(group_name, self.channel_name)
         pass
 
     async def receive(self, text_data=None, bytes_data=None):
@@ -23,6 +29,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         try:
             receiver_data = await self.get_user_info(receiver_id)
             sender_data = await self.get_user_info(sender_id)
+
         except User.DoesNotExist:
             return await self.send(text_data=json.dumps({
                 'error': 'User does not exist'
@@ -34,6 +41,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
         if type == 'join_group':
             group_name = f'user_{sender_id}'
+            self.user_id = sender_id
+            await self.set_status(sender_id, 'online')
             await self.channel_layer.group_add(group_name, self.channel_name)
         else:
             await self.create_notification(data)
@@ -64,3 +73,9 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     def get_user_info(self, user_id):
         user_serialized_data = ShortUserSerializer(User.objects.get(id=user_id)).data
         return user_serialized_data
+    
+    @database_sync_to_async
+    def set_status(self, user_id, status):
+        user = User.objects.get(id=user_id)
+        user.status = status
+        user.save()

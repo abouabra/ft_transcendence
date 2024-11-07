@@ -22,7 +22,7 @@ export default class Servers_Bar extends HTMLElement {
 		${
 			data.map((item) => {
 					return /*html*/`
-						<div class="servers_bar_item" data-link="/chat/server/${item.name}">
+						<div class="servers_bar_item" data-link="/chat/${item.name}">
 							<img src="${item.avatar}" class="servers_bar_item_icon"/>
 							<span class="p2_bold" style="white-space: nowrap;">${item.name}</span>
 						</div>

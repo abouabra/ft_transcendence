@@ -16,6 +16,7 @@ export default class Chat_Page extends HTMLElement {
 		if (pathname == "/chat/")
 			ChatType = 'Direct'
 		let servername = pathname.substring(6)
+
 		let path = '/api/chat/server_info/'
 
 		if (servername)

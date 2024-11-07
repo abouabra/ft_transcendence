@@ -1,14 +1,13 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
-from datetime import datetime, timezone
 from rest_framework.pagination import PageNumberPagination
 from .models import Game_History, GameStats
 import logging
 from .utils import getUserData
 from rest_framework import generics, permissions, status
-from .serializers import GameStatsSerializer, GameHistorySerializer
-
+from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer, LeaderboardSerializer
+from .utils import update_stats_after_game
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +15,14 @@ class CreateGameStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, user_id):
+        # check if the user already has a game stats
+        try:
+            GameStats.objects.get(user_id=user_id, game_name="pong")
+            return Response({"message": "Game Stats Already Exists"}, status=status.HTTP_200_OK)
+        
+        except GameStats.DoesNotExist:
+            pass
+
         # create a new game stats for the user
         pong_game_stats = GameStats.objects.create(user_id=user_id, game_name="pong")
         pong_game_stats.save()
@@ -29,6 +36,30 @@ class CreateGameStatsView(generics.GenericAPIView):
         return Response({"message": "Game Stats Created Successfully"}, status=status.HTTP_201_CREATED)
     
 
+class DeleteGameStatsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def delete(self, request, user_id):
+        try:
+            pong_game_stats = GameStats.objects.get(user_id=user_id, game_name="pong")
+            pong_game_stats.delete()
+
+            space_invaders_game_stats = GameStats.objects.get(user_id=user_id, game_name="space_invaders")
+            space_invaders_game_stats.delete()
+
+            road_fighter_game_stats = GameStats.objects.get(user_id=user_id, game_name="road_fighter")
+            road_fighter_game_stats.delete()
+        
+            return Response({"message": "Game Stats Deleted Successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except GameStats.DoesNotExist:
+            return Response({"message": "Game Stats Does Not Exist"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while deleting game stats"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        
 
 class HomeLeaderboardView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -81,9 +112,9 @@ class HomeActiveGamesView(generics.GenericAPIView):
         query_params = request.query_params
         if "game_name" in query_params and query_params["game_name"] != "":
             game_name = query_params["game_name"]
-            active_games = Game_History.objects.filter(game_name=game_name).order_by('-game_date')[:4]
+            active_games = Game_History.objects.filter(game_name=game_name, winner=0).order_by('-game_date')[:4]
         else:
-            active_games = Game_History.objects.order_by('-game_date')[:4]
+            active_games = Game_History.objects.filter(winner=0).order_by('-game_date')[:4]
 
         active_games_data = []
         for game in active_games:
@@ -140,45 +171,120 @@ class HomeExpandedActiveGamesView(generics.GenericAPIView):
     
 
 
-
-
-
-
-
-
-import random
-class GenerateRandomGameHistoryData(generics.GenericAPIView):
+class ConstructGameHistoryData(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request):
-        # generate random game history data
-        games_choices = ["pong", "space_invaders", "road_fighter"]
-        gamaes_types = ["ranked", "local", "ai"]
-        user_ids = [1, 2]
-        for i in range(10):
-            player1 = random.choice(user_ids)
-            player2 = user_ids[0] if player1 == user_ids[1] else user_ids[1]
-            game_name = random.choice(games_choices)
-            game_type = random.choice(gamaes_types)
-            player_1_score = random.randint(0, 10)
-            player_2_score = random.randint(0, 10)
-            player1_elo_change = random.randint(-10, 10)
-            player2_elo_change = random.randint(-10, 10)
-            winner = random.choice([1, 2])
-            game_duration = random.randint(10, 100)
+    def post(self, request):
+        player_1 = request.data["user_id"]
+        game_type = request.data["game_type"]
+        
+        if game_type == "local":
+            player_2 = getUserData(request, username="local_user")["id"]
+        else:
+            player_2 = request.data["opponent_id"]
 
-            game_history = Game_History.objects.create(
-                player1=player1,
-                player2=player2,
-                game_name=game_name,
-                game_type=game_type,
-                player_1_score=player_1_score,
-                player_2_score=player_2_score,
-                player1_elo_change=player1_elo_change,
-                player2_elo_change=player2_elo_change,
-                winner=winner,
-                game_duration=game_duration
+        game_name = request.data["game_name"]
+
+        game_obj = Game_History.objects.create(
+            player1=player_1,
+            player2=player_2,
+            game_name=game_name,
+            game_type=game_type,
+        )
+        game_obj.save()
+
+        return Response({
+            "game_room_id": game_obj.id,
+        }, status=status.HTTP_201_CREATED)
+
+
+class GetGameInfo(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ShortGameHistorySerializer
+
+    def get(self, request, pk):
+        try:
+            logged_in_user_id = request.user.id
+            game_obj = Game_History.objects.get(id=pk)
+            game_info = ShortGameHistorySerializer(game_obj).data
+            game_info["player1"] = getUserData(request, game_info["player1"])
+            game_info["player2"] = getUserData(request, game_info["player2"])
+            if(game_info["player1"]["id"] != logged_in_user_id and game_info["player2"]["id"] != logged_in_user_id):
+                return Response({"detail": "You are not part of this game"}, status=status.HTTP_403_FORBIDDEN)
+
+
+            return Response(game_info, status=status.HTTP_200_OK)
+        except Game_History.DoesNotExist:
+            return Response({"detail": "Game Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while fetching the game"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-            game_history.save()
 
-        return Response({"message": "Game History Data Generated Successfully"}, status=status.HTTP_201_CREATED)
+class PongEndGame(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            game_id = request.data["game_id"]
+            score1 = request.data["score1"]
+            score2 = request.data["score2"]
+            time = request.data["time"]
+
+            game = Game_History.objects.get(id=game_id)
+            
+            if score1 > score2:
+                winner = game.player1
+            elif score2 > score1:
+                winner = game.player2
+            else:
+                winner = 0
+            game.winner = winner
+            game.player_1_score = score1
+            game.player_2_score = score2
+            game.game_duration = time
+            game.has_ended = True
+            game.save()
+
+            update_stats_after_game(game.player1, game.player2, game.game_name, game_id)
+            loser = game.player1 if winner == game.player2 else game.player2
+            if winner == 0:
+                return Response({
+                    "draw": True,
+                    "player1": getUserData(request, game.player1),
+                    "player2": getUserData(request, game.player2),
+                }, status=status.HTTP_200_OK)
+
+            return Response({
+                "winner": getUserData(request, winner),
+                "loser": getUserData(request, loser),
+            }, status=status.HTTP_200_OK)
+
+        except Game_History.DoesNotExist:
+            return Response({"detail": "Game Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while ending the game"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class LeaderboardView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = LeaderboardSerializer
+
+    def get(self, request):
+        query_params = request.query_params
+        if "game_name" in query_params and query_params["game_name"] != "":
+            game_name = query_params["game_name"]
+            leaderboard = GameStats.objects.filter(game_name=game_name).order_by('-current_elo')
+        else:
+            leaderboard = GameStats.objects.filter(game_name="pong").order_by('-current_elo')
+
+        serializer = self.serializer_class(leaderboard, many=True)
+        for player in serializer.data:
+            player["user"] = getUserData(request, player["user_id"])
+        return Response(serializer.data, status=status.HTTP_200_OK)

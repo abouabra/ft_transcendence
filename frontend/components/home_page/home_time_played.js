@@ -9,7 +9,7 @@ export default class Home_Time_Played extends HTMLElement {
 		.then((data) => {
 			this.innerHTML = /*html*/ `
 				<div class="d-flex flex-wrap align-items-center justify-content-center position-relative home-total-time-container">
-					<img src="/assets/images/home_page/sss.gif" alt="Total Time Played" class="home-total-time-image">
+					<img src="/assets/images/home_page/total_time_dance.gif" alt="Total Time Played" class="home-total-time-image">
 					<div class="d-flex flex-column align-items-center justify-content-center">
 					<span class="p2_regular">Total Hours</span>
 					<span class="header_h2">${data["total_time"]}h</span>

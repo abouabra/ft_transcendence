@@ -19,3 +19,10 @@ class TournamentRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = TournamentRoom
         fields = "__all__"
+    def validate(self, data):
+        try:
+            TournamentRoom.objects.get(name=data['name'])
+            raise serializers.ValidationError(f"Tournament {data['name']} already created")
+        except TournamentRoom.DoesNotExist:
+            return data
+

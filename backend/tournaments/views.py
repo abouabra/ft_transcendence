@@ -4,6 +4,11 @@ from rest_framework.response import Response
 from .models import Tournament_Bracket, Tournament_History, TournamentStats, TournamentRoom
 from rest_framework.pagination import PageNumberPagination
 from .serializers import TournamentBracketSerializer, TournamentHistorySerializer, TournamentStatsSerializer, TournamentRoomSerializer
+from django.contrib.auth.hashers import make_password
+import base64
+from .request_api import create_qr_code
+from django.conf import settings
+
 
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -78,9 +83,100 @@ class GetTournamentsData(generics.GenericAPIView):
         serializer = TournamentRoomSerializer(tournaments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class GetTournamentroomData(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
+    def get(self, request):
 
+        if (request.query_params.get('tournament_name') is None):
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+        tournament_name = request.query_params.get('tournament_name')
+        print(tournament_name)
+        try:
+            tournament = TournamentRoom.objects.get(name=tournament_name)
 
+            if tournament:
+                data = {
+                    "tournament_name":tournament_name,
+                    "visibility":tournament.visibility,
+                    "avatar":tournament.avatar,
+                    "members":len(tournament.members),
+                    "room_size":tournament.room_size,
+                    "game_name":tournament.game_name,
+
+                }
+            return Response(data, status.HTTP_200_OK)
+        except TournamentRoom.DoesNotExist:
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+    def post(self, request):
+        try:
+            tournament = TournamentRoom.objects.get(name=request.data['tournament_name'])
+            if request.user.id in tournament.members:
+                return Response({"error":"user already joined the tournament"}, status.HTTP_400_BAD_REQUEST)
+            if tournament.visibility == "private":
+                if request.data['password']:
+                    if tournament.check_passwd(request.data['password']):
+                        tournament.members.append(request.user.id)
+                        tournament.save()
+                        return Response({"success":"user joined the tournament", "tournament_name":tournament.name}, status.HTTP_200_OK)
+                return Response({"error":"Wrong password"}, status.HTTP_400_BAD_REQUEST)
+            else:
+                tournament.members.append(request.user.id)
+                tournament.save()
+            return Response({"success":"user joined the tournament", "tournament_name":tournament.name}, status.HTTP_200_OK)
+        except TournamentRoom.DoesNotExist:
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+
+class CreateTournamentroom(generics.GenericAPIView):
+
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        request.data['password'] = make_password(request.data['password'])
+        serializer = TournamentRoomSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            data = serializer.data
+            print(data)
+            if request.data['img']:
+                image = request.data['img'].split(',')[1]
+                image = base64.b64decode(image)
+                path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
+                with open(path_in_disk,'wb') as file:
+                    file.write(image)
+            create_qr_code(data['avatar'], f"http://127.0.0.1:3000/tournament/join/?tourname_name={data['name']}",data['qr_code'].split('/')[-1])
+            return Response({
+                    "success": "Server Created Successfully"
+                }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def put(self, request):
+
+    #     try:
+    #         server = Server.objects.get(name=request.data['old_name'])
+    #     except Server.DoesNotExist:
+    #         return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
+    #     if (request.user.id not in server.staffs):
+    #         return Response({"error":"you are not staff of this server"}, status.HTTP_400_BAD_REQUEST)
+    #     data = request.data
+
+    #     if data['img']:
+    #         image = data['img'].split(',')[1]
+    #         image = base64.b64decode(image)
+    #         path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
+    #         with open(path_in_disk,'wb') as file:
+    #             file.write(image)
+    #     create_qr_code(data['avatar'], f"http://127.0.0.1:3000/chat/join_server/{data['name']}/",data['qr_code'].split('/')[-1])
+    #     server.name = data['name']
+    #     server.visibility = data['visibility']
+    #     server.avatar = data['avatar']
+    #     server.qr_code = data['qr_code']
+    #     print(f"nmade password = {server.password}")
+    #     server.password = make_password(data['password'])
+    #     print(f"made password = {server.password}")
+    #     server.save()
+    #     return Response({
+    #             "success": "Server Created Successfully"
+    #         }, status=status.HTTP_201_CREATED)
 
 
 

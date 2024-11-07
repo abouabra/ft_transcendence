@@ -16,6 +16,8 @@ import User_Bar from "../components/common/user_bar.js";
 import Play_Page from "./Play.js";
 import Home_Page from "./Home.js";
 import Tournament_Page from "./Tournament.js";
+import Join_Tournament from "./Tournament_join.js";
+import Tournament_Create from "./Tournament_create.js";
 import Chat_Page from "./Chat.js";
 import Chat_Browse from "./Chat_browse_server.js";
 import Create_Server_page from "./Chat_creat_server.js";

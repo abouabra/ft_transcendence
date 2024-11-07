@@ -12,6 +12,8 @@ const routes = {
     "^/play/$": "play-page",
     "^/home/$": "home-page",
     "^/tournament/$": "tournament-page",
+    "^/tournament/join/$": "join-tournament",
+    "^/tournament/create_tournament/$": "tournament-create",
     "^/leaderboard/$": "leaderboard-page",
     "^/shop/$": "shop-page",
     "^/notifications/$": "notifications-page",

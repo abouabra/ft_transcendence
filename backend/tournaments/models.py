@@ -42,7 +42,7 @@ class Tournament_Bracket(models.Model):
 
 class Tournament_History(models.Model):
     name = models.CharField(max_length=255)
-    avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/tournament_avatars/default.jpg")
+    avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/tournament_avatars/default_tournament.jpg")
 
     VISISBILITY_CHOICES = (
         ("public", "Public"),
@@ -75,7 +75,9 @@ class Tournament_History(models.Model):
 
 class TournamentRoom(models.Model):
     name = models.CharField(max_length=255)
-    avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/tournament_avatars/default.jpg")
+    avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/tournament_avatars/default_tournament.jpg")
+    room_size = models.IntegerField(default=4)
+    qr_code = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/tournament_qr_code/default.jpg")
 
     VISISBILITY_CHOICES = (
         ("public", "Public"),

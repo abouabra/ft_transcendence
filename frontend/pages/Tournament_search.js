@@ -7,7 +7,7 @@ export default class Tournament_Browse extends HTMLElement {
 
 
         let user_data = ''
-        makeRequest(`/api/tournaments/getTournamentsData/`, 'GET')
+        makeRequest(`/api/tournaments/TournamentsData/`, 'GET')
         .then(data =>{
             data.forEach(element =>
             {
@@ -22,12 +22,12 @@ export default class Tournament_Browse extends HTMLElement {
                         </div>
                         <div class="specific_info">
                             <div class="d-flex flex-column block1">
-                                <span class="p1_bold platinum_40_color">Name</span>
+                                <span class="p1_bold platinum_40_color">${element.game_name}</span>
                                 <span class="header_h3">${name_dt}</span>
                             </div>
                             <div class="d-flex flex-column align-items-center">
                                 <span class="p1_bold platinum_40_color">Spots</span>
-                                <span class="header_h3">${element.members.length}</span>
+                                <span class="header_h3">${element.members.length} / ${element.room_size}</span>
                             </div>
                         </div>
                         <div class="join_server" data-id="${element.name}">
@@ -51,7 +51,7 @@ export default class Tournament_Browse extends HTMLElement {
                             <input type="text" placeholder="Search for Server" class="searchinput">
                             <img  class="search_logo" src="/assets/images/common/Iconly/Light/Search.svg">
                         </div>
-                        <button-component data-text="Create" onclick="GoTo('/chat/create_server/')"></button-component>
+                        <button-component data-text="Create" onclick="GoTo('/tournament/create_tournament/')"></button-component>
                     </div>
                     <div class="join_lists">
                         ${user_data}
@@ -63,7 +63,7 @@ export default class Tournament_Browse extends HTMLElement {
             let joinbtn = this.querySelectorAll(".join_server")
             joinbtn.forEach((element, i) => {
                 element.addEventListener('click', ()=>{
-                    GoTo(`/tournament/join_tournament/?tourname_name=${element.getAttribute('data-id')}`)
+                    data[i].members.includes(data[i].user) ? GoTo(`/tournament/${element.getAttribute('data-id')}`) : element.querySelector("button-component").setAttribute('data-text', "Already Joined"); element.querySelector(".icon_lock").style.display = "none"
                 })
             })
             let join_lists = this.querySelectorAll(".server_content");
@@ -71,8 +71,8 @@ export default class Tournament_Browse extends HTMLElement {
             serversearch.addEventListener("input", (e)=>{
 				let input_value = e.target.value.toLowerCase();
 				join_lists.forEach((element) => {
-					let found_array = data.filter(item => item.server_name.toLowerCase() === element.getAttribute('data-id').toLowerCase())
-					found_array = found_array.filter(item => item.server_name.toLowerCase().includes(input_value))
+					let found_array = data.filter(item => item.name.toLowerCase() === element.getAttribute('data-id').toLowerCase())
+					found_array = found_array.filter(item => item.name.toLowerCase().includes(input_value))
 					element.classList.toggle("hides",!found_array.length)
 
 				});

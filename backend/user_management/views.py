@@ -492,9 +492,9 @@ class SendEmailView(APIView):
             message = "Password Reset"
             content_html = f'''
                 <div class="content">
-                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/user_management/frontend/assets/images/user_management/gamepad_17507234.png" >
+                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/master/frontend/assets/images/user_management/gamepad_17507234.png">
                     <span>Password Reset</span>
-                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/user_management/frontend/assets/images/user_management/gamepad_17507234.png" >
+                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/master/frontend/assets/images/user_management/gamepad_17507234.png">
                     <p>
                     Seems like you forgot your password for Fesablanca. if this is true, click below to reset your password.
                     </p>
@@ -512,9 +512,9 @@ class SendEmailView(APIView):
             message = "Verification email"
             content_html = f'''
             <div class="content">
-                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/user_management/frontend/assets/images/user_management/gamepad_17507234.png" >
+                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/master/frontend/assets/images/user_management/gamepad_17507234.png" >
                     <span>Hello !</span>
-                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/user_management/frontend/assets/images/user_management/gamepad_17507234.png" >
+                    <img class="manette" src="https://raw.githubusercontent.com/abouabra/ft_transcendence/refs/heads/master/frontend/assets/images/user_management/gamepad_17507234.png" >
                     
                     <p>
                     Thank you for registering with Fesablanca.<br><br>To complete your registration, please verify your email by clicking the button below:

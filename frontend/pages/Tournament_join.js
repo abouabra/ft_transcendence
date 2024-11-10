@@ -6,11 +6,9 @@ export default class Join_Tournament extends HTMLElement {
 		head.appendChild(createLink('/styles/tournament_join.css'));
 
         let queryparam = new URLSearchParams(location.search)
-        const tournament_name = queryparam.get("tourname_name")
+        const tournament_name = queryparam.get("room_name")
 
-        console.log(`entered ${tournament_name}`)
-        makeRequest(`/api/tournaments/Tournamentjoin/?tournament_name=${tournament_name}`).then(data=> {
-            console.log("entered this is good")
+        makeRequest(`/api/tournaments/tournament_rooms/?tournament_name=${tournament_name}`).then(data=> {
             let name_dot = tournament_name
             if (name_dot.length + 3 > 15)
                 name_dot = name_dot.slice(0, 12) + "..."
@@ -44,17 +42,18 @@ export default class Join_Tournament extends HTMLElement {
             join_btn.addEventListener("click", () => {
             if (!(data.visibility === "private" && join_password.value === ""))
             {
-                makeRequest(`/api/tournaments/Tournamentjoin/`, "POST", {'tournament_name':tournament_name, 'password':join_password.value}).then((data) => {
-                    GoTo(`/tournament/${data.tournament_name}`)
+                makeRequest(`/api/tournaments/tournament_rooms/`, "POST", {'tournament_name':tournament_name, 'password':join_password.value}).then((data) => {
+                    GoTo(`/tournament/?tournament_name=${data.tournament_name}`)
                     }).catch(error => {
                         // fixe this  after editing makeRequest
+                        console.log(error)
                         if (error == "Error: Error: user already joined the tournament")
                         {
                             this.innerHTML = /* html */`
                                 <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
 		            	            <div class="d-flex justify-content-center align-items-center flex-column" style="gap: 50px">
 		            	    	        <span class="header_h1">Already Joined</span>
-		            	    	        <button-component   data-text="View Tournament" onclick="GoTo('/tournament/${tournament_name}')"> </button-component>
+		            	    	        <button-component   data-text="View Tournament" onclick="GoTo('/tournament/match/?tournament_name=${tournament_name}')"> </button-component>
                                 </div>
                             </div>
                             `;
@@ -68,7 +67,7 @@ export default class Join_Tournament extends HTMLElement {
 			this.innerHTML = /* html */`
             <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
 				<div class="d-flex justify-content-center align-items-center flex-column" style="gap: 50px">
-					<span class="header_h1"> Tournament does not exist </span>
+					<span class="header_h1"> error.error </span>
 					<button-component data-text="Go back to tournament" onclick="GoTo('/tournament/')"> </button-component>
                 </div>
             </div>

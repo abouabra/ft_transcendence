@@ -14,3 +14,9 @@ def getUserData(request, userID):
 
     response = requests.get(url, headers=request_headers, cookies={"access_token": access_token})
     return response.json()
+
+def find_emty_room(matchs):
+    for match in matchs:
+        if match.user_id1 == 0 or match.user_id2 == 0:
+            return match
+    return None

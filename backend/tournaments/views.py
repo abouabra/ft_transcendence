@@ -1,14 +1,14 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from .models import Tournament_Bracket, Tournament_History, TournamentStats, TournamentRoom
+from .models import Tournament_Bracket, Tournament_History, TournamentStats, TournamentRoom, MatchTournament
 from rest_framework.pagination import PageNumberPagination
 from .serializers import TournamentBracketSerializer, TournamentHistorySerializer, TournamentStatsSerializer, TournamentRoomSerializer
 from django.contrib.auth.hashers import make_password
 import base64
 from .request_api import create_qr_code
 from django.conf import settings
-
+from .utils import find_emty_room
 
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -112,10 +112,8 @@ class GetTournamentroomData(generics.GenericAPIView):
         if (request.query_params.get('tournament_name') is None):
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
         tournament_name = request.query_params.get('tournament_name')
-        print(tournament_name)
         try:
             tournament = TournamentRoom.objects.get(name=tournament_name)
-
             if tournament:
                 data = {
                     "tournament_name":tournament_name,
@@ -134,16 +132,36 @@ class GetTournamentroomData(generics.GenericAPIView):
             tournament = TournamentRoom.objects.get(name=request.data['tournament_name'])
             if request.user.id in tournament.members:
                 return Response({"error":"user already joined the tournament"}, status.HTTP_400_BAD_REQUEST)
+            
+            if tournament.room_size == len(tournament.members):
+                return Response({"error":"room is full"}, status.HTTP_400_BAD_REQUEST)
+            match_room = tournament.matches.all()
             if tournament.visibility == "private":
                 if request.data['password']:
                     if tournament.check_passwd(request.data['password']):
                         tournament.members.append(request.user.id)
                         tournament.save()
+                        match_instance = find_emty_room(match_room)
+                        if match_instance is None:
+                            return Response({"error":"room is full"}, status.HTTP_400_BAD_REQUEST)
+                        if (match_instance.user_id1 == 0):
+                            match_instance.user_id1 = request.user.id
+                        else:
+                            match_instance.user_id2 = request.user.id
+                        match_instance.save()
                         return Response({"success":"user joined the tournament", "tournament_name":tournament.name}, status.HTTP_200_OK)
                 return Response({"error":"Wrong password"}, status.HTTP_400_BAD_REQUEST)
             else:
                 tournament.members.append(request.user.id)
                 tournament.save()
+                match_instance = find_emty_room(match_room)
+                if match_instance is None:
+                    return Response({"error":"room is full"}, status.HTTP_400_BAD_REQUEST)
+                if (match_instance.user_id1 == 0):
+                    match_instance.user_id1 = request.user.id
+                else:
+                    match_instance.user_id2 = request.user.id
+                match_instance.save()
             return Response({"success":"user joined the tournament", "tournament_name":tournament.name}, status.HTTP_200_OK)
         except TournamentRoom.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
@@ -157,7 +175,13 @@ class CreateTournamentroom(generics.GenericAPIView):
         if serializer.is_valid():
             serializer.save()
             data = serializer.data
-            print(data)
+            numberofmatch = data['room_size']
+            tournament = TournamentRoom.objects.get(name=data['name'])
+            for i in range(numberofmatch//2):
+                match = MatchTournament.objects.create(match_name = f"{data['name']}_{i+1}", tournament_room=tournament)
+                if (i == 0):
+                    match.user_id1 = request.user.id
+                match.save()
             if request.data['img']:
                 image = request.data['img'].split(',')[1]
                 image = base64.b64decode(image)
@@ -170,6 +194,8 @@ class CreateTournamentroom(generics.GenericAPIView):
                 }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
     # def put(self, request):
 
     #     try:

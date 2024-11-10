@@ -71,6 +71,13 @@ class Tournament_History(models.Model):
     class Meta:
         verbose_name_plural = "Tournament History"
 
+class MatchTournament(models.Model):
+    match_name = models.CharField(max_length=255)
+    user_id1 = models.IntegerField(default=0)
+    user_id2 = models.IntegerField(default=0)
+    score_user1 = models.IntegerField(default=0)
+    score_user2 = models.IntegerField(default=0)
+    tournament_room = models.ForeignKey("TournamentRoom", on_delete=models.CASCADE, null=True, related_name="matches")
 
 
 class TournamentRoom(models.Model):
@@ -83,7 +90,6 @@ class TournamentRoom(models.Model):
         ("public", "Public"),
         ("private", "Private"),
     )
-
 
     visibility = models.CharField(choices=VISISBILITY_CHOICES, max_length=20, default="public")
     password = models.CharField(max_length=255, blank=True, null=True)
@@ -98,7 +104,6 @@ class TournamentRoom(models.Model):
     total_number_of_players = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=255, default="Waiting for players")
-
     def __str__(self):
         return f"{self.name} - {self.game_name} - {self.visibility} - {self.total_number_of_players} players"
 

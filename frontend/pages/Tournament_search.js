@@ -32,8 +32,10 @@ export default class Tournament_Browse extends HTMLElement {
                         </div>
                         <div class="join_server" data-id="${element.name}">
                             <div class="server_visibility_lock">
-                                ${element.visibility === "private" ? `<img src="/assets/images/common/Iconly/Bold/Lock.svg" class="icon_lock">`: `<img src="/assets/images/common/Iconly/Bold/Unlock.svg" class="icon_lock">`}
-                                <button-component data-text="join" id="${element.name}"></button-component>
+                                ${element.members.includes(parseInt(localStorage.getItem("id"))) ? `<button-component data-text="View Tournament" id="${element.name}"></button-component>`
+                                    :  (element.members.length === element.room_size ? (`<button-component data-text="Room Full" id="${element.name}"></button-component>`) : (element.visibility === "private" ? `<img src="/assets/images/common/Iconly/Bold/Lock.svg" class="icon_lock">`: `<img src="/assets/images/common/Iconly/Bold/Unlock.svg" class="icon_lock">
+                                        <button-component data-text="join" id="${element.name}"></button-component>`))
+                                }
                             </div>
                         </div>
                     </div>
@@ -63,7 +65,21 @@ export default class Tournament_Browse extends HTMLElement {
             let joinbtn = this.querySelectorAll(".join_server")
             joinbtn.forEach((element, i) => {
                 element.addEventListener('click', ()=>{
-                    data[i].members.includes(data[i].user) ? GoTo(`/tournament/${element.getAttribute('data-id')}`) : element.querySelector("button-component").setAttribute('data-text', "Already Joined"); element.querySelector(".icon_lock").style.display = "none"
+                    if(data[i].members.includes(parseInt(localStorage.getItem("id"))))
+                    {
+                        GoTo(`/tournament/match/?tournament_name=${element.getAttribute('data-id')}`)
+                    }
+                    else
+                    {
+                        if (data[i].members.length >= data[i].room_size)
+                        {
+                            if (element.disabled != true)
+                                showToast("error", "Room is full")
+                            element.disabled = true
+                        }
+                        else
+                            GoTo(`/tournament/join_tournament/?room_name=${element.getAttribute('data-id')}`)
+                    }
                 })
             })
             let join_lists = this.querySelectorAll(".server_content");
@@ -88,5 +104,5 @@ export default class Tournament_Browse extends HTMLElement {
 	attributeChangedCallback(name, oldValue, newValue) {}
 }
 
-customElements.define("tournament-browse", Tournament_Browse);
+customElements.define("tournament-browse", Tournament_Browse); 
 

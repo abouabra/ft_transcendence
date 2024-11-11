@@ -76,9 +76,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    
     'project.middlewares.UserCacheMiddleware',
-
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -87,8 +85,24 @@ MIDDLEWARE = [
     'project.middlewares.JWTFromCookieMiddleware',
     "project.middlewares.JsonResponseMiddleware",
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    'project.middlewares.SocialAuthExceptionMiddleware',
 
 ]
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'user_management.pipeline.link_to_existing_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
+
+
 
 ROOT_URLCONF = "project.urls"
 
@@ -277,8 +291,13 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['picture', 'name']
+
+
+
 LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/api/auth/after_google/'
-LOGOUT_REDIRECT_URL = 'http://0.0.0.0:3000/'
+LOGOUT_REDIRECT_URL = 'http://127.0.0.1:3000/'
 
 
 

@@ -3,7 +3,7 @@ from .models import User
 from .models import User, Notification
 from .serializers import SerializerSignup, ValidEmail
 from .serializers import UserSerializer, NotificationSerializer, ShortUserSerializer
-from .utils import set_refresh_and_access_token, init_user_stats
+from .utils import set_refresh_and_access_token, init_user_stats, create_qr_code
 from datetime import datetime, timezone
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -379,7 +379,7 @@ def intra_42_callback(request):
             }
             user_info_response = requests.get(user_info_url, headers=headers)
             user_data = user_info_response.json()
-
+            avatar = user_data["image"]["link"]
             email = user_data.get("email")
             username = user_data.get("login")
             if User.objects.filter(email=email).exists():
@@ -390,10 +390,14 @@ def intra_42_callback(request):
                     username=username,
                     email=email,
                     password=random_password,
+                    avatar=avatar
                 )
             refresh = RefreshToken.for_user(user)
             jwt_access_token = str(refresh.access_token)
             jwt_refresh_token = str(refresh)
+
+            request.COOKIES['access_token'] = jwt_access_token
+            init_user_stats(request, user.id)
 
             redirect_url = 'http://127.0.0.1:3000/home/'
             response = HttpResponseRedirect(redirect_url)
@@ -408,23 +412,29 @@ def intra_42_callback(request):
     return response
 
 
+from social_core.exceptions import AuthCanceled
+from django.shortcuts import redirect
+from django.contrib import messages
 
 @login_required
 def get_user_data(request):
+    google_user = request.user.social_auth.get(provider='google-oauth2')
+    profile_data = google_user.extra_data
     userModel = User.objects.get(email=request.user.email)
-
+    userModel.avatar = profile_data.get("picture")
+    userModel.username = profile_data.get("name")
+    userModel.save()
     refresh = RefreshToken.for_user(userModel)
     access_token = str(refresh.access_token)
     refresh_token = str(refresh)
     redirect_url = 'http://127.0.0.1:3000/home/'
-    response =  HttpResponseRedirect(redirect_url)
-    
+    response = HttpResponseRedirect(redirect_url)
     request.COOKIES['access_token'] = access_token
     init_user_stats(request, request.user.id)
-    
     response.delete_cookie('csrftoken')
     response.delete_cookie('sessionid')
-    set_refresh_and_access_token(response, (access_token, refresh_token))    
+    set_refresh_and_access_token(response, (access_token, refresh_token))
+    
     return response
    
 
@@ -649,24 +659,24 @@ class Forgot_password(APIView):
         return Response("success", status=200)
 
 
-class TwoFactorAuth(TokenObtainPairView):
-    permission_classes = (permissions.AllowAny,)
+class TwoFactorAuth(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
     def put(self, request):
-        username = request.data.get('username')
+        username = request.user.username
+        print(username)
         userobj = User.objects.get(username = username)
         if(not userobj.two_factor_auth):
             secret = pyotp.random_base32()
             userobj.otp_secret = secret
-            print("here 1", userobj.otp_secret, userobj.email)
             userobj.two_factor_auth=True
             userobj.save()
             uri = f"otpauth://totp/MyApp:{userobj.email}?secret={userobj.otp_secret}&issuer=MyApp"
-            qr = qrcode.make(uri)
-            qr.save('qrcode.png')
+            # qr = qrcode.make(uri)
+            # qr.save('./assets/images/qrcode_2fa/qrcode.png')
+            create_qr_code(userobj.avatar, uri, "qrcode.png")
             return Response({"user_is_auth": userobj.two_factor_auth}, status=200)
         else:
-            print("here 2", userobj.otp_secret, userobj.email)
             userobj.two_factor_auth=False
             userobj.save()
             return Response({"user_is_auth": userobj.two_factor_auth}, status=200)

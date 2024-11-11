@@ -21,25 +21,6 @@ class TournamentStats(models.Model):
     def __str__(self):
         return f"User: {self.user_id} => {self.game_name} Stats"
 
-class Tournament_Bracket(models.Model):
-    tournament = models.ForeignKey("Tournament_History", on_delete=models.CASCADE)
-    #i want Round choices to be like quarterfinals, semifinals, finals
-    ROUND_CHOICES = (
-        ("round_of_16", "Round of 16"),
-        ("quarterfinals", "Quarterfinals"),
-        ("semifinals", "Semifinals"),
-        ("finals", "Finals"),
-    )
-
-    
-    round_name = models.CharField(choices=ROUND_CHOICES, max_length=20, default="round_of_16")
-    game_id = models.IntegerField()
-    
-    def __str__(self):
-        return f"Tournament: {self.tournament.name} - Round: {self.round_name} - Game: {self.game_id}"
-    class Meta:
-        verbose_name_plural = "Tournament Brackets"
-
 class Tournament_History(models.Model):
     name = models.CharField(max_length=255)
     avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/tournament_avatars/default.jpg")

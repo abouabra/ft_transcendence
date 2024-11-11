@@ -58,8 +58,8 @@ function handle_action(action, id, data = null) {
 				game_id: response.game_room_id,
 			});
 
-
-			window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+			if(window.game_socket == null)
+				window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
 			window.game_socket.onopen = () => {
 				console.log("Game socket opened | join_game");
 
@@ -91,6 +91,62 @@ function handle_action(action, id, data = null) {
 				console.log(`join_game | Received data:`, data);
 			};
 		});
+
+
+	}
+	else if (action == "join_tournament_game") {
+		console.log("Joining game", id);
+		data = JSON.parse(data);
+		data.opponent_id = parseInt(data.opponent_id);
+		console.log("Extra data: ", data);
+		
+		const game_id = parseInt(data.game_id);
+		
+		console.log("handle_action join_tournament_game: ", game_id);
+
+		sendNotification("game_invitation_response", data.opponent_id, {
+			player1:  parseInt(localStorage.getItem("id")),
+			player2: data.opponent_id,
+			game_name: data.game_name,
+			game_id: game_id,
+		});
+
+		if(window.game_socket == null)
+			window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+
+		window.game_socket.onopen = () => {
+			console.log("Game socket opened | join_game");
+
+			window.game_socket.send(JSON.stringify({
+				type: "join_custom_game",
+
+				player_id: parseInt(localStorage.getItem("id")),
+				player_username: localStorage.getItem("username"),
+				player_avatar: localStorage.getItem("avatar"),
+
+				game_name: data.game_name,
+
+				game_id: game_id,
+			}));
+
+			setTimeout(() => {
+				GoTo(`/play/game/${game_id}`);
+			}, 500);
+		};
+
+		window.game_socket.onclose = function (event) {
+			console.log("Game socket closed | join_game");
+		};
+
+		window.game_socket.onerror = function (event) {
+			console.log("Game socket error | join_game");
+		};
+
+		window.game_socket.onmessage = (event) => {
+			const data = JSON.parse(event.data);
+			console.log(`join_game | Received data:`, data);
+		};
+
 
 
 	}

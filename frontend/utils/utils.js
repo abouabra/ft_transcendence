@@ -200,10 +200,11 @@ function sendNotification(type, receiver_id, extra_data = null)
 }
 
 
-function Make_Small_Card(type, server_id = null, username_who_invited_you = null, avatar_who_invited_you = null, game_name = null, username_waiting_for = null, avatar_waiting_for = null, data_id_who_invited_you=null, data_id_waiting_for=null)
-{
+function Make_Small_Card(type, server_id = null, username_who_invited_you = null, avatar_who_invited_you = null, game_name = null, username_waiting_for = null, avatar_waiting_for = null, data_id_who_invited_you=null, data_id_waiting_for=null, game_id=null)
+{	
+	console.log("Make_Small_Card game_id: ", game_id);
 	const center_part = document.getElementById("base_page");
-	center_part.innerHTML += `<small-cards data-type="${type}" data-server-id="${server_id}" data-username_who_invited_you="${username_who_invited_you}" data-avatar_who_invited_you="${avatar_who_invited_you}" data-game-name="${game_name}" data-username_waiting_for="${username_waiting_for}" data-avatar_waiting_for="${avatar_waiting_for}" data-id_who_invited_you="${data_id_who_invited_you}" data-id_waiting_for="${data_id_waiting_for}"></small-cards>`;
+	center_part.innerHTML += `<small-cards data-type="${type}" data-server-id="${server_id}" data-username_who_invited_you="${username_who_invited_you}" data-avatar_who_invited_you="${avatar_who_invited_you}" data-game-name="${game_name}" data-username_waiting_for="${username_waiting_for}" data-avatar_waiting_for="${avatar_waiting_for}" data-id_who_invited_you="${data_id_who_invited_you}" data-id_waiting_for="${data_id_waiting_for}" game-id=${game_id}></small-cards>`;
 
 	// example for logout small card
 	// Make_Small_Card("logout");
@@ -288,3 +289,23 @@ const handle_first_one = (type, element ) => async (event) => {
 	}
 };
 
+function construct_tournament_game() {
+	
+	const tournament_id = 1;
+	const event = {
+		player1_id: 1,
+		player2_id: 2,
+		game_name: "pong",
+	};
+
+
+	makeRequest(`/api/tournaments/get_tournament_info/${tournament_id}`)
+	.then((tournament_response) => {
+		event["tournament"] = tournament_response;
+		makeRequest("/api/game/construct_tournament_game/", "POST", event)
+		.then((response) => {
+		
+		})
+	})
+	
+}

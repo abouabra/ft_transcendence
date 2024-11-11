@@ -113,7 +113,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                                 del PLAYERS[game_name][GAME_ROOMS[game_room_id].player2.user_id]
                             
                             del GAME_ROOMS[game_room_id]
-                            self.close()
+                            await self.close()
                             return 
 
     async def receive(self, text_data=None, bytes_data=None):

@@ -71,9 +71,13 @@ export default class Base_Page extends HTMLElement {
 			{
 				const current_id = parseInt(localStorage.getItem("id"));
 				const tournament_sender_id = current_id == data.player1_id.id ? data.player2_id.id : data.player1_id.id;
+				// console.log("tournament_game_invitation tournament_sender_id: ", tournament_sender_id);
 
-				
-				Make_Small_Card("tournament_join_game", null, data.tournament.name, data.tournament.avatar, data.game_name, null, null, tournament_sender_id, null, data.game_id);
+				// Make_Small_Card("tournament_join_game", null, data.tournament.name, data.tournament.avatar, data.game_name, null, null, tournament_sender_id, null, data.game_id);
+				handle_action("join_tournament_game", 0, JSON.stringify({game_id: data.game_id, opponent_id: tournament_sender_id, game_name: data.game_name}));
+				// setTimeout(() => {
+				// 	GoTo(`/play/game/${data.game_id}`);
+				// }, 1000);
 			}
 
 			else if(data.type == "game_invitation")
@@ -86,10 +90,12 @@ export default class Base_Page extends HTMLElement {
 			}
 			else if(data.type == "game_invitation_response")
 			{
-				if(window.game_socket == null)
-					window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+				// if(window.game_socket)
+				// 	window.game_socket.close();
+				if(!window.game_socket)
+					window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
 				
-					window.game_socket.onopen = () => {
+				window.game_socket.onopen = () => {
 					console.log("Game socket opened | game_invitation_response");
 					console.log(`game_id: ${data.game_id} | game_invitation_response`);
 	
@@ -107,7 +113,7 @@ export default class Base_Page extends HTMLElement {
 
 					setTimeout(() => {
 						GoTo(`/play/game/${data.game_id}`);
-					}, 500);
+					}, 1000);
 				};
 
 				window.game_socket.onclose = function (event) {

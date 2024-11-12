@@ -140,7 +140,7 @@ class MeView(generics.GenericAPIView):
     )
 
 class UserView(generics.GenericAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     serializer_class = ShortUserSerializer
     
     def get(self, request, pk):

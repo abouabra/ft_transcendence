@@ -212,7 +212,6 @@ class PongGame {
 		this.setupResizeHandler();
 
 		if(window.game_socket) {
-			console.log("Game socket exists");
 			window.game_socket.send(JSON.stringify({
 				type: "si_clients_ready",
 				game_room_id: parseInt(localStorage.getItem('game_id')),

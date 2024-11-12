@@ -5,6 +5,9 @@ from channels.db import database_sync_to_async
 from .models import Game_History, GameStats
 import asyncio
 from .utils import update_stats_after_game, ELO_System, getUserData
+from asgiref.sync import async_to_sync
+from django.http import HttpRequest
+from rest_framework_simplejwt.tokens import RefreshToken
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +133,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             player = Player(user_data, text_data_json['game_name'], self)
             game_name = text_data_json['game_name']
             
+
             player.is_in_queue = True
 
             PLAYERS[game_name][user_data["id"]] = player
@@ -147,22 +151,44 @@ class GameConsumer(AsyncWebsocketConsumer):
             game_name = text_data_json['game_name']
             game_id= int(text_data_json['game_id'])
         
-        
+
         
             player = Player(player_data, game_name, self)
 
             PLAYERS[game_name][player_data["id"]] = player
             player.is_in_queue = False
 
+
+            logger.error(f"\n\n\nPlayer {player} joined the game {game_name}\n\n\n")
+
+
             match_history = await self.get_match_history(game_id)
+            logger.error(f'\n\n\nmatch_history: {match_history}\n\n\n')
+
+            if match_history.player1 != None and match_history.player2 != None and match_history.isTournemantMatch == True and (match_history.player1 == player_data["id"] or match_history.player2 == player_data["id"]):                
+                player = await self.getUserDataWrapper(player_data["id"])
+
+                PLAYERS[game_name][player["id"]] = Player(player, game_name, self)
+
+                # try :
+                if (match_history.player1 in PLAYERS[game_name] and match_history.player2 in PLAYERS[game_name] and PLAYERS[game_name][match_history.player1] is not None and PLAYERS[game_name][match_history.player2] is not None):
+                    game_obj = Game_Room(match_history.id, game_name, PLAYERS[game_name][match_history.player1], PLAYERS[game_name][match_history.player2])
+                    GAME_ROOMS[game_obj.id] = game_obj
+                    await self.start_initial_game_state(GAME_ROOMS[game_obj.id])
+                # except Exception as e:
+                #     pass
+                
+                return
+
 
             if match_history.player1 == None:
                 match_history.player1 = player_data["id"]
                 game_obj = Game_Room(match_history.id ,game_name, player, None)
                 GAME_ROOMS[game_obj.id] = game_obj
-            else:
+            
+            elif match_history.player2 == None:
                 match_history.player2 = player_data["id"]
-                game_obj = Game_Room(match_history.id ,game_name, PLAYERS[game_name][match_history.player1], player)
+                game_obj = Game_Room(match_history.id, game_name, PLAYERS[game_name][match_history.player1], player)
                 GAME_ROOMS[game_obj.id] = game_obj
 
 
@@ -410,3 +436,11 @@ class GameConsumer(AsyncWebsocketConsumer):
         match_obj.save()
         
         update_stats_after_game(me.user_id, opponent.user_id, "space_invaders", game_obj.id)
+
+
+
+    @database_sync_to_async
+    def getUserDataWrapper(self, user_id):
+
+        request = HttpRequest()
+        return getUserData(request, user_id, True)

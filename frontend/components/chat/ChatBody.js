@@ -7,7 +7,7 @@ export default class ChatBody extends HTMLElement {
 		head.appendChild(createLink('/styles/chat_server.css'));
 
 		this.server_name = location.pathname.split('/').pop()
-		const socket = new WebSocket(`ws://localhost:8000/chat/${this.server_name}`);
+		const socket = new WebSocket(`ws://127.0.0.1:8000/chat/${this.server_name}`);
 		this.socket = socket
 
 		let result_data = ''

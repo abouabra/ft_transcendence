@@ -310,7 +310,6 @@ class Player {
     }
 
     changeCamera() {
-        // use cameraChangeTimeout to prevent rapid camera changes and to give time 500ms for every camera change
         let date = new Date();
         if (date.getTime() > this.cameraChangeTimeout) {
             this.cameraChangeTimeout = date.getTime() + 250;

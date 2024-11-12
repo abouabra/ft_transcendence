@@ -59,7 +59,7 @@ function handle_action(action, id, data = null) {
 			});
 
 			if(window.game_socket == null)
-				window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+				window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
 			window.game_socket.onopen = () => {
 				console.log("Game socket opened | join_game");
 
@@ -104,18 +104,22 @@ function handle_action(action, id, data = null) {
 		
 		console.log("handle_action join_tournament_game: ", game_id);
 
-		sendNotification("game_invitation_response", data.opponent_id, {
-			player1:  parseInt(localStorage.getItem("id")),
-			player2: data.opponent_id,
-			game_name: data.game_name,
-			game_id: game_id,
-		});
+		// sendNotification("game_invitation_response", data.opponent_id, {
+		// 	player1:  parseInt(localStorage.getItem("id")),
+		// 	player2: data.opponent_id,
+		// 	game_name: data.game_name,
+		// 	game_id: game_id,
+		// });
 
-		if(window.game_socket == null)
-			window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+		// if(window.game_socket == null)
+		// if (window.game_socket)
+		// 	window.game_socket.close();
+		
+		if(!window.game_socket)
+			window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
 
 		window.game_socket.onopen = () => {
-			console.log("Game socket opened | join_game");
+			console.log("join_tournament_game: Game socket opened | join_game");
 
 			window.game_socket.send(JSON.stringify({
 				type: "join_custom_game",
@@ -131,7 +135,7 @@ function handle_action(action, id, data = null) {
 
 			setTimeout(() => {
 				GoTo(`/play/game/${game_id}`);
-			}, 500);
+			}, 1000);
 		};
 
 		window.game_socket.onclose = function (event) {

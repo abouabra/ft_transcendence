@@ -171,8 +171,7 @@ export default class Tournament_Create extends HTMLElement {
 			avatar = `/assets/images/tournament_avatars/${name_tag.value}.${image_extention}`
 		}
 		let qr_code = `/assets/images/tournament_qr_code/${name_tag.value}.${image_extention}`
-		
-		
+
 		let body = {
 			"name":name_tag.value,
 			"visibility":visibility,
@@ -181,12 +180,10 @@ export default class Tournament_Create extends HTMLElement {
 			"id":localStorage.getItem('id'),
 			"img":base64,
 			"qr_code":qr_code,
-			"members":[localStorage.getItem("id")],
             "room_size":roomsize,
             "game_name": game_name,
             "total_number_of_players":1
 		}
-        console.log(`lbody = ${body}`)
 
 		let loader_container = this.getElementsByClassName("loader-container")[0]
 		let creation_container = this.getElementsByClassName("creation-container")[0]
@@ -205,8 +202,8 @@ export default class Tournament_Create extends HTMLElement {
 		.catch(error => {
 			creation_container.style.opacity = 1
 			loader_container.style.display = 'none'
-			console.log(error)
-			showToast("error", error);
+			console.log(error.message)
+			showToast("error", error.message);
 		});
 
 	});

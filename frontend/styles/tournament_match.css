@@ -110,7 +110,10 @@
 {
     color: black;
 }
-
+.bracket_group
+{
+    gap:20px;
+}
 /* bracket line  */
 
 .oneline{

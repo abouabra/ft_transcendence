@@ -16,7 +16,12 @@ def getUserData(request, userID):
     return response.json()
 
 def find_emty_room(matchs):
-    for match in matchs:
-        if match.user_id1 == 0 or match.user_id2 == 0:
-            return match
+    lent = len(matchs)
+    i = 0
+    while i < lent:
+        if (matchs[i][0] == 0):
+            return [i,0]
+        elif matchs[i][1] == 0:
+            return [i,1]
+        i += 1
     return None

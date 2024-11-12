@@ -47,7 +47,7 @@ class CreateServerView(generics.GenericAPIView):
                     "success": "Server Created Successfully"
                 }, status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors["non_field_errors"], status=status.HTTP_400_BAD_REQUEST)
     def put(self, request):
 
         try:

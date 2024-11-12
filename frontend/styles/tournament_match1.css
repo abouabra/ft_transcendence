@@ -18,7 +18,7 @@
 }
 .Middle_part
 {
-    width: 35%;
+    width: auto;
     height: 100%;
     gap: 55px;
     border: 1px solid var(--platinum_40_percent);

@@ -28,8 +28,8 @@ export default class Login_Page extends HTMLElement {
                 </div>
 
                 <div class="sso">
-                    <button class="sso_buttons" onclick="GoTo('/signup/')"><img src="/assets/images/user_management/42.svg" alt="42" width="21" height="21">Intra</button>
-                    <button class="sso_buttons" id="google"><img src="/assets/images/user_management/google.svg" alt="42" width="21" height="21">Google</button>
+                    <button class="sso_buttons" id="intra" onclick="handleLoginIntra(event)"><img src="/assets/images/user_management/42.svg" alt="42" width="21" height="21">Intra</button>
+                    <button class="sso_buttons" id="google" onclick="handleLoginGoogle(event)"><img src="/assets/images/user_management/google.svg" alt="42" width="21" height="21">Google</button>
                 </div>
 
                 <div class="privacy_policy">
@@ -97,10 +97,21 @@ export default class Login_Page extends HTMLElement {
             toggleIcon.src = '/assets/images/common/Iconly/Light/Show.svg';
         }
     }
-    handleLoginGoogle = async (event) => {
-        event.preventDefault();
-        window.location.href = 'http://127.0.0.1:8000/oauth/login/google-oauth2/';
-    }
+    // handleLoginGoogle = async (event) => {
+    //     event.preventDefault();
+    //     window.location.href = 'http://127.0.0.1:8000/oauth/login/google-oauth2/';
+    // }
+
+    // handleLoginIntra = async (event) => {
+    //     event.preventDefault();
+    
+    //     const clientId = "u-s4t2ud-b586afbf5e752427a0054088bc2d5356073ce239c3856370e319da8620f43d68"; 
+    //     const redirectUri = "http://127.0.0.1:8000/api/auth/callback/";
+    //     const authorizationUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code`;
+    
+    //     window.location.href = authorizationUrl;
+    // };
+    
 
 
     handleLogin = async (event) => {
@@ -123,9 +134,8 @@ export default class Login_Page extends HTMLElement {
         };
         try {
             const response = await makeRequest('/api/auth/login/', 'POST', data);
-            console.log(response);
             if (response.user_is_auth){
-                console.log("ana hna");
+                console.log("west is auth")
                 change_display("#displaay", "#displaaay");
                 const submitButton = document.querySelector('#submit').addEventListener('click',async (e)=> {
                     e.preventDefault();
@@ -148,7 +158,7 @@ export default class Login_Page extends HTMLElement {
             }
         } catch (error) {
 
-            console.log('Error logging in:', error);
+            console.error('Error logging in:', error);
             showToast("error", "username or password incorrect. Please try again.");
         }
     };
@@ -157,7 +167,6 @@ export default class Login_Page extends HTMLElement {
     connectedCallback() {
         this.querySelector('#toggle-password').addEventListener('click', () => this.togglePasswordVisibility());
         this.querySelector('.login_button').addEventListener('click', this.handleLogin);
-        this.querySelector('#google').addEventListener('click', this.handleLoginGoogle);
     }
     
     disconnectedCallback() {

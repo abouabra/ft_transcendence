@@ -21,7 +21,7 @@ export default class Landing_Page extends HTMLElement {
 						</span>
 						
 						<div class="cta_buttons">
-							<button-component data-text='GET STARTED' data-link="/register/"> </button-component>
+							<button-component data-text='GET STARTED' data-link="/signup/"> </button-component>
 							<button-component data-text='I ALREADY HAVE AN ACCOUNT' data-type="no-bg" data-link="/login/"> </button-component>
 						</div>
 

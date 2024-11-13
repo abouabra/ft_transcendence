@@ -40,7 +40,7 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False  # Gmail uses TLS, not SSL
 EMAIL_HOST_USER =  env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # https://myaccount.google.com/apppasswords
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  
+DEFAULT_FROM_EMAIL = f"Fesablanca {EMAIL_HOST_USER}" 
 
 # To generate a self-signed certificate
 # openssl req -x509 -newkey rsa:4096 -keyout domain.key -out domain.crt -sha256 -days 3650 -nodes -subj "/C=MA/ST=Tanger-Tetouan-Al Hoceima/L=Martil/O=1337/OU=1337MED/CN=ft_transcendence"

@@ -7,7 +7,7 @@ import logging
 from .utils import getUserData
 from rest_framework import generics, permissions, status
 from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer, LeaderboardSerializer
-from .utils import update_stats_after_game
+from .utils import update_stats_after_game, sendHTTPNotification
 
 logger = logging.getLogger(__name__)
 
@@ -288,3 +288,35 @@ class LeaderboardView(generics.GenericAPIView):
         for player in serializer.data:
             player["user"] = getUserData(request, player["user_id"])
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class ConstructTournamentGame(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        data = request.data
+
+        game_obj = Game_History.objects.create(
+            player1=data["player1_id"],
+            player2= data["player2_id"],
+            game_name=data["game_name"],
+            game_type="ranked",
+            isTournemantMatch=True
+        )
+        game_obj.save()
+
+        data["game_id"] = game_obj.id
+
+        try:
+            sendHTTPNotification(request, data)
+
+            return Response({
+                "game_room_id": game_obj.id,
+            }, status=status.HTTP_201_CREATED)
+    
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while sending notification"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

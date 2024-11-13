@@ -2,7 +2,10 @@ from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from .models import Tournament_History, TournamentStats
+from .models import Tournament_History, TournamentStats
 from rest_framework.pagination import PageNumberPagination
+from .serializers import TournamentHistorySerializer, ShortTournamentHistorySerializer
+
 from .serializers import TournamentHistorySerializer, TournamentStatsSerializer
 from django.contrib.auth.hashers import make_password
 import base64
@@ -95,6 +98,22 @@ class HomeExpandedActiveTournamentsView(generics.GenericAPIView):
         
         serializer = TournamentHistorySerializer(active_games, many=True)
         return self.get_paginated_response(serializer.data)
+
+
+
+class GetTournamentInfo(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, pk):
+        try:
+            tournament = Tournament_History.objects.get(id=pk)
+            return Response(ShortTournamentHistorySerializer(tournament).data, status=status.HTTP_200_OK)
+
+
+        except:
+            return Response({"message": "Tournament Not Found"}, status=status.HTTP_404_NOT_FOUND)
+
+
 
 
 class GetTournamentsData(generics.GenericAPIView):

@@ -32,9 +32,8 @@ export default class Base_Page extends HTMLElement {
 
 
 		
-		if(!window.notification_socket) {
+		if(window.notification_socket == null)
 			window.notification_socket = new WebSocket(`ws://${window.location.hostname}:8000/ws/notifications/`);
-		}
 
 		window.notification_socket.onopen = (event) => {
 			console.log("Notification socket opened");
@@ -56,7 +55,7 @@ export default class Base_Page extends HTMLElement {
 			const data = JSON.parse(event.data);
 			console.log("Notification socket message: ", data)
 
-			if(data.type != "cancel_game_invitation")
+			if(data.type != "cancel_game_invitation" && data.type != "tournament_game_invitation")
 			{
 				const notifications_bar_status = document.querySelector(".notifications_bar_status");
 				if(notifications_bar_status && (notifications_bar_status.style.display == "" || notifications_bar_status.style.display == "none"))
@@ -68,11 +67,22 @@ export default class Base_Page extends HTMLElement {
 					counter_span.textContent = parseInt(counter_span.textContent) + 1;
 				}
 			}
-
-
-			if(data.type == "game_invitation")
+			if(data.type == "tournament_game_invitation")
 			{
-				Make_Small_Card("join_game", null, data.sender.username, data.sender.avatar, data.game_name, null, null, data.sender.id);
+				const current_id = parseInt(localStorage.getItem("id"));
+				const tournament_sender_id = current_id == data.player1_id.id ? data.player2_id.id : data.player1_id.id;
+				// console.log("tournament_game_invitation tournament_sender_id: ", tournament_sender_id);
+
+				// Make_Small_Card("tournament_join_game", null, data.tournament.name, data.tournament.avatar, data.game_name, null, null, tournament_sender_id, null, data.game_id);
+				handle_action("join_tournament_game", 0, JSON.stringify({game_id: data.game_id, opponent_id: tournament_sender_id, game_name: data.game_name}));
+				// setTimeout(() => {
+				// 	GoTo(`/play/game/${data.game_id}`);
+				// }, 1000);
+			}
+
+			else if(data.type == "game_invitation")
+			{
+				Make_Small_Card("join_game", null, data.sender.name, data.sender.avatar, data.game_name, null, null, data.sender.id);
 			}
 			else if(data.type == "cancel_game_invitation")
 			{
@@ -80,8 +90,11 @@ export default class Base_Page extends HTMLElement {
 			}
 			else if(data.type == "game_invitation_response")
 			{
-
-				window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+				// if(window.game_socket)
+				// 	window.game_socket.close();
+				if(!window.game_socket)
+					window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
+				
 				window.game_socket.onopen = () => {
 					console.log("Game socket opened | game_invitation_response");
 					console.log(`game_id: ${data.game_id} | game_invitation_response`);
@@ -98,7 +111,9 @@ export default class Base_Page extends HTMLElement {
 						game_id: data.game_id,
 					}));
 
-					GoTo(`/play/game/${data.game_id}`);
+					setTimeout(() => {
+						GoTo(`/play/game/${data.game_id}`);
+					}, 1000);
 				};
 
 				window.game_socket.onclose = function (event) {

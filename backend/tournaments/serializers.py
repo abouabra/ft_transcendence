@@ -6,6 +6,7 @@ class TournamentStatsSerializer(serializers.ModelSerializer):
         model = TournamentStats
         fields = "__all__"
 
+
 class TournamentHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Tournament_History
@@ -17,3 +18,8 @@ class TournamentHistorySerializer(serializers.ModelSerializer):
         except Tournament_History.DoesNotExist:
             return data
 
+
+class ShortTournamentHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tournament_History
+        fields = ["id", "name", "avatar", "game_name"]

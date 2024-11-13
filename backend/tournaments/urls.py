@@ -14,4 +14,7 @@ urlpatterns = [
     path("Tournamentcreate/",views.CreateTournamentroom.as_view(),name="createTournamentroomData"),
     path("joinedusertournament/",views.TournamentjoinedUsers.as_view(),name="TournamentjoinedUsers"),
     path("generate/", views.GenerateRandomTournamentHistoryData.as_view(), name="generate"),
+
+
+    path("get_tournament_info/<int:pk>", views.GetTournamentInfo.as_view(), name="get_tournament_info"),
 ]

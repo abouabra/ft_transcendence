@@ -13,7 +13,7 @@ export default class Signup1_Page extends HTMLElement {
                             <span class="title_form header_h2 primary_color_color">Create your profile</span>
                         </div>
                         <input-component type="text" placeholder="email" name="email"></input-component>
-                        <button-component class="login_button" data-text="Continue" ></button-component>
+                        <button-component class="login_button" data-text="Continue"></button-component>
                     </form>
 
                     <div class="divider">
@@ -21,8 +21,8 @@ export default class Signup1_Page extends HTMLElement {
                     </div>
 
                     <div class="sso">
-                        <button class="sso_buttons" onclick="GoTo('/signup/')"><img src="/assets/images/user_management/42.svg" alt="42" width="21" height="21">Intra</button>
-                        <button class="sso_buttons" onclick="GoTo('/signup/')"><img src="/assets/images/user_management/google.svg" alt="42" width="21" height="21">Google</button>
+                        <button class="sso_buttons" onclick="handleLoginIntra(event)"><img src="/assets/images/user_management/42.svg" alt="42" width="21" height="21">Intra</button>
+                        <button class="sso_buttons" onclick="handleLoginGoogle(event)"><img src="/assets/images/user_management/google.svg" alt="42" width="21" height="21">Google</button>
                     </div>
 
                     <div class="privacy_policy">
@@ -44,39 +44,12 @@ export default class Signup1_Page extends HTMLElement {
         `;
     };
 
-    // handleLogin = async (event) => {
-    //     event.preventDefault();
-
-    //     const email = document.querySelector('input[name="email"]').value;
-    //     const type = "signup";
-    //     if (!email) {
-    //         showToast("error", "email is required");
-    //         return;
-    //     }
-
-    //     const data = {
-    //         email,
-    //         type
-    //     };
-
-    //     try {
-    //         const response = await makeRequest('/api/auth/verification_email/', 'POST', data);
-    //         change_display("#displaay", "#displaaay");
-    //         const response2 = await makeRequest('/api/auth/send-email/', 'POST', data);
-    //     } catch (error) {
-    //         showToast("error", error.message);
-    //     }
-    // };
-
     connectedCallback() {
-        // this.querySelector('.login_button').addEventListener('click', this.handleLogin);
         const loginButton = this.querySelector('.login_button');
         loginButton.addEventListener('click', handle_first_one("signup", this));
-        
     };
 
     disconnectedCallback() {
-        // this.querySelector('.login_button').removeEventListener('click', this.handleLogin);
         const loginButton = this.querySelector('.login_button');
         loginButton.removeEventListener('click', handle_first_one("signup", this));
     };

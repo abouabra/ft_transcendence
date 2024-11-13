@@ -29,14 +29,12 @@ export default class Forgot_Password_1 extends HTMLElement {
     }
 
     connectedCallback() {
-        // this.querySelector('.login_button').addEventListener('click', this.handleLogin);
         const loginButton = this.querySelector('.login_button');
         loginButton.addEventListener('click', handle_first_one("forgot", this));
         
     };
 
     disconnectedCallback() {
-        // this.querySelector('.login_button').removeEventListener('click', this.handleLogin);
         const loginButton = this.querySelector('.login_button');
         loginButton.removeEventListener('click', handle_first_one("forgot", this));
     };

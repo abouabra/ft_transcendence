@@ -21,20 +21,30 @@ export default class Small_Cards extends HTMLElement {
             "Space Invaders": "space_invaders",
             "Road Fighter": "road_fighter",
         };
-        this.db_game_name = this.game_names_enum[game_name] || null;
+
+        this.db_game_name = null;
+
+        for (const key in this.game_names_enum) {
+            if (this.game_names_enum[key] == game_name || key == game_name) {
+                this.db_game_name = this.game_names_enum[key];
+                break;
+            }
+        }
         
         this.extra_data = {
             game_name: this.db_game_name,
             opponent_id: id_who_invited_you,
         };
-        console.log("game_name: ", game_name, " game_names_enum", this.extra_data);
-        console.log("extra_data: ", JSON.stringify(this.extra_data));
 
+        const game_id = this.getAttribute("game-id");
         const id_waiting_for = this.getAttribute("data-id_waiting_for");
         const username_waiting_for = this.getAttribute("data-username_waiting_for");
         const avatar_waiting_for = this.getAttribute("data-avatar_waiting_for");
 
+        this.extra_data["game_id"] = game_id;
 
+        console.log("game_name: ", game_name, " game_names_enum", this.extra_data);
+        console.log("extra_data: ", JSON.stringify(this.extra_data));
 
         if(type == null)
             type = "logout";
@@ -47,6 +57,8 @@ export default class Small_Cards extends HTMLElement {
 
 
             "join_game":      {head: "Join Game ?",      action_btn: "Join" ,    action_type: "join_game",      id: 0},
+            "tournament_join_game":      {head: "Join Tournament Game ?",      action_btn: "Join" ,    action_type: "join_tournament_game",      id: 0},
+            
             "waiting_for_accept_game": {head: "Waiting for", action_btn: "Cancel" , action_type: "cancel_game_invitation", id: 0},
             
         };
@@ -65,7 +77,7 @@ export default class Small_Cards extends HTMLElement {
                 </div>
             `;
         }
-        else if (type == "join_game") {
+        else if (type == "join_game" || type == "tournament_join_game") {
             subheader_body = /*html*/ `
                 <div class="d-flex flex-column align-items-center" style="gap: 10px;">
                     <span class="p2_regular"> <span class="p2_bold primary_color_color"> ${username_who_invited_you} </span> has just invited you </span>
@@ -80,7 +92,7 @@ export default class Small_Cards extends HTMLElement {
         }
 
         let slider_body = "";
-        if(type == "join_game" || type == "waiting_for_accept_game") {
+        if(type == "join_game" || type == "waiting_for_accept_game" || type == "tournament_join_game") {
             slider_body = /*html*/ `
                 <div class="small_card_slider">
                     <div class="d-flex w-100 platinum_40_color_bg small_cards_large_bar">
@@ -88,7 +100,7 @@ export default class Small_Cards extends HTMLElement {
                     </div>
 
                     <div class="small_cards_profile_pic_container">
-                        <img src=${type == "join_game" ? avatar_who_invited_you : avatar_waiting_for} alt="profile_pic" class="small_cards_profile_pic">
+                        <img src=${(type == "join_game" || type == "tournament_join_game") ? avatar_who_invited_you : avatar_waiting_for} alt="profile_pic" class="small_cards_profile_pic">
                     </div>
                 </div>
             `;
@@ -137,12 +149,12 @@ export default class Small_Cards extends HTMLElement {
                     sendNotification("cancel_game_invitation", id_who_invited_you, {game_id: this.headers[type].id});
                 else if (type == "waiting_for_accept_game")
                     sendNotification("cancel_game_invitation", id_waiting_for, {game_id: this.headers[type].id});
-
+                // else if (type == "tournament_join_game")
+                //     sendNotification("cancel_tournament_game_invitation", id_who_invited_you, {game_id: this.headers[type].id});
+                
                 Delete_Small_Card();
             });
         }
-
-        
 	}
 
     

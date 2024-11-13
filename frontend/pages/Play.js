@@ -138,8 +138,8 @@ export default class Play_Page extends HTMLElement {
 
 		
 		if(this.selected_mode == "ranked") {
-			
-			window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+			if(window.game_socket == null)
+				window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
 
 			window.game_socket.onopen = () => {
 				console.log("Game socket opened | Connected to the game server");

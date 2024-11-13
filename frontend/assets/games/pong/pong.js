@@ -346,10 +346,16 @@ class PongGame {
 	}
 
 	ws_update(data) {
-		this.rightPaddle.position.y = data.position * this.canvas.height;
-		this.rightPaddle.score = data.score;
-
-		if(data.ball)
+		if(this.rightPaddle)
+		{
+			if(data.position)
+				this.rightPaddle.position.y = data.position * this.canvas.height;
+			
+			if(data.score)
+				this.rightPaddle.score = data.score;
+		}
+	
+		if(data.ball && this.ball)
 			this.ball.position.set(data.ball.x, data.ball.y);
 	}
 
@@ -380,6 +386,8 @@ class PongGame {
 
 		if (this.gameState === "game_over") return;
 
+		console.log("Game Loop");
+
 		this.update();
 		this.draw();
 
@@ -399,6 +407,8 @@ class PongGame {
 	}
 
 	endGame() {
+		this.gameState === "game_over"
+		
 		this.stats.dom.style.display = "none";
 		const game_id = parseInt(localStorage.getItem("game_id"));
 		

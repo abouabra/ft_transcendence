@@ -314,6 +314,7 @@ export default class Play_Page extends HTMLElement {
 				user: current_user_data,
 				game_name: this.selected_game,
 			}));
+			window.game_socket.onmessage = null;
 			window.game_socket.close();
 			delete window.game_socket;
 			window.game_socket = null;

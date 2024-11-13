@@ -184,11 +184,15 @@ export default class Game_Page extends HTMLElement {
 				console.log("Game Over loser is", response.loser);
 				
 				if(this.game_name == "pong")
+				{
+					this.game.gameState = "game_over"
 					this.game.stats.dom.style.display = "none";
+				}
 
 				if(this.player)
 					this.player.isAlive = false;
 				
+				window.game_socket.onmessage = null;
 				window.game_socket.close();
 				delete window.game_socket;
 				window.game_socket = null;
@@ -298,7 +302,8 @@ export default class Game_Page extends HTMLElement {
 	connectedCallback() {}
 
 	disconnectedCallback() {
-
+		
+		
 		if(this.game && this.game_type == "local")
 		{
 			console.log("disconnected from game page");
@@ -306,7 +311,10 @@ export default class Game_Page extends HTMLElement {
 			return;
 		}
 		if(this.game && this.game.stats)
+		{
+			this.game.gameState = "game_over"
 			this.game.stats.dom.style.display = "none";
+		}
 
 
 		if(this.setup && this.setup.opponentTracker)
@@ -316,7 +324,15 @@ export default class Game_Page extends HTMLElement {
 		}
 
 		if(!window.game_socket)
+		{
+			localStorage.removeItem("game_id");
+			localStorage.removeItem("opponent_id");
+			localStorage.removeItem("player1_id");
+			localStorage.removeItem("player2_id");
+			localStorage.removeItem("starting_time");
+			localStorage.removeItem("initial_data");
 			return;
+		}
 
 		console.log("disconnected from game page");
 		const uid = parseInt(localStorage.getItem("id"));
@@ -333,12 +349,16 @@ export default class Game_Page extends HTMLElement {
 			game_time : delta_time_in_sec
 		}));
 
+		
 		localStorage.removeItem("game_id");
 		localStorage.removeItem("opponent_id");
+		localStorage.removeItem("player1_id");
+		localStorage.removeItem("player2_id");
 		localStorage.removeItem("starting_time");
 		localStorage.removeItem("initial_data");
+		
 
-
+		window.game_socket.onmessage = null;
 		window.game_socket.close();
 		delete window.game_socket;
 		window.game_socket = null;

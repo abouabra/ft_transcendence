@@ -89,6 +89,12 @@ function handle_action(action, id, data = null) {
 			window.game_socket.onmessage = (event) => {
 				const data = JSON.parse(event.data);
 				console.log(`join_game | Received data:`, data);
+
+				if(data.type == "start_game") 
+				{
+					const current_id = localStorage.getItem("id");
+					localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+				}
 			};
 		});
 
@@ -149,6 +155,12 @@ function handle_action(action, id, data = null) {
 		window.game_socket.onmessage = (event) => {
 			const data = JSON.parse(event.data);
 			console.log(`join_game | Received data:`, data);
+			
+			if(data.type == "start_game") 
+			{
+				const current_id = localStorage.getItem("id");
+				localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+			}
 		};
 
 

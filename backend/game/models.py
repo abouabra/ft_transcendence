@@ -54,6 +54,7 @@ class Game_History(models.Model):
     player2_elo_change = models.IntegerField(default=0)
 
     isTournemantMatch = models.BooleanField(default=False)
+    tournament_id = models.IntegerField(default=0)
 
     winner = models.IntegerField(default=0)
     

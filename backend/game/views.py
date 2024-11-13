@@ -185,12 +185,15 @@ class ConstructGameHistoryData(generics.GenericAPIView):
 
         game_name = request.data["game_name"]
 
+       
+
         game_obj = Game_History.objects.create(
             player1=player_1,
             player2=player_2,
             game_name=game_name,
             game_type=game_type,
         )
+
         game_obj.save()
 
         return Response({
@@ -296,12 +299,20 @@ class ConstructTournamentGame(generics.GenericAPIView):
     def post(self, request):
         data = request.data
 
+        tournament_data = {
+            "isTournemantMatch": True,
+            "tournament_id": request.data["tournament_id"]
+        } if "tournament_id" in request.data else {}
+
+        if "tournament_id" in request.data:
+            print("tournament_id", request.data["tournament_id"])
+
         game_obj = Game_History.objects.create(
             player1=data["player1_id"],
             player2= data["player2_id"],
             game_name=data["game_name"],
             game_type="ranked",
-            isTournemantMatch=True
+            **tournament_data
         )
         game_obj.save()
 

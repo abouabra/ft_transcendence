@@ -312,6 +312,7 @@ function construct_tournament_game() {
 	const event = {
 		player1_id: 1,
 		player2_id: 2,
+		// game_name: "space_invaders",
 		game_name: "pong",
 	};
 
@@ -319,6 +320,10 @@ function construct_tournament_game() {
 	makeRequest(`/api/tournaments/get_tournament_info/${tournament_id}`)
 	.then((tournament_response) => {
 		event["tournament"] = tournament_response;
+		event["tournament_id"] = tournament_id;
+		
+		console.log("construct_tournament_game event", event);
+
 		makeRequest("/api/game/construct_tournament_game/", "POST", event)
 		.then((response) => {
 		

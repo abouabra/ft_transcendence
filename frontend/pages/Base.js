@@ -127,6 +127,13 @@ export default class Base_Page extends HTMLElement {
 				window.game_socket.onmessage = (event) => {
 					const data = JSON.parse(event.data);
 					console.log(`game_invitation_response | Received data:`, data);
+					
+					if(data.type == "start_game") 
+					{
+						const current_id = localStorage.getItem("id");
+						localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+					}
+
 				};
 			}
 			else if(data.type == "friend_request")

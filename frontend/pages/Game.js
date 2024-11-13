@@ -86,6 +86,7 @@ export default class Game_Page extends HTMLElement {
 			data.player1 = tmp;
 
 		}
+		
 		localStorage.setItem("opponent_id", data.player2.id);
 
 
@@ -160,6 +161,11 @@ export default class Game_Page extends HTMLElement {
 			const response = JSON.parse(event.data);
 			// console.log("Game.js onmessage", response);
 
+			if(response.type == "start_game") 
+			{
+				const current_id = localStorage.getItem("id");
+				localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+			}
 			if(response.type == "si_from_server_to_client")
 			{
 				if(this.game_name == "space_invaders" && this.opponent.mesh && response.data.position && response.data.quaternion)
@@ -202,8 +208,32 @@ export default class Game_Page extends HTMLElement {
 					this.setup.opponentTracker.destroy();
 					this.setup.opponentTracker = null;
 				}
-				
+				let game_id = parseInt(localStorage.getItem("game_id"));
+
+				localStorage.removeItem("game_id");
+				localStorage.removeItem("opponent_id");
+				localStorage.removeItem("player1_id");
+				localStorage.removeItem("player2_id");
+				localStorage.removeItem("starting_time");
+				// localStorage.removeItem("initial_data");
+
+				// makeRequest(`/api/game/get_game_info/${game_id}`)
+				// .then((data) => {
+				// 	if(data.response_code == 404)
+				// 	{
+				// 		this.innerHTML = /* html */`
+				// 			<h1> Game not found</h1>
+				// 		`;
+				// 		return;		
+				// 	}
+				// 	if(data.isTournemantMatch == true)
+				// 		GoTo(`/tournament/${data.tournament_id}`);
+				// 	else
+				// 		this.display_game_results(response);
+				// });
+
 				this.display_game_results(response);
+
 			}
 		};
 	}
@@ -330,7 +360,7 @@ export default class Game_Page extends HTMLElement {
 			localStorage.removeItem("player1_id");
 			localStorage.removeItem("player2_id");
 			localStorage.removeItem("starting_time");
-			localStorage.removeItem("initial_data");
+			// localStorage.removeItem("initial_data");
 			return;
 		}
 
@@ -355,7 +385,7 @@ export default class Game_Page extends HTMLElement {
 		localStorage.removeItem("player1_id");
 		localStorage.removeItem("player2_id");
 		localStorage.removeItem("starting_time");
-		localStorage.removeItem("initial_data");
+		// localStorage.removeItem("initial_data");
 		
 
 		window.game_socket.onmessage = null;

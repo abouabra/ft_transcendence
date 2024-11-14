@@ -20,6 +20,8 @@ function handle_action(action, id, data = null) {
 			extra_data = {...extra_data, ...data};
 		sendNotification("game_invitation", id, extra_data);
 
+		console.log("invite_to_pong", extra_data);
+
 		Make_Small_Card("waiting_for_accept_game", null, null, null, extra_data.game_name, extra_data.username, extra_data.avatar, null, id);
 	}
 	else if (action == "invite_to_space_invaders") {

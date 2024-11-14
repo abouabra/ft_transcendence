@@ -37,7 +37,7 @@ export default class Game_Page extends HTMLElement {
 				return;		
 			}
 
-			console.log(data);
+			console.log("makeRequest /api/game/get_game_info ",data);
 
 			if(data.has_ended == true)
 			{
@@ -79,12 +79,12 @@ export default class Game_Page extends HTMLElement {
 		localStorage.setItem("player1_id", data.player1.id);
 		localStorage.setItem("player2_id", data.player2.id);
 
+
 		if(data.player2.id == current_id)
 		{
 			let tmp = data.player2;
 			data.player2 = data.player1;
 			data.player1 = tmp;
-
 		}
 		
 		localStorage.setItem("opponent_id", data.player2.id);
@@ -215,24 +215,24 @@ export default class Game_Page extends HTMLElement {
 				localStorage.removeItem("player1_id");
 				localStorage.removeItem("player2_id");
 				localStorage.removeItem("starting_time");
-				// localStorage.removeItem("initial_data");
+				localStorage.removeItem("initial_data");
 
-				// makeRequest(`/api/game/get_game_info/${game_id}`)
-				// .then((data) => {
-				// 	if(data.response_code == 404)
-				// 	{
-				// 		this.innerHTML = /* html */`
-				// 			<h1> Game not found</h1>
-				// 		`;
-				// 		return;		
-				// 	}
-				// 	if(data.isTournemantMatch == true)
-				// 		GoTo(`/tournament/${data.tournament_id}`);
-				// 	else
-				// 		this.display_game_results(response);
-				// });
+				makeRequest(`/api/game/get_game_info/${game_id}`)
+				.then((data) => {
+					if(data.response_code == 404)
+					{
+						this.innerHTML = /* html */`
+							<h1> Game not found</h1>
+						`;
+						return;		
+					}
+					if(data.isTournemantMatch == true)
+						GoTo(`/tournament/${data.tournament_id}`);
+					else
+						this.display_game_results(response);
+				});
 
-				this.display_game_results(response);
+				// this.display_game_results(response);
 
 			}
 		};
@@ -360,7 +360,7 @@ export default class Game_Page extends HTMLElement {
 			localStorage.removeItem("player1_id");
 			localStorage.removeItem("player2_id");
 			localStorage.removeItem("starting_time");
-			// localStorage.removeItem("initial_data");
+			localStorage.removeItem("initial_data");
 			return;
 		}
 
@@ -385,8 +385,8 @@ export default class Game_Page extends HTMLElement {
 		localStorage.removeItem("player1_id");
 		localStorage.removeItem("player2_id");
 		localStorage.removeItem("starting_time");
-		// localStorage.removeItem("initial_data");
-		
+		localStorage.removeItem("initial_data");
+
 
 		window.game_socket.onmessage = null;
 		window.game_socket.close();

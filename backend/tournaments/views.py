@@ -11,8 +11,7 @@ from django.contrib.auth.hashers import make_password
 import base64
 from .request_api import create_qr_code
 from django.conf import settings
-from .utils import find_emty_room, getUserData
-from math import floor
+from .utils import find_emty_room, getUserData, Start_Playing
 import json
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -124,6 +123,18 @@ class GetTournamentsData(generics.GenericAPIView):
         serializer = TournamentHistorySerializer(tournaments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class Membertournament(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        try:
+            if (request.query_params.get('tournament_name') is None):
+                return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+            tournaments = Tournament_History.objects.get(name=request.query_params.get('tournament_name'))
+            return Response({"members":tournaments.members}, status=status.HTTP_200_OK)
+        except Tournament_History.DoesNotExist:
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+
 class GetTournamentroomData(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -165,6 +176,10 @@ class GetTournamentroomData(generics.GenericAPIView):
             tournament.members.append(request.user.id)
             tournament.bracket_data[tournament.bracket_data["current_round"]][match_instance[0]][match_instance[1]] = request.user.id
             tournament.save()
+            if (len(tournament.members) == tournament.room_size):
+                tournament.status = "In progress"
+                tournament.save()
+                Start_Playing(request, tournament.id)
             return Response({"success":"user joined the tournament", "tournament_name":tournament.name}, status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
@@ -175,9 +190,9 @@ def create_bracket(room_size):
     round = {"16":"round_of_16","8":"quarterfinals","4":"semifinals","2":"finals"}
     brackets["current_round"] = round[str(room_size)]
     while (room_size > 1):
-        room_size = floor(room_size/2)
+        room_size = room_size/2
         bracket = []
-        for i in range(room_size):
+        for _ in range(room_size):
             bracket.append([0,0])
         brackets[round[str(room_size*2)]] = bracket
     print(brackets)

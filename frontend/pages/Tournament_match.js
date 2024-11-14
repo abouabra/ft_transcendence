@@ -6,13 +6,27 @@ export default class Tournament_Match extends HTMLElement {
         const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/tournament_match.css'));
         this.tournament_name = new URLSearchParams(location.search).get("tournament_name")
-        
+        this.socket = new WebSocket(`ws://127.0.0.1:8000/tournament/${this.tournament_name}`);
+
+        this.renderpage()
+
+        this.socket.onmessage = (event) => {
+            const datamessage = JSON.parse(event.data)
+            console.log(datamessage)
+            this.renderpage()
+            // makeRequest(`/api/auth/user/${datamessage.sender_id}/`, 'GET').then(data => {
+            //     const bracketelements = this.querySelector(`.bracket_container[data-id='${data.user}']`)
+            //     bracketelements[datamessage.sender_id].querySelector(".bracket_player_img").src = data.avatar
+            //     bracketelements[datamessage.sender_id].querySelector("span").innerText = data.username
+            // })
+        }
+    }
+
+    renderpage() {
         makeRequest(`/api/tournaments/joinedusertournament/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
-            console.log(data)
             let usersdata = data.users
             let semi_finals = data.data[data.data.current_round]
             let middle = semi_finals.length/2
-            console.log(`length of semifinal ${semi_finals.length}`)
             let finals = data.data.finals
             this.innerHTML = /*html*/`
                 <div class="match_main_container">
@@ -58,10 +72,13 @@ export default class Tournament_Match extends HTMLElement {
                 </div>`
         });
     }
+
     connectedCallback() {
+        // this.socket.close()
 	}
 
 	disconnectedCallback() {
+
 	}
 
 	attributeChangedCallback(name, oldValue, newValue) {}

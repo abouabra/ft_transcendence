@@ -9,11 +9,8 @@ export function Tournament_leftBracket(matchs, users) {
                 first = {username: "smiya", avatar: "/assets/images/tournament_avatars/haka.jpeg"}
             if (second == undefined)
                 second = {username: "smiya", avatar: "/assets/images/tournament_avatars/haka.jpeg"}
-            console.log(first)
-            console.log("okokok")
-
                 result += /*html*/`<div class="bracket_main_container">
-                    <div class="bracket_container">
+                    <div class="bracket_container" data-id=${matchs[i][0]}>
                         <div class="data_bracket">
                             <img src="${first.avatar}" class="bracket_player_img">
                             <span>${first.username}</span>
@@ -22,7 +19,7 @@ export function Tournament_leftBracket(matchs, users) {
                             <span class="p1_regular number_points">5</span>
                         </div>
                     </div>
-                    <div class="bracket_container">
+                    <div class="bracket_container" data-id="${matchs[i][1]}">
                         <div class="data_bracket">
                             <img src="${second.avatar}" class="bracket_player_img">
                             <span>${second.username}</span>
@@ -48,7 +45,7 @@ export function Tournament_rightBracket(matchs, users) {
             second = {username: "smiya", avatar: "/assets/images/tournament_avatars/haka.jpeg"}
 
             result += /*html*/`<div class="bracket_main_container">
-                <div class="bracket_container">
+                <div class="bracket_container" data-id="${matchs[i][0]}">
                     <div class="point_bracket d-flex justify-content-center align-items-center">
                         <span class="p1_regular number_points">5</span>
                     </div>
@@ -57,7 +54,7 @@ export function Tournament_rightBracket(matchs, users) {
                         <span>${first.username}</span>
                     </div>
                 </div>
-                <div class="bracket_container">
+                <div class="bracket_container" data-id="${matchs[i][1]}">
                     <div class="point_bracket d-flex justify-content-center align-items-center">
                         <span class="p1_regular number_points">5</span>
                     </div>

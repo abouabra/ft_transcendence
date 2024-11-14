@@ -1,7 +1,7 @@
 import logging
 import requests
-
-
+from .models import Tournament_History
+from .serializers import ShortTournamentHistorySerializer
 def getUserData(request, userID):
     access_token = request.COOKIES.get("access_token")
 
@@ -25,3 +25,20 @@ def find_emty_room(matchs):
             return [i,1]
         i += 1
     return None
+
+def Start_Playing(request, tournament_id):
+    access_token = {"access_token":request.COOKIES.get("access_token")}
+
+    try:
+        tournament = Tournament_History.objects.get(id=tournament_id)
+        data = {}
+        data["player1_id"] = tournament.members[2]
+        data["player2_id"] = tournament.members[3]
+        data["game_name"] = tournament.game_name
+        data["tournament"] = ShortTournamentHistorySerializer(tournament).data
+        responce = requests.post("http://127.0.0.1:8000/api/game/construct_tournament_game/", cookies=access_token,json= data)
+        if (responce.status_code == 201):
+            pass
+        print(responce)
+    except Tournament_History.DoesNotExist:
+        return "Tournament not found"

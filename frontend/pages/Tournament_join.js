@@ -7,6 +7,9 @@ export default class Join_Tournament extends HTMLElement {
 
         let queryparam = new URLSearchParams(location.search)
         const tournament_name = queryparam.get("room_name")
+        this.socket = new WebSocket(`ws://127.0.0.1:8000/tournament/${tournament_name}`);
+
+        console.log(tournament_name)
 
         makeRequest(`/api/tournaments/tournament_rooms/?tournament_name=${tournament_name}`).then(data=> {
             let name_dot = tournament_name
@@ -42,7 +45,8 @@ export default class Join_Tournament extends HTMLElement {
             join_btn.addEventListener("click", () => {
             if (!(data.visibility === "private" && join_password.value === ""))
             {
-                makeRequest(`/api/tournaments/tournament_rooms/`, "POST", {'tournament_name':tournament_name, 'password':join_password.value}).then((data) => {
+                makeRequest(`/api/tournaments/tournament_rooms/`, "POST", {'tournament_name':tournament_name, 'password':join_password.value}).then((data) => {                    
+                    this.socket.send(JSON.stringify({"sender_id": localStorage.getItem("id")}))
                     GoTo(`/tournament/?tournament_name=${data.tournament_name}`)
                     }).catch(error => {
                         // fixe this  after editing makeRequest
@@ -79,7 +83,9 @@ export default class Join_Tournament extends HTMLElement {
 
     connectedCallback() {}
 
-    disconnectedCallback() {}
+    disconnectedCallback() {
+        // this.socket.close()
+    }
 
     attributeChangedCallback(name, oldValue, newValue) {}
 

@@ -12,7 +12,6 @@ class GameStats(models.Model):
     game_name = models.CharField(choices=GAMES_CHOICES, max_length=20)
 
     current_elo = models.FloatField(default=25)
-    peak_elo = models.FloatField(default=25)
 
     total_games_played = models.IntegerField(default=0)
     games_won = models.IntegerField(default=0)
@@ -54,6 +53,7 @@ class Game_History(models.Model):
     player2_elo_change = models.IntegerField(default=0)
 
     isTournemantMatch = models.BooleanField(default=False)
+    tournament_id = models.IntegerField(default=0)
 
     winner = models.IntegerField(default=0)
     

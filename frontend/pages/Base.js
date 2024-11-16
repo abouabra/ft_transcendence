@@ -82,7 +82,8 @@ export default class Base_Page extends HTMLElement {
 
 			else if(data.type == "game_invitation")
 			{
-				Make_Small_Card("join_game", null, data.sender.name, data.sender.avatar, data.game_name, null, null, data.sender.id);
+				console.log("game_invitation data: ", data);
+				Make_Small_Card("join_game", null, data.sender.username, data.sender.avatar, data.game_name, null, null, data.sender.id);
 			}
 			else if(data.type == "cancel_game_invitation")
 			{
@@ -127,6 +128,13 @@ export default class Base_Page extends HTMLElement {
 				window.game_socket.onmessage = (event) => {
 					const data = JSON.parse(event.data);
 					console.log(`game_invitation_response | Received data:`, data);
+					
+					if(data.type == "start_game") 
+					{
+						const current_id = localStorage.getItem("id");
+						localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+					}
+
 				};
 			}
 			else if(data.type == "friend_request")

@@ -5,7 +5,6 @@ from channels.db import database_sync_to_async
 from .models import Game_History, GameStats
 import asyncio
 from .utils import update_stats_after_game, ELO_System, getUserData
-from asgiref.sync import async_to_sync
 from django.http import HttpRequest
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -185,11 +184,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                 match_history.player1 = player_data["id"]
                 game_obj = Game_Room(match_history.id ,game_name, player, None)
                 GAME_ROOMS[game_obj.id] = game_obj
-            
-            elif match_history.player2 == None:
+            else:
                 match_history.player2 = player_data["id"]
                 game_obj = Game_Room(match_history.id, game_name, PLAYERS[game_name][match_history.player1], player)
                 GAME_ROOMS[game_obj.id] = game_obj
+
 
 
             if GAME_ROOMS[game_obj.id].player1 != None and GAME_ROOMS[game_obj.id].player2 != None:
@@ -292,18 +291,22 @@ class GameConsumer(AsyncWebsocketConsumer):
             'player2': player2.get_user_info(),
             "game_room_id": game_obj.id,
         }
+        
 
         if game_obj.game_name == "space_invaders":
             message["initial_data"] = {
                 player1.user_id: {'x': 0, 'y': 0, 'z': 50},
                 player2.user_id: {'x': 0, 'y': 0, 'z': -50},
             }
+
+        
         elif game_obj.game_name == "pong":
             game_obj.ball_position = {'x': 0, 'y': 20}
             
             message["initial_data"] = {
                 "ball": game_obj.ball_position,
             }
+
 
         await player1.ws_obj.send(text_data=json.dumps(message))
         await player2.ws_obj.send(text_data=json.dumps(message))

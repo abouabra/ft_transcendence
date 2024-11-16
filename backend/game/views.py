@@ -185,12 +185,15 @@ class ConstructGameHistoryData(generics.GenericAPIView):
 
         game_name = request.data["game_name"]
 
+       
+
         game_obj = Game_History.objects.create(
             player1=player_1,
             player2=player_2,
             game_name=game_name,
             game_type=game_type,
         )
+
         game_obj.save()
 
         return Response({
@@ -207,8 +210,10 @@ class GetGameInfo(generics.GenericAPIView):
             logged_in_user_id = request.user.id
             game_obj = Game_History.objects.get(id=pk)
             game_info = ShortGameHistorySerializer(game_obj).data
+           
             game_info["player1"] = getUserData(request, game_info["player1"])
             game_info["player2"] = getUserData(request, game_info["player2"])
+
             if(game_info["player1"]["id"] != logged_in_user_id and game_info["player2"]["id"] != logged_in_user_id):
                 return Response({"detail": "You are not part of this game"}, status=status.HTTP_403_FORBIDDEN)
 
@@ -296,12 +301,20 @@ class ConstructTournamentGame(generics.GenericAPIView):
     def post(self, request):
         data = request.data
 
+        tournament_data = {
+            "isTournemantMatch": True,
+            "tournament_id": request.data["tournament_id"]
+        } if "tournament_id" in request.data else {}
+
+        if "tournament_id" in request.data:
+            print("tournament_id", request.data["tournament_id"])
+
         game_obj = Game_History.objects.create(
             player1=data["player1_id"],
             player2= data["player2_id"],
             game_name=data["game_name"],
             game_type="ranked",
-            isTournemantMatch=True
+            **tournament_data
         )
         game_obj.save()
 

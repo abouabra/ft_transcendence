@@ -29,48 +29,82 @@ export default class Tournament_Match extends HTMLElement {
             let middle = semi_finals.length/2
             let finals = data.data.finals
             let Left_side;
-            
+
             this.innerHTML = /*html*/`
                 <div class="match_main_container">
                     <div class="parts_container d-flex flex-row">
                         <div class="Left_part">
                             <div class="match_brakets d-flex flex-row align-items-center justify-content-center">
-                                ${display_tournaments(usersdata, data.data, "left")}
-                                <span class="oneline"></span>
+                                ${display_tournaments(usersdata, data.data, "left", data.avatar)}
                             </div>
                         </div>
                         <div class="Middle_part d-flex flex-column align-items-center">
                             <span class="header_h1 final_text">SEMI-FINALS</span>
                             <div class="winner_content">
                                 <span class="header_h2">WINNER</span>
-                                <img src="/assets/images/tournament_avatars/haka.jpeg" class="winner_img">
+                                <img src="${data.avatar}" class="winner_img">
                             </div>
-                            ${Tournament_leftBracket(finals, usersdata)}
+                            <div class="d-flex flex-column align-items-center justify-content-center">
+                                ${Tournament_leftBracket(finals, usersdata, data.avatar)}
+                            </div>
                             <div class="winner_description d-flex flex-column align-items-center justify-content-center">
                                 <span class="p1_bold">WIN THE TOURNAMENT</span>
                                 <span class="p1_bold">TO GET THIS ACHIEVEMENT</span>
                                 <img src="/assets/images/winner_icon.jpg" class="winner_img" alt="winner_icone">
                             </div>
+                            <div class="playing2">Start Tournament</div>
                         </div>
 
                         <div class="Right_part">
                             <div class="match_brakets d-flex flex-row align-items-center justify-content-center">
-                                <span class="oneline"></span>
-                                ${display_tournaments(usersdata, data.data, "right")}
+                                ${display_tournaments(usersdata, data.data, "right", data.avatar)}
                             </div>
                         </div>
                     </div>
-                    <div class="playing2 h-100 w-100">Playing</div>
                 </div>
             `
             let play = document.querySelector(".playing2");
-        console.log(play)
-        play.addEventListener("click", () => {
-            console.log("trying to start playing")
-            makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
-                console.log("started playing awla la")
+            const keys= Object.keys(data.data)
+            if (keys.length == 5)
+            {
+
+                const brackets = this.querySelectorAll(".bracket_container")
+                const bracketsgap = this.querySelectorAll(".match_brakets")
+                const round16 = this.querySelectorAll(".bracket_round_of_16")
+                const quarterfinals = this.querySelectorAll(".bracket_quarterfinals")
+                round16.forEach(element => {element.style.gap = "40px";})
+                quarterfinals.forEach(element => {element.style.gap = "150px";})
+                
+                bracketsgap.forEach(element => {
+                    element.style.gap = "10px";
+                })
+                brackets.forEach(element => {
+                    element.style.width = "145px";
+                });
+            }
+            else if (keys.length == 4)
+            {
+                const brackets = this.querySelectorAll(".bracket_container")
+                const bracketsgap = this.querySelectorAll(".match_brakets")
+                const quarterfinals = this.querySelectorAll(".bracket_quarterfinals")
+                this.querySelector(".Left_part").style.width = "35%"
+                this.querySelector(".Right_part").style.width = "35%"
+
+                quarterfinals.forEach(element => {element.style.gap = "50px";})
+                
+                bracketsgap.forEach(element => {
+                    element.style.gap = "5px";
+                })
+                brackets.forEach(element => {
+                    element.style.width = "250px";
+                });
+            }
+            play.addEventListener("click", () => {
+                console.log("trying to start playing")
+                makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
+                    console.log("started playing awla la")
+                })
             })
-        })
         })
         .catch(error => {
             this.innerHTML = /*html*/`

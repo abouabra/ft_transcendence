@@ -27,7 +27,6 @@ const routes = {
     "^/tournament/create_tournament/$": "tournament-create",
     "^/tournament/join_tournament/$": "join-tournament",
     "^/tournament/match/$": "tournament-match",
-    "^/tournament/match1/$": "tournament-match1",
     
     404: "not-found-page",
 };

@@ -41,7 +41,6 @@ import Tournament_Page from "./Tournament.js";
 import Tournament_Create from "./Tournament_create.js";
 import Join_Tournament from "./Tournament_join.js";
 import Tournament_Match from "./Tournament_match.js";
-import Tournament_Match1 from "./Tournament_match1.js";
 import TwoFactorAuth from "./TwoFactorAuth.js"
 import User_Bar from "../components/common/user_bar.js";
 

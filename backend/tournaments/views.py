@@ -271,7 +271,8 @@ class TournamentjoinedUsers(generics.GenericAPIView):
 
             data = {
                 "users":users,
-                "data":tournament.bracket_data
+                "data":tournament.bracket_data,
+                "avatar":tournament.avatar,
             }
             return Response(data, status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:

@@ -32,13 +32,16 @@ def Start_Playing(request, tournament_id):
     try:
         tournament = Tournament_History.objects.get(id=tournament_id)
         data = {}
-        data["player1_id"] = tournament.members[2]
-        data["player2_id"] = tournament.members[3]
+        data["player1_id"] = tournament.members[0]
+        data["player2_id"] = tournament.members[1]
         data["game_name"] = tournament.game_name
         data["tournament"] = ShortTournamentHistorySerializer(tournament).data
         responce = requests.post("http://127.0.0.1:8000/api/game/construct_tournament_game/", cookies=access_token,json= data)
-        if (responce.status_code == 201):
-            pass
+        print("game retun value to playing game")
+        print("game retun value to playing game")
+        print("game retun value to playing game")
         print(responce)
+        print(responce.json())
+        print(responce.text)
     except Tournament_History.DoesNotExist:
         return "Tournament not found"

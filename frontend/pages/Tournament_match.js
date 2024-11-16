@@ -1,4 +1,4 @@
-import {Tournament_leftBracket, Tournament_rightBracket} from "../components/tournament/bracket.js";
+import {Tournament_leftBracket, Tournament_rightBracket, display_tournaments} from "../components/tournament/bracket.js";
 export default class Tournament_Match extends HTMLElement {
 
     constructor() {
@@ -28,14 +28,14 @@ export default class Tournament_Match extends HTMLElement {
             let semi_finals = data.data[data.data.current_round]
             let middle = semi_finals.length/2
             let finals = data.data.finals
+            let Left_side;
+            
             this.innerHTML = /*html*/`
                 <div class="match_main_container">
                     <div class="parts_container d-flex flex-row">
                         <div class="Left_part">
                             <div class="match_brakets d-flex flex-row align-items-center justify-content-center">
-                                <div class="d-flex flex-column bracket_group">
-                                    ${Tournament_leftBracket(semi_finals.slice(0,middle), usersdata)}
-                                </div>
+                                ${display_tournaments(usersdata, data.data, "left")}
                                 <span class="oneline"></span>
                             </div>
                         </div>
@@ -56,14 +56,21 @@ export default class Tournament_Match extends HTMLElement {
                         <div class="Right_part">
                             <div class="match_brakets d-flex flex-row align-items-center justify-content-center">
                                 <span class="oneline"></span>
-                                <div class="d-flex flex-column bracket_group">
-                                    ${Tournament_rightBracket(semi_finals.slice(middle), usersdata)}
-                                </div>
+                                ${display_tournaments(usersdata, data.data, "right")}
                             </div>
                         </div>
                     </div>
+                    <div class="playing2 h-100 w-100">Playing</div>
                 </div>
             `
+            let play = document.querySelector(".playing2");
+        console.log(play)
+        play.addEventListener("click", () => {
+            console.log("trying to start playing")
+            makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
+                console.log("started playing awla la")
+            })
+        })
         })
         .catch(error => {
             this.innerHTML = /*html*/`
@@ -71,6 +78,7 @@ export default class Tournament_Match extends HTMLElement {
                     <span class="header_h1">Error</span>
                 </div>`
         });
+        
     }
 
     connectedCallback() {

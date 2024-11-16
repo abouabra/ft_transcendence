@@ -13,6 +13,7 @@ from .request_api import create_qr_code
 from django.conf import settings
 from .utils import find_emty_room, getUserData, Start_Playing
 import json
+from math import floor
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -190,7 +191,7 @@ def create_bracket(room_size):
     round = {"16":"round_of_16","8":"quarterfinals","4":"semifinals","2":"finals"}
     brackets["current_round"] = round[str(room_size)]
     while (room_size > 1):
-        room_size = room_size/2
+        room_size = floor(room_size/2)
         bracket = []
         for _ in range(room_size):
             bracket.append([0,0])
@@ -290,4 +291,11 @@ class GenerateRandomTournamentHistoryData(generics.GenericAPIView):
             tournament.save()
 
 
+        return Response({"message": "Tournament History Created Successfully"}, status=status.HTTP_201_CREATED)
+
+class testplaying(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        Start_Playing(request, Tournament_History.objects.get(name=request.query_params.get('tournament_name')).id)
         return Response({"message": "Tournament History Created Successfully"}, status=status.HTTP_201_CREATED)

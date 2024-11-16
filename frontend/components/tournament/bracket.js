@@ -68,3 +68,34 @@ export function Tournament_rightBracket(matchs, users) {
     }
     return result;
 }
+
+export function display_tournaments(usersdata, data, position)
+{
+    let result = []
+    const position_keys = ["round_of_16", "quarterfinals", "semifinals"]
+    let 
+    for (const key in data)
+    {
+        if (key === "current_round" || key === "finals")
+            continue
+        if (position === "left")
+        {
+            result.push(/*html*/`
+                <div class="d-flex flex-column bracket_group">
+                    ${Tournament_leftBracket(data[key].slice(0,data[key].length/2), usersdata)}
+                </div>
+            `)
+        }
+        else
+        {
+            result.push(/*html*/`
+                <div class="d-flex flex-column bracket_group">
+                    ${Tournament_rightBracket(data[key].slice(data[key].length/2), usersdata)}
+                </div>
+            `)
+        }
+    }
+    if (position === "left")
+        return result.reverse().join()
+    return result.join();
+}

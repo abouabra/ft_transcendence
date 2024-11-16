@@ -27,12 +27,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         server_chat = await self.get_server(server_name)
         print(f"server_chat = {server_chat.banned}")
         if (int(user_id) in server_chat.banned):
-            print("User is banned")
-            print("User is banned")
-            print("User is banned")
-            print("User is banned")
-            print("User is banned")
-            print("User is banned")
             return
         db_msg = await self.create_message(server_chat, user_id, message)
         text_data_json["message_id"] = db_msg.id

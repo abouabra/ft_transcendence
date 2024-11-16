@@ -15,6 +15,7 @@ urlpatterns = [
     path("joinedusertournament/",views.TournamentjoinedUsers.as_view(),name="TournamentjoinedUsers"),
     path("generate/", views.GenerateRandomTournamentHistoryData.as_view(), name="generate"),
     path("tournamentmembers/", views.Membertournament.as_view(), name="Membertournament"),
+    path("testplaying/", views.testplaying.as_view(), name="testplaying"),
 
     path("get_tournament_info/<int:pk>", views.GetTournamentInfo.as_view(), name="get_tournament_info"),
 ]

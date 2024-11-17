@@ -118,13 +118,28 @@
 
 .bracket_username
 {
-
+    cursor: pointer;
     overflow: hidden;
     text-overflow:ellipsis;
 }
 .playing2
 {
+    text-align: center;
     border: 1px solid var(--platinum_40_percent);
     border-radius: 15px;
     background-color: black;
+    width: 200px;
+    height: 40px;
+    line-height: 35px;
+    color: black;
+    background-color: var(--platinum);
+    transition:all 0.7s ease;
+}
+.playing2:hover
+{
+    color: white;
+    background-color: var(--primary_color);
+    width: 210px;
+    height: 42px;
+    font-size: 13px;
 }

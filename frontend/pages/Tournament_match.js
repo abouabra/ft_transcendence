@@ -14,11 +14,6 @@ export default class Tournament_Match extends HTMLElement {
             const datamessage = JSON.parse(event.data)
             console.log(datamessage)
             this.renderpage()
-            // makeRequest(`/api/auth/user/${datamessage.sender_id}/`, 'GET').then(data => {
-            //     const bracketelements = this.querySelector(`.bracket_container[data-id='${data.user}']`)
-            //     bracketelements[datamessage.sender_id].querySelector(".bracket_player_img").src = data.avatar
-            //     bracketelements[datamessage.sender_id].querySelector("span").innerText = data.username
-            // })
         }
     }
 
@@ -52,7 +47,7 @@ export default class Tournament_Match extends HTMLElement {
                                 <span class="p1_bold">TO GET THIS ACHIEVEMENT</span>
                                 <img src="/assets/images/winner_icon.jpg" class="winner_img" alt="winner_icone">
                             </div>
-                            <div class="playing2">Start Tournament</div>
+                            <div class="playing2 p3_bold">Start Tournament</div>
                         </div>
 
                         <div class="Right_part">
@@ -65,6 +60,17 @@ export default class Tournament_Match extends HTMLElement {
             `
             let play = document.querySelector(".playing2");
             const keys= Object.keys(data.data)
+
+            const bracketsets = this.querySelectorAll(".bracket_container")
+
+            bracketsets.forEach(element => {
+                const nameline = element.querySelector(".bracket_username");
+                nameline.addEventListener("click", () => {
+                    if (element.getAttribute("data-id") != 0)
+                        GoTo(`/profile/${element.getAttribute("data-id")}`)
+                })
+            })
+
             if (keys.length == 5)
             {
 
@@ -100,7 +106,6 @@ export default class Tournament_Match extends HTMLElement {
                 });
             }
             play.addEventListener("click", () => {
-                console.log("trying to start playing")
                 makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
                     console.log("started playing awla la")
                 })

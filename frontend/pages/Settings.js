@@ -31,7 +31,7 @@ export default class Settings_Page extends HTMLElement {
 		this.innerHTML = /* html */`
 		<div class="main_settings">
 			<div class="settings_content">
-				<div class="title">
+				<div>
 					<p class="header_h2 primary_color_color">Edit profile</p>
 				</div>
 				<div class="change_profile_banner">
@@ -202,7 +202,7 @@ export default class Settings_Page extends HTMLElement {
 	};
 
 	validate_two_f_a = async(response)=>{
-		const username = response;
+		const username = localStorage.getItem("username");
         const from_login = false;
 		const data = {
 			username,
@@ -214,6 +214,7 @@ export default class Settings_Page extends HTMLElement {
 			return;
 		}
 		try{
+			console.log("verify_2fa", data)
 			const response = await makeRequest('/api/auth/verify_2fa/', 'POST', data);
 			console.log(response);
 			Delete_Card('#card2');
@@ -269,6 +270,8 @@ export default class Settings_Page extends HTMLElement {
 				showToast("success", response.success)
 				const uname = document.getElementsByClassName("header_h1")[0].innerHTML=username;
 				const pdp = document.getElementsByClassName("user-bar-icon")[0].src=response.avatar;
+				localStorage.setItem("username", username);
+				localStorage.setItem("avatar", response.avatar);
 			}
 		})
 		.catch(error => showToast("error", error.message));	

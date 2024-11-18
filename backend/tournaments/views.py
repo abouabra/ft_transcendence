@@ -14,6 +14,7 @@ from django.conf import settings
 from .utils import find_emty_room, getUserData, Start_Playing, getmatchdata
 import json
 from math import floor
+
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 

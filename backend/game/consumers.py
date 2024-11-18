@@ -460,6 +460,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 return encoded_token
                         
             access_token = generate_access_token(me.user_id)
+            print(f"\n\n\nstats_wrapper: \n{self.scope}\n\n\n")
             sendAdvanceMatchRequest(access_token, match_obj.id)
 
 

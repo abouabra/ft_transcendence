@@ -18,7 +18,7 @@ urlpatterns = [
     
     path('leaderboard/', views.LeaderboardView.as_view(), name='leaderboard'),
 
-
+    # tournament_update
     path("construct_tournament_game/", views.ConstructTournamentGame.as_view(), name="construct_tournament_game"),
 
 

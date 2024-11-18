@@ -227,7 +227,11 @@ export default class Game_Page extends HTMLElement {
 						return;		
 					}
 					if(data.isTournemantMatch == true)
-						GoTo(`/tournament/${data.tournament_id}`);
+					{
+						makeRequest(`/api/tournaments/get_tournament_info/${data.tournament_id}`).then(data=>{
+							GoTo(`/tournament/match/?tournament_name=${data.name}`);
+						})
+					}
 					else
 						this.display_game_results(response);
 				});
@@ -244,26 +248,26 @@ export default class Game_Page extends HTMLElement {
 		game_canvas.innerHTML = /* html */`
 			<div class="game-page-stats-container">
 				<div class="game-page-stats-part">
-					<img src="/assets/games/space_invaders/ui/heart.svg" alt="heart" style="width: 16px;"></img>
+					<img src="/assets/games/space_invaders/ui/heart.svg" alt="heart" style="width: 16px;">
 					<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="2000" style="width: 200px;" id="powerup_health">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 100%"><span>2000</span></div>
 					</div>
 				</div>
 
 				<div class="game-page-stats-part">
-					<img src="/assets/games/space_invaders/ui/rocket.svg" alt="rocket" style="width: 16px;"></img>
+					<img src="/assets/games/space_invaders/ui/rocket.svg" alt="rocket" style="width: 16px;">
 					<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_boost">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"><span>100</span></div>
 					</div>
 				</div>
 
 				<div class="game-page-stats-part">
-					<img src="/assets/games/space_invaders/ui/damage.svg" alt="damage" style="width: 16px;"></img>
+					<img src="/assets/games/space_invaders/ui/damage.svg" alt="damage" style="width: 16px;">
 					<span id="powerup_damage"> x 1 </span>
 				</div>
 
 				<div class="game-page-stats-part">
-					<img src="/assets/games/space_invaders/ui/speed.svg" alt="speed" style="width: 16px;" ></img>
+					<img src="/assets/games/space_invaders/ui/speed.svg" alt="speed" style="width: 16px;" >
 					<span id="powerup_speed"> x 1 </span>
 				</div>
 			</div>

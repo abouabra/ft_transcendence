@@ -1,4 +1,5 @@
-import json
+import json, jwt
+from django.conf import settings
 from .models import Message, Server
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -7,6 +8,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        print(self.scope['cookies'])
+        token = self.scope['cookies']['refresh_token']  # Extract token from query string
+        print(f"token {token}")
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            print(f"paylod = {payload}")
+        except jwt.ExpiredSignatureError:  
+            print("expiredddd")
+        except jwt.InvalidTokenError:
+            print("invalideeee")
+        except:
+            print("faiiiled")
+        print(f"ssssssss {self.scope["user"]}")
         print(f"room = {self.room_name} connecting")
         self.room_group_name = f"chat_{self.room_name}"
         # Join room group

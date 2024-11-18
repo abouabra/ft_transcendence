@@ -11,7 +11,7 @@ from django.contrib.auth.hashers import make_password
 import base64
 from .request_api import create_qr_code
 from django.conf import settings
-from .utils import find_emty_room, getUserData, Start_Playing
+from .utils import find_emty_room, getUserData, Start_Playing, getmatchdata
 import json
 from math import floor
 class CreateTournamentStatsView(generics.GenericAPIView):
@@ -108,8 +108,6 @@ class GetTournamentInfo(generics.GenericAPIView):
         try:
             tournament = Tournament_History.objects.get(id=pk)
             return Response(ShortTournamentHistorySerializer(tournament).data, status=status.HTTP_200_OK)
-
-
         except:
             return Response({"message": "Tournament Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -180,7 +178,7 @@ class GetTournamentroomData(generics.GenericAPIView):
             if (len(tournament.members) == tournament.room_size):
                 tournament.status = "In progress"
                 tournament.save()
-                Start_Playing(request, tournament.id)
+                Start_Playing(request, tournament)
             return Response({"success":"user joined the tournament", "tournament_name":tournament.name}, status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
@@ -298,5 +296,61 @@ class testplaying(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        Start_Playing(request, Tournament_History.objects.get(name=request.query_params.get('tournament_name')).id)
+        try:
+            tournament = Tournament_History.objects.get(name=request.query_params.get('tournament_name'))
+        except tournament.DoesNotExist:
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+        if (request.user.id == tournament.members[0]):
+            if (tournament.status == "In progress"):
+                return Response({"error":"Tournament already started"}, status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error":"you are not the tournament host"}, status.HTTP_400_BAD_REQUEST)
+        if Start_Playing(request, tournament):
+            return Response({"error":"Failed to start tournament"}, status.HTTP_400_BAD_REQUEST)
+        tournament.status = "In progress"
+        tournament.save()
         return Response({"message": "Tournament History Created Successfully"}, status=status.HTTP_201_CREATED)
+class advanceTournamentmatch(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            data = getmatchdata(request)
+
+            tournament = Tournament_History.objects.get(id=data["tournament_id"])
+            current_round = tournament.bracket_data["current_round"]
+            if (current_round == "finals"):
+                return Response({"error":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
+
+            next_round = "finals"
+            if (current_round == "quarterfinals"):
+                next_round = "semifinals"
+            elif current_round == "round_of_16":
+                next_round = "quarterfinals"
+            current_round = tournament.bracket_data["current_round"]
+            datalist = tournament.bracket_data[current_round]
+            for index ,element in enumerate(datalist, start=0):
+                if (data["player1"]["id"] in element and data["player2"]["id"] in element):
+                    if(next_round == "finals"):
+                        if index%2:
+                            tournament.bracket_data[next_round][0][1] = data["winner"]
+                        else:
+                            tournament.bracket_data[next_round][0][0] = data["winner"]
+                    else:
+                        if index%2:
+                            tournament.bracket_data[next_round][index-1][1] = data["winner"]
+                        else:
+                            tournament.bracket_data[next_round][index][0] = data["winner"]
+                    tournament.save()
+            matchlen = 0
+            for element in tournament.bracket_data[next_round]:
+                if (element[0] ==0 or element[1] == 0):
+                    break
+                matchlen += 1
+            if matchlen == len(tournament.bracket_data[next_round]):
+                tournament.bracket_data["current_round"] = next_round
+                tournament.save()
+                Start_Playing(request, tournament)
+        except Tournament_History.DoesNotExist:
+            return Response({"error":"Tournament not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"success": "Tournament game ended"}, status=status.HTTP_200_OK)

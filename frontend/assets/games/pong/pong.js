@@ -411,7 +411,9 @@ class PongGame {
 		
 		this.stats.dom.style.display = "none";
 		const game_id = parseInt(localStorage.getItem("game_id"));
-		
+
+		makeRequest("/api/tournaments/advancematch/", "POST", {"game_id":game_id})
+
 		if(this.gameMode === GAME_CONSTANTS.MODES.LOCAL)
 		{
 			makeRequest("/api/game/pong/end/", "POST", {

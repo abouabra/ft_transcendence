@@ -174,6 +174,7 @@ class GetTournamentroomData(generics.GenericAPIView):
             if match_instance is None:
                 return Response({"error":"room is full"}, status.HTTP_400_BAD_REQUEST)
             tournament.members.append(request.user.id)
+            tournament.total_number_of_players += 1
             tournament.bracket_data[tournament.bracket_data["current_round"]][match_instance[0]][match_instance[1]] = request.user.id
             tournament.save()
             if (len(tournament.members) == tournament.room_size):

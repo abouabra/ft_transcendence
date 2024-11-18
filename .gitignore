@@ -151,3 +151,11 @@ domain.key
 domain.crt
 private.key
 public.key
+
+# Ignore local settings
+frontend/assets/images/avatars/
+frontend/assets/images/qrcode_2fa/
+frontend/assets/images/server_avatars/
+frontend/assets/images/servers_qr_codes/
+frontend/assets/images/tournament_avatars/
+frontend/assets/images/tournament_qr_code/

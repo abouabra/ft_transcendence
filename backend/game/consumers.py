@@ -448,19 +448,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         update_stats_after_game(me.user_id, opponent.user_id, match_obj.game_name, game_obj.id)
 
         if match_obj.isTournemantMatch:
-            def generate_access_token(user_id):
-                payload = {
-                    'user_id': user_id,  # Replace 'id' with the appropriate key
-                    'exp': datetime.datetime.utcnow() + settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],  # Access expiration from settings
-                    # Add other custom claims as required
-                }
-
-                encoded_token = jwt.encode(payload, settings.SIMPLE_JWT['SIGNING_KEY'], algorithm=settings.SIMPLE_JWT['ALGORITHM'])
-                print(f"generate_access_token: {encoded_token}")
-                return encoded_token
-                        
-            access_token = generate_access_token(me.user_id)
-            print(f"\n\n\nstats_wrapper: \n{self.scope}\n\n\n")
+            access_token = self.scope['cookies'].get('access_token')
             sendAdvanceMatchRequest(access_token, match_obj.id)
 
 

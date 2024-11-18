@@ -119,11 +119,12 @@ def sendHTTPNotification(request, jsonData):
         "Accept": "application/json",
     }
 
-    url = f"http://127.0.0.1:8000/api/auth/recieve_http_notification/"
+    url = "http://127.0.0.1:8000/api/auth/recieve_http_notification/"
 
 
     response = requests.post(url, headers=request_headers, cookies={"access_token": access_token}, json=jsonData)
-    
+    print(f"\n\nsendHTTPNotification \n\njsonData: {jsonData} \n\n {response.json()}\n\n")
+
     if(response.status_code != 200):
         raise ValueError("Failed to send HTTP Notification")
     

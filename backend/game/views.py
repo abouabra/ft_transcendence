@@ -6,8 +6,9 @@ from .models import Game_History, GameStats
 import logging
 from .utils import getUserData
 from rest_framework import generics, permissions, status
-from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer, LeaderboardSerializer
-from .utils import update_stats_after_game, sendHTTPNotification
+from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer, LeaderboardSerializer, ProfileGameHistorySerializer
+from .utils import update_stats_after_game, sendHTTPNotification, getTournamentProfileStats
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
@@ -333,5 +334,51 @@ class ConstructTournamentGame(generics.GenericAPIView):
             logger.error(f"==============\n\n {str(e)} \n\n==============")
             return Response(
                 {"detail": "Error encountered while sending notification"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+class ProfileStatsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, pk):
+        try:
+            game_stats = {}
+            game_stats["pong"] = GameStats.objects.get(user_id=pk, game_name="pong")
+            game_stats["space_invaders"] = GameStats.objects.get(user_id=pk, game_name="space_invaders")
+            game_stats["road_fighter"] = GameStats.objects.get(user_id=pk, game_name="road_fighter")
+
+            TournamentProfileStats = getTournamentProfileStats(request, pk)
+            
+            response_data = {}
+            for game in ["pong", "space_invaders", "road_fighter"]:
+                response_data[game] = {
+                    "match_numbers": {
+                        "won": game_stats[game].games_won,
+                        "lost": game_stats[game].games_lost,
+                        "total": game_stats[game].total_games_played,
+                    },
+                    "win_los_ratio": {
+                        "matches": round(game_stats[game].games_won / game_stats[game].total_games_played * 100, 2) if game_stats[game].total_games_played > 0 else 0,
+                        "tournaments": TournamentProfileStats["win_los_ratio"][game],
+                    },
+                    "average": {
+                        "avg_duration": round(game_stats[game].total_time_spent / game_stats[game].total_games_played, 2) if game_stats[game].total_games_played > 0 else 0,
+                        "avg_score": round(game_stats[game].total_score / game_stats[game].total_games_played, 2) if game_stats[game].total_games_played > 0 else 0,
+                    }
+                }
+                
+                all_player_games_objects = Game_History.objects.filter((Q(player1=pk) | Q(player2=pk)), game_name=game, has_ended=True).order_by('-game_date')
+                response_data[game]["current_elo"] = round(game_stats[game].current_elo, 2)
+                response_data[game]["leaderboard_rank"] = GameStats.objects.filter(game_name=game, current_elo__gt=game_stats[game].current_elo).count() + 1
+                response_data[game]["recent_games"] = ProfileGameHistorySerializer(all_player_games_objects, many=True).data
+                response_data[game]["recent_tournaments"] = TournamentProfileStats["recent_tournaments"][game]
+                
+            return Response(response_data, status=status.HTTP_200_OK)
+        except GameStats.DoesNotExist:
+            return Response({"detail": "Stats Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while fetching the stats"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

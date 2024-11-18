@@ -85,3 +85,8 @@ class SerializerSignup(serializers.ModelSerializer):
 
 class ValidEmail(serializers.Serializer):
     email = serializers.EmailField()
+
+class ProfileUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "avatar"]

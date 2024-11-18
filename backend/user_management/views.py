@@ -2,8 +2,8 @@ from . import utils
 from .models import User
 from .models import User, Notification
 from .serializers import SerializerSignup, ValidEmail
-from .serializers import UserSerializer, NotificationSerializer, ShortUserSerializer
-from .utils import set_refresh_and_access_token, init_user_stats, create_qr_code
+from .serializers import UserSerializer, NotificationSerializer, ShortUserSerializer, ProfileUserSerializer
+from .utils import set_refresh_and_access_token, init_user_stats, create_qr_code, getProfileStats
 from datetime import datetime, timezone
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -918,3 +918,44 @@ class user_info(APIView):
         
         
         
+
+class ProfileView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ShortUserSerializer
+    
+    def get(self, request, pk):
+        try:
+            user = User.objects.get(id=pk)
+            response_data = {}
+            response_data["user"] = ShortUserSerializer(user).data
+            stats = getProfileStats(request, user.id)
+
+            user_ids = set()
+            for game_name in ["pong", "space_invaders", "road_fighter"]:
+                for game in stats[game_name]["recent_games"]:
+                    user_ids.add(game["player1"])
+                    user_ids.add(game["player2"])
+
+            users = User.objects.filter(id__in=user_ids)
+            users_dict = {user.id: ProfileUserSerializer(user).data for user in users}
+
+            for game_name in ["pong", "space_invaders", "road_fighter"]:
+                for game in stats[game_name]["recent_games"]:
+                    game["player1"] = users_dict[game["player1"]]
+                    game["player2"] = users_dict[game["player2"]]
+          
+            response_data.update(stats)
+            return Response(response_data, status=status.HTTP_200_OK)
+        
+        
+        
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while fetching the user"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

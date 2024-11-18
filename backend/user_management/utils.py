@@ -126,10 +126,19 @@ def create_qr_code(image="./assets/images/qrcode_2fa/qrcode.png", qr_data="empty
             file.write(response_qr.content)
 
 
-# def save_images(data):
-#     if data.base64:
-    
-#     else:
-        
-        
-        
+def getProfileStats(request, userID):
+    access_token = request.COOKIES.get("access_token")
+    request_headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    url = f"http://127.0.0.1:8000/api/game/profile_stats/{userID}/"
+
+    response = requests.get(url, headers=request_headers, cookies={"access_token": access_token})
+
+    if(response.status_code != 200):
+        raise Exception(f"Error encountered while fetching profile stats {response.text}")
+
+    return response.json()
+

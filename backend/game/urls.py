@@ -21,5 +21,5 @@ urlpatterns = [
     # tournament_update
     path("construct_tournament_game/", views.ConstructTournamentGame.as_view(), name="construct_tournament_game"),
 
-
+    path("profile_stats/<int:pk>/", views.ProfileStatsView.as_view(), name="profile_stats"),
 ]

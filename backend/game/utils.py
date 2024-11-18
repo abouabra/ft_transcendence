@@ -148,3 +148,20 @@ def sendAdvanceMatchRequest(access_token, game_id):
     response = requests.post(url, headers=request_headers, cookies=cookies, json={"game_id": game_id})
     return response.json()
 
+
+
+def getTournamentProfileStats(request, userID):
+    access_token = request.COOKIES.get("access_token")
+    request_headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    url = f"http://127.0.0.1:8000/api/tournaments/profile_stats/{userID}/"
+
+    response = requests.get(url, headers=request_headers, cookies={"access_token": access_token})
+
+    if(response.status_code != 200):
+        raise Exception(f"Error encountered while fetching profile stats {response.text}")
+
+    return response.json()

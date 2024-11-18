@@ -18,4 +18,6 @@ urlpatterns = [
     path("testplaying/", views.testplaying.as_view(), name="testplaying"),
     path("advancematch/", views.advanceTournamentmatch.as_view(), name="advancematch"),
     path("get_tournament_info/<int:pk>", views.GetTournamentInfo.as_view(), name="get_tournament_info"),
+
+    path("profile_stats/<int:pk>/", views.ProfileStatsView.as_view(), name="profile_stats"),
 ]

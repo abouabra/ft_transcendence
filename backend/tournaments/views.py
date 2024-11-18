@@ -6,7 +6,7 @@ from .models import Tournament_History, TournamentStats
 from rest_framework.pagination import PageNumberPagination
 from .serializers import TournamentHistorySerializer, ShortTournamentHistorySerializer
 
-from .serializers import TournamentHistorySerializer, TournamentStatsSerializer
+from .serializers import TournamentHistorySerializer, TournamentStatsSerializer, ProfileTournamentHistorySerializer
 from django.contrib.auth.hashers import make_password
 import base64
 from .request_api import create_qr_code
@@ -362,3 +362,25 @@ class advanceTournamentmatch(generics.GenericAPIView):
         except Tournament_History.DoesNotExist:
             return Response({"error":"Tournament not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response({"success": "Tournament game ended"}, status=status.HTTP_200_OK)
+
+
+class ProfileStatsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, pk):
+        try:
+            tournament_stats = {}
+            tournament_stats["pong"] = TournamentStats.objects.get(user_id=pk, game_name="pong")
+            tournament_stats["space_invaders"] = TournamentStats.objects.get(user_id=pk, game_name="space_invaders")
+            tournament_stats["road_fighter"] = TournamentStats.objects.get(user_id=pk, game_name="road_fighter")
+
+            response_data = {"win_los_ratio": {}, "recent_tournaments": {}}
+            for key in tournament_stats:
+                response_data["win_los_ratio"][key] = int(tournament_stats[key].games_won / tournament_stats[key].total_games_played * 100) if tournament_stats[key].total_games_played != 0 else 0
+            
+            for game in ["pong", "space_invaders", "road_fighter"]:
+                recent_tournaments = Tournament_History.objects.filter(game_name=game, members__contains=[pk]).exclude(status="Waiting for players").order_by('-created_at') # TODO: Replace Waiting for players with what baanni decides
+                response_data["recent_tournaments"][game] = ProfileTournamentHistorySerializer(recent_tournaments, many=True, context={'user_id': pk}).data
+            return Response(response_data, status=status.HTTP_200_OK)
+        except:
+            return Response({"message": "Tournament Stats Not Found"}, status=status.HTTP_404_NOT_FOUND)

@@ -8,8 +8,15 @@ export default class Profile_Page extends HTMLElement {
 
 		const user_id = window.location.pathname.split("/")[2];
 
-		makeRequest(`/api/auth/full_user/${user_id}/`)
+		makeRequest(`/api/auth/profile/${user_id}/`)
 		.then((data) => {
+			if(data.response_code == 404)
+			{
+				this.innerHTML = /* html */`
+					<h1> User not found</h1>
+				`;
+				return;
+			}
 			this.render_data(data);
 		})
 		.catch((error) => {
@@ -19,21 +26,14 @@ export default class Profile_Page extends HTMLElement {
 
 	render_data(data)
 	{
-		if(data.response_code == 404)
-		{
-			this.innerHTML = /* html */`
-				<h1> User not found</h1>
-			`;
-			return;
-		}
+		console.log(data);
 		this.innerHTML = /* html */`
 			<h1> Profile Page</h1>
 
 			<div> 
-				<h1> ID: ${data.id}</h1>
-				<h1> Username: ${data.username}</h1>
-				<h1> Email: ${data.email}</h1>
-				<img src="${data.avatar}" class="profile_avatar"/>
+				<h1> ID: ${data.user.id}</h1>
+				<h1> Username: ${data.user.username}</h1>
+				<img src="${data.user.avatar}" class="profile_avatar"/>
 			</div>
 
 		`;

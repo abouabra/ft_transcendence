@@ -3,7 +3,7 @@ from .models import User
 from .models import User, Notification
 from .serializers import SerializerSignup, ValidEmail
 from .serializers import UserSerializer, NotificationSerializer, ShortUserSerializer
-from .utils import set_refresh_and_access_token, init_user_stats
+from .utils import set_refresh_and_access_token, init_user_stats, create_qr_code
 from datetime import datetime, timezone
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -460,7 +460,6 @@ def intra_42_callback(request):
             }
             user_info_response = requests.get(user_info_url, headers=headers)
             user_data = user_info_response.json()
-
             email = user_data.get("email")
             username = user_data.get("login")
             if User.objects.filter(email=email).exists():
@@ -472,9 +471,23 @@ def intra_42_callback(request):
                     email=email,
                     password=random_password,
                 )
+                avatar = user_data["image"]["link"]
+                if(avatar):
+                    response = requests.get(avatar, stream=True)
+                    if (response.status_code == 200):
+                        filename = f"user_{user.id}.jpg"
+                        file_path = f"./assets/images/avatars/{filename}"
+                        with open (file_path, "wb") as image_file:
+                            for chunk in response.iter_content(2048):
+                                image_file.write(chunk)
+                        user.avatar = file_path[1:]
+                user.save()
             refresh = RefreshToken.for_user(user)
             jwt_access_token = str(refresh.access_token)
             jwt_refresh_token = str(refresh)
+
+            request.COOKIES['access_token'] = jwt_access_token
+            init_user_stats(request, user.id)
 
             redirect_url = 'http://127.0.0.1:3000/home/'
             response = HttpResponseRedirect(redirect_url)
@@ -488,24 +501,34 @@ def intra_42_callback(request):
     response = HttpResponseRedirect(redirect_url)
     return response
 
-
-
 @login_required
 def get_user_data(request):
+    google_user = request.user.social_auth.get(provider='google-oauth2')
+    profile_data = google_user.extra_data
     userModel = User.objects.get(email=request.user.email)
-
+    image_file= profile_data.get("picture")
+    if(image_file and userModel.avatar == "/assets/images/avatars/default.jpg"):
+        response = requests.get(image_file, stream=True)
+        if (response.status_code == 200):
+            filename = f"user_{userModel.id}.jpg"
+            file_path = f"./assets/images/avatars/{filename}"
+            with open (file_path, "wb") as image_file:
+                for chunk in response.iter_content(2048):
+                    image_file.write(chunk)
+            userModel.avatar = file_path[1:]
+    userModel.username = profile_data.get("name")
+    userModel.save()
     refresh = RefreshToken.for_user(userModel)
     access_token = str(refresh.access_token)
     refresh_token = str(refresh)
     redirect_url = 'http://127.0.0.1:3000/home/'
-    response =  HttpResponseRedirect(redirect_url)
-    
+    response = HttpResponseRedirect(redirect_url)
     request.COOKIES['access_token'] = access_token
     init_user_stats(request, request.user.id)
-    
     response.delete_cookie('csrftoken')
     response.delete_cookie('sessionid')
-    set_refresh_and_access_token(response, (access_token, refresh_token))    
+    set_refresh_and_access_token(response, (access_token, refresh_token))
+    
     return response
    
 
@@ -565,7 +588,6 @@ class SendEmailView(APIView):
         
     def post(self, request):
         type = request.data.get("type")
-        print(type)
         email = request.data.get("email")
         encode_email = urllib.parse.quote(encode_data(email))
         if type == "forgot":
@@ -579,7 +601,7 @@ class SendEmailView(APIView):
                     <p>
                     Seems like you forgot your password for Fesablanca. if this is true, click below to reset your password.
                     </p>
-                    <a href="http://0.0.0.0:3000/forgot_password/?email={email}&token={encode_email}" class="button">Reset My Password</a>
+                    <a href="http://127.0.0.1:3000/forgot_password/?email={email}&token={encode_email}" class="button">Reset My Password</a>
                     <div class="footer">
                     <p>
                         If you did not forgot your password you can safely ignore this email.
@@ -600,11 +622,11 @@ class SendEmailView(APIView):
                     <p>
                     Thank you for registering with Fesablanca.<br><br>To complete your registration, please verify your email by clicking the button below:
                     </p>
-                    <a href="http://0.0.0.0:3000/signup/?email={email}&token={encode_email}" class="button">Verify email address</a>
+                    <a href="http://127.0.0.1:3000/signup/?email={email}&token={encode_email}" class="button">Verify email address</a>
                     <p>
                     If the button doesn't work, you can also copy and paste the following link into your browser:
                     </p>
-                    <p><a href="#" class="link">http://0.0.0.0:3000/signup/?email={email}&token={encode_email}</a></p>
+                    <p><a href="#" class="link">http://127.0.0.1:3000/signup/?email={email}&token={encode_email}</a></p>
                     <div class="footer">
                     <p>
                         If you did not sign up for a Fesablanca account, please ignore this email.
@@ -730,44 +752,169 @@ class Forgot_password(APIView):
         return Response("success", status=200)
 
 
-class TwoFactorAuth(TokenObtainPairView):
-    permission_classes = (permissions.AllowAny,)
+class SetupTwoFactorAuthView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
     def put(self, request):
-        username = request.data.get('username')
+        username = request.user.username
         userobj = User.objects.get(username = username)
+        
         if(not userobj.two_factor_auth):
             secret = pyotp.random_base32()
             userobj.otp_secret = secret
-            print("here 1", userobj.otp_secret, userobj.email)
-            userobj.two_factor_auth=True
+            # userobj.two_factor_auth=True
             userobj.save()
             uri = f"otpauth://totp/MyApp:{userobj.email}?secret={userobj.otp_secret}&issuer=MyApp"
-            qr = qrcode.make(uri)
-            qr.save('qrcode.png')
-            return Response({"user_is_auth": userobj.two_factor_auth}, status=200)
+            create_qr_code(userobj.avatar, uri, "qrcode.png")
+            return Response({"user_is_auth": True}, status=200)
         else:
-            print("here 2", userobj.otp_secret, userobj.email)
             userobj.two_factor_auth=False
             userobj.save()
             return Response({"user_is_auth": userobj.two_factor_auth}, status=200)
-        
-            
 
+
+class VerifyTwoFactorAuthView(TokenObtainPairView):
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
         username=request.data.get('username')
-        user = User.objects.get(username = username)
-        otp = request.data.get('otp')
+        from_login = request.data.get("from_login")
+        otp = request.data.get("otp")
+        if not otp:
+            return Response({"error": "OTP is required."}, status=400)
+
+        try:
+            user = User.objects.get(username = username)
+        except user.DoesNotExist:
+            return Response({"error": "User profile not found."}, status=404)
+
         totp = pyotp.TOTP(user.otp_secret)
         if totp.verify(otp):
-            print("success")  
-            response = super().post(request, *args, **kwargs)
-            utils.set_refresh_and_access_token(response)
-            return response
+            user.two_factor_auth = True
+            if from_login:
+                response = super().post(request, *args, **kwargs)
+                utils.set_refresh_and_access_token(response)
+                return response
+            else:
+                user.save()
+                return Response({"success": "code correct."}, status=200)
+                
         else:
-            print("faild")
             return Response({"error": "code incorrect."}, status=400)
+
+
+
+# class TwoFactorAuth(TokenObtainPairView, generics.GenericAPIView):
+#     permission_classes = (permissions.AllowAny,)
+
+#     def put(self, request):
+#         if not request.user.is_authenticated:
+#             return Response({"error": "Authentication required."}, status=401)
+#         username = request.user.username
+#         userobj = User.objects.get(username = username)
+#         if(not userobj.two_factor_auth):
+#             secret = pyotp.random_base32()
+#             userobj.otp_secret = secret
+#             userobj.two_factor_auth=True
+#             userobj.save()
+#             uri = f"otpauth://totp/MyApp:{userobj.email}?secret={userobj.otp_secret}&issuer=MyApp"
+#             create_qr_code(userobj.avatar, uri, "qrcode.png")
+#             return Response({"user_is_auth": userobj.two_factor_auth}, status=200)
+#         else:
+#             userobj.two_factor_auth=False
+#             userobj.save()
+#             return Response({"user_is_auth": userobj.two_factor_auth}, status=200)
+
+
+#     def post(self, request, *args, **kwargs):
+#         print(request.data)
+#         username=request.data.get('username')
+#         user = User.objects.get(username = username)
+#         otp = request.data.get('otp')
+#         print(otp)
+#         totp = pyotp.TOTP(user.otp_secret)
+#         if totp.verify(otp):
+#             user.two_factor_auth = True
+#             print("success")  
+#             response = super().post(request, *args, **kwargs)
+#             utils.set_refresh_and_access_token(response)
+#             return response
+#         else:
+#             print("faild")
+#             return Response({"error": "code incorrect."}, status=400)
         
 
     
+class user_info(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        
+        infos = {
+            "username" : request.user.username,
+            "email" : request.user.email,
+            "two_f_a" : request.user.two_factor_auth,
+            "profile_banner" : request.user.profile_banner,   
+            "pdp" : request.user.avatar,
+        }
+
+        return Response(infos ,status=200)
+    
+    def post(self, request):
+        change = False
+        user = User.objects.get(id = request.user.id)
+        username = request.data.get("username")
+        password = request.data.get("password")
+        password_confirmation = request.data.get("password_confirmation")
+        bannerInput = request.data.get("bannerImage")
+        avatarInput = request.data.get("avatarImage")
+        
+        if (not password and password_confirmation) or (password and not password_confirmation):
+            return Response({"error":"Fill password and password confirmation"}, status = 400)
+        elif password and password_confirmation :
+            if password != password_confirmation:
+                return Response({"error":"Passwords do not match"}, status = 400)
+            elif len(password) < 8:
+                return Response({"error":"Use at least 8 characters"}, status = 400)
+            else:
+                change = True
+                user.set_password(password)
+        if username and user.username != username :
+            print(username, user.username)
+            if User.objects.filter(username = username).exists():
+                return Response({"error":"Username already existe"}, status = 400)
+            else:
+                change = True
+                user.username = username
+        if bannerInput:
+            try:
+                split_base_64 = bannerInput.split(';base64,')
+                image_data = base64.b64decode(split_base_64[1])
+                filename = f"user_banner{request.user.id}.jpg"
+                file_path = f"./assets/images/banners/{filename}"
+                with open (file_path, "wb") as f:
+                    f.write(image_data)
+                user.profile_banner = file_path[1:]
+                change = True
+            except(IndexError, base64.binascii.Error) as e:
+                return Response({"error": "Invalid banner image format"}, status=400)
+                
+        if avatarInput:
+            try:
+                split_base_64 = avatarInput.split(';base64,')
+                image_data = base64.b64decode(split_base_64[1])
+                filename = f"user_{request.user.id}.jpg"
+                file_path = f"./assets/images/avatars/{filename}"
+                with open (file_path, "wb") as f:
+                    f.write(image_data)
+                user.avatar = file_path[1:]
+                change = True
+            except(IndexError, base64.binascii.Error) as e:
+                return Response({"error": "Invalid avatar image format"}, status=400)
+            
+        if change == True :
+            user.save()
+            return Response({"success":"succefully changed", "avatar":user.avatar} ,status=200)
+        return Response({"nothing":"nothing change"} ,status=200)
+        
+        
+        

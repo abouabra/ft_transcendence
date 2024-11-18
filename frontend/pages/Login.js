@@ -44,12 +44,12 @@ export default class Login_Page extends HTMLElement {
                     <span class="title_form header_h2 primary_color_color">Two Factor Authentication</span>
                 </div>
                 <div class="inputs_2fa">
-                    <input type="text" class="header_h3 input_2fa" maxlength="1">
-                    <input type="text" class="header_h3 input_2fa" maxlength="1">
-                    <input type="text" class="header_h3 input_2fa" maxlength="1">
-                    <input type="text" class="header_h3 input_2fa" maxlength="1">
-                    <input type="text" class="header_h3 input_2fa" maxlength="1">
-                    <input type="text" class="header_h3 input_2fa" maxlength="1">
+                    <input type="text" class="header_h3 input_2fa" maxlength="1" id="input1">
+                    <input type="text" class="header_h3 input_2fa" maxlength="1" id="input2">
+                    <input type="text" class="header_h3 input_2fa" maxlength="1" id="input3">
+                    <input type="text" class="header_h3 input_2fa" maxlength="1" id="input4">
+                    <input type="text" class="header_h3 input_2fa" maxlength="1" id="input5">
+                    <input type="text" class="header_h3 input_2fa" maxlength="1" id="input6">
                 </div>
             
                 <button-component class="login_button" data-text="Submit" id="submit"></button-component>
@@ -57,6 +57,7 @@ export default class Login_Page extends HTMLElement {
             </div>
         </div>
         `;
+
         const inputs = document.querySelectorAll(".input_2fa");
         inputs.forEach((input, index) => {
             input.addEventListener("input", (e) => {
@@ -85,18 +86,7 @@ export default class Login_Page extends HTMLElement {
         return code;
     };
 
-    togglePasswordVisibility() {
-        const passwordInput = this.querySelector('#Password');
-        const toggleIcon = this.querySelector('#toggle-icon');
-    
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.src = '/assets/images/common/Iconly/Light/Hide.svg';
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.src = '/assets/images/common/Iconly/Light/Show.svg';
-        }
-    }
+
     // handleLoginGoogle = async (event) => {
     //     event.preventDefault();
     //     window.location.href = 'http://127.0.0.1:8000/oauth/login/google-oauth2/';
@@ -128,14 +118,15 @@ export default class Login_Page extends HTMLElement {
             showToast("error", "Password is required");
             return;
         }
+        const from_login = true;
         const data = {
             username,
-            password
+            password,
+            from_login
         };
         try {
             const response = await makeRequest('/api/auth/login/', 'POST', data);
             if (response.user_is_auth){
-                console.log("west is auth")
                 change_display("#displaay", "#displaaay");
                 const submitButton = document.querySelector('#submit').addEventListener('click',async (e)=> {
                     e.preventDefault();
@@ -145,7 +136,7 @@ export default class Login_Page extends HTMLElement {
                         return;
                     }
                     try{
-                        const response = await makeRequest('/api/auth/2fa/', 'POST', data);
+                        const response = await makeRequest('/api/auth/verify_2fa/', 'POST', data);
                         console.log(response);
                         GoTo("/home/")
                     }catch{
@@ -165,13 +156,13 @@ export default class Login_Page extends HTMLElement {
     
 
     connectedCallback() {
-        this.querySelector('#toggle-password').addEventListener('click', () => this.togglePasswordVisibility());
+        this.querySelector('#toggle-password').addEventListener('click', () => togglePasswordVisibility("#Password", "#toggle-icon"));
         this.querySelector('.login_button').addEventListener('click', this.handleLogin);
     }
     
     disconnectedCallback() {
-        this.querySelector('#toggle-password').removeEventListener('click', this.togglePasswordVisibility);
-        this.querySelector('.login_button').removeEventListener('click', this.handleLogin);
+        // this.querySelector('#toggle-password').removeEventListener('click', () => togglePasswordVisibility("#Password", "#toggle-icon"));
+        // this.querySelector('.login_button').removeEventListener('click', this.handleLogin);
     }
 
     attributeChangedCallback(name, oldValue, newValue) {}

@@ -7,6 +7,10 @@ export default class Base_Page extends HTMLElement {
 		head.appendChild(createLink('/styles/base.css'));
 
 		this.innerHTML = /* html */`
+			<div id="spinner-overlay" class="spinner-overlay">
+				<div class="spinner-border text-primary" role="status">
+				</div>
+			</div>
 			<side-bar></side-bar>
 		
 			<div class="center-part" >

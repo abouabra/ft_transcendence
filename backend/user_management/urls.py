@@ -28,7 +28,9 @@ urlpatterns = [
     path('verification_email/', views.VerificationEmail.as_view(), name='verification_email'),
     path('send-email/', views.SendEmailView.as_view(), name='send_email'),
     path('forgot_password/', views.Forgot_password.as_view(), name='forgot_pass'),
-    path('2fa/', views.TwoFactorAuth.as_view(), name='two_factor_auth'),
+    path('verify_2fa/', views.VerifyTwoFactorAuthView.as_view(), name='two_factor_auth'),
+    path('update_2fa/', views.SetupTwoFactorAuthView.as_view(), name='two_factor_auth'),
     path('after_google/', views.get_user_data, name='after_google'),
     path('callback/', views.intra_42_callback, name='callback'),
+    path('user_info/', views.user_info.as_view(), name='user_info'),
 ]

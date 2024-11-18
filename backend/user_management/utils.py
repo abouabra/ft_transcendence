@@ -124,3 +124,12 @@ def create_qr_code(image="./assets/images/qrcode_2fa/qrcode.png", qr_data="empty
     if response_qr.status_code == 200:
         with open(f"./assets/images/qrcode_2fa/{image_name}", "wb") as file:
             file.write(response_qr.content)
+
+
+# def save_images(data):
+#     if data.base64:
+    
+#     else:
+        
+        
+        

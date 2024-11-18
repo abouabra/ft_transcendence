@@ -47,21 +47,6 @@ export default class Signup2_Page extends HTMLElement{
         `;
     };
 
-
-
-    togglePasswordVisibility(pass, icon) {
-        const passwordInput = document.querySelector(pass);
-        const toggleIcon = document.querySelector(icon);
-    
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.src = '/assets/images/common/Iconly/Light/Hide.svg';
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.src = '/assets/images/common/Iconly/Light/Show.svg';
-        }
-    }
-
     handelsignup = async (event) => {
         event.preventDefault();
         const email = this.firstvalue;
@@ -94,14 +79,14 @@ export default class Signup2_Page extends HTMLElement{
         const emailInput = document.querySelector('input[name="email"]');
         emailInput.removeAttribute('required');
         emailInput.disabled = true;
-        this.querySelector('#toggle-password-1').addEventListener('click', () => this.togglePasswordVisibility('#Password-1', '#toggle-icon-1'));
-        this.querySelector('#toggle-password-2').addEventListener('click', () => this.togglePasswordVisibility('#Password-2', '#toggle-icon-2'));
+        this.querySelector('#toggle-password-1').addEventListener('click', () => togglePasswordVisibility('#Password-1', '#toggle-icon-1'));
+        this.querySelector('#toggle-password-2').addEventListener('click', () => togglePasswordVisibility('#Password-2', '#toggle-icon-2'));
         this.querySelector('#register_button').addEventListener('click', (event) => this.handelsignup(event))
     }
 
     disconnectedCallback() {
-        this.querySelector('#toggle-password-1').removeEventListener('click', () => this.togglePasswordVisibility('#Password-1', '#toggle-icon-1'));
-        this.querySelector('#toggle-password-2').removeEventListener('click', () => this.togglePasswordVisibility('#Password-2', '#toggle-icon-2'));
+        this.querySelector('#toggle-password-1').removeEventListener('click', () => togglePasswordVisibility('#Password-1', '#toggle-icon-1'));
+        this.querySelector('#toggle-password-2').removeEventListener('click', () => togglePasswordVisibility('#Password-2', '#toggle-icon-2'));
         this.querySelector('#register_button').removeEventListener('click', this.handelsignup);
         
     }

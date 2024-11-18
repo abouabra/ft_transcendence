@@ -12,6 +12,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/avatars/default.jpg")
+    profile_banner = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/banners/default_banner.png")
     status = models.CharField(max_length=255, blank=False, null=False, default="offline")
 
     two_factor_auth = models.BooleanField(default=False)

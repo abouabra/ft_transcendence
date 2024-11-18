@@ -63,7 +63,6 @@ async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
 	// Parse JSON response
 	const jsonResponse = await response.json();
 	jsonResponse.response_code = response.status;
-
 	return jsonResponse;
 }
 
@@ -200,6 +199,12 @@ function sendNotification(type, receiver_id, extra_data = null)
 }
 
 
+function Delete_Card(tag) {
+	const element = document.querySelector(tag);
+	element.remove();
+	console.log("small card removed");
+}
+
 function Make_Small_Card(type, server_id = null, username_who_invited_you = null, avatar_who_invited_you = null, game_name = null, username_waiting_for = null, avatar_waiting_for = null, data_id_who_invited_you=null, data_id_waiting_for=null)
 {
 	const center_part = document.getElementById("base_page");
@@ -226,6 +231,14 @@ function Make_Small_Card(type, server_id = null, username_who_invited_you = null
 	// Make_Small_Card("waiting_for_accept_game", null, 1, null, null, "Pong", "default", "/assets/images/avatars/default.jpg");
 
 }	
+
+function showSpinner() {
+	const spiner = document.getElementById("spinner-overlay").classList.add('active');
+}
+
+function hideSpinner() {
+	const spiner = document.getElementById("spinner-overlay").classList.remove('active');
+}
 
 function Delete_Small_Card() {
 	const elements = document.querySelectorAll("small-cards");
@@ -258,11 +271,12 @@ function update_active_sidebar() {
 
 
 function change_display(first ,second) {
+
 	const display_1 = document.querySelector(first);
 	const display_2 = document.querySelector(second);
 
 	display_1.outerHTML="";
-	display_2.style.display = "block";
+	display_2.style.display = "flex";
 };
 
 const handle_first_one = (type, element ) => async (event) => {
@@ -302,5 +316,18 @@ const handleLoginIntra = async (event) => {
 
 	window.location.href = authorizationUrl;
 };
+
+function togglePasswordVisibility(pass, icon) {
+	const passwordInput = document.querySelector(pass);
+	const toggleIcon = document.querySelector(icon);
+
+	if (passwordInput.type === 'password') {
+		passwordInput.type = 'text';
+		toggleIcon.src = '/assets/images/common/Iconly/Light/Hide.svg';
+	} else {
+		passwordInput.type = 'password';
+		toggleIcon.src = '/assets/images/common/Iconly/Light/Show.svg';
+	}
+}
 
 

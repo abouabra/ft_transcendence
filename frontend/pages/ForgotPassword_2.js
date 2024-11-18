@@ -33,18 +33,6 @@ export default class Forgot_Password_2 extends HTMLElement{
         `;
     };
 
-    togglePasswordVisibility(pass, icon) {
-        const passwordInput = document.querySelector(pass);
-        const toggleIcon = document.querySelector(icon);
-    
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.src = '/assets/images/common/Iconly/Light/Hide.svg';
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.src = '/assets/images/common/Iconly/Light/Show.svg';
-        }
-    }
 
     handelforgot = async (event) => {
         event.preventDefault();
@@ -77,14 +65,14 @@ export default class Forgot_Password_2 extends HTMLElement{
         const emailInput = document.querySelector('input[name="email"]');
         emailInput.removeAttribute('required');
         emailInput.disabled = true;
-        this.querySelector('#toggle-password-1').addEventListener('click', () => this.togglePasswordVisibility('#Password-1', '#toggle-icon-1'));
-        this.querySelector('#toggle-password-2').addEventListener('click', () => this.togglePasswordVisibility('#Password-2', '#toggle-icon-2'));
+        this.querySelector('#toggle-password-1').addEventListener('click', () => togglePasswordVisibility('#Password-1', '#toggle-icon-1'));
+        this.querySelector('#toggle-password-2').addEventListener('click', () => togglePasswordVisibility('#Password-2', '#toggle-icon-2'));
         this.querySelector('#forgot_button').addEventListener('click',(event) => this.handelforgot(event))
     }
 
     disconnectedCallback() {
-        this.querySelector('#toggle-password-1').removeEventListener('click', () => this.togglePasswordVisibility('#Password-1', '#toggle-icon-1'));
-        this.querySelector('#toggle-password-2').removeEventListener('click', () => this.togglePasswordVisibility('#Password-2', '#toggle-icon-2'));
+        this.querySelector('#toggle-password-1').removeEventListener('click', () => togglePasswordVisibility('#Password-1', '#toggle-icon-1'));
+        this.querySelector('#toggle-password-2').removeEventListener('click', () => togglePasswordVisibility('#Password-2', '#toggle-icon-2'));
         this.querySelector('#forgot_button').removeEventListener('click',(event) => this.handelforgot(event))
         
     }

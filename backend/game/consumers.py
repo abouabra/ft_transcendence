@@ -438,7 +438,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         match_obj.save()
         
-        update_stats_after_game(me.user_id, opponent.user_id, "space_invaders", game_obj.id)
+        update_stats_after_game(me.user_id, opponent.user_id, match_obj.game_name, game_obj.id)
 
 
 

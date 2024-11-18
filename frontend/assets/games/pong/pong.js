@@ -407,8 +407,7 @@ class PongGame {
 	}
 
 	endGame() {
-		this.gameState === "game_over"
-		
+		this.gameState = "game_over"
 		this.stats.dom.style.display = "none";
 		const game_id = parseInt(localStorage.getItem("game_id"));
 

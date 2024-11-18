@@ -23,8 +23,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         data = json.loads(text_data)
         type = data['type']
+
         receiver_id = data['receiver_id']
         sender_id = data['sender_id']
+
 
         try:
             receiver_data = await self.get_user_info(receiver_id)
@@ -49,9 +51,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             group_name = f'user_{receiver_id}'
             event = {
                 'type': 'send_notification',
-                'message': data  # Send entire data for flexibility
+                'message': data  
             }
             await self.channel_layer.group_send(group_name, event)
+
 
     async def send_notification(self, event):
         message = event['message']

@@ -138,8 +138,8 @@ export default class Play_Page extends HTMLElement {
 
 		
 		if(this.selected_mode == "ranked") {
-			
-			window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+			if(window.game_socket == null)
+				window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
 
 			window.game_socket.onopen = () => {
 				console.log("Game socket opened | Connected to the game server");
@@ -172,8 +172,10 @@ export default class Play_Page extends HTMLElement {
 					const current_id = localStorage.getItem("id");
 					const opponent = data.player1.id == current_id ? data.player2 : data.player1;
 					
-					localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+					console.log("start_game start_game start_game start_game initial data", data.initial_data[current_id]);
 					
+					localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+
 					clearInterval(this.updateTimerID);
 
 					const match_making_timer = document.querySelector('.match-making-timer');
@@ -314,6 +316,7 @@ export default class Play_Page extends HTMLElement {
 				user: current_user_data,
 				game_name: this.selected_game,
 			}));
+			window.game_socket.onmessage = null;
 			window.game_socket.close();
 			delete window.game_socket;
 			window.game_socket = null;

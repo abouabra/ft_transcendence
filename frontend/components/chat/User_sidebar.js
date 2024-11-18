@@ -11,7 +11,7 @@ export default class UserSideBar extends HTMLElement
         this.server_name = location.pathname.split('/').pop()
         _data  = JSON.parse(this.getAttribute('data-text'))
         
-        this.socket = new WebSocket(`ws:/localhost:8000/chat/userpermition/${this.server_name}`)
+        this.socket = new WebSocket(`ws:/127.0.0.1:8000/chat/userpermition/${this.server_name}`)
 
         const chatbody = document.querySelector(".chatbodymain")
 
@@ -371,13 +371,13 @@ function privileges_user(data)
 
 function invite_user_to_pong(data)
 {
-    handle_action("invite_to_pong", data.user_id, JSON.stringify({username: data.username, avatar: data.avatar, id: data.user_id}))
-    console.log("data inside invite_user: ", data)
+    console.log("data inside invite_user: ", {username: data.username, avatar: data.avatar, id: data.user_id})
+    handle_action("invite_to_pong", data.user_id, {username: data.username, avatar: data.avatar, id: data.user_id})
 }
 function invite_user_to_space_invaders(data)
 {
-    handle_action("invite_to_space_invaders", data.user_id, JSON.stringify({username: data.username, avatar: data.avatar, id: data.user_id}))
     console.log("data inside invite_user: ", data)
+    handle_action("invite_to_space_invaders", data.user_id, {username: data.username, avatar: data.avatar, id: data.user_id})
 }
 
 function send_user_to_direct(user_id)

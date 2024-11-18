@@ -1,10 +1,19 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from .models import Tournament_Bracket, Tournament_History, TournamentStats
+from .models import Tournament_History, TournamentStats
+from .models import Tournament_History, TournamentStats
 from rest_framework.pagination import PageNumberPagination
-from .serializers import TournamentBracketSerializer, TournamentHistorySerializer, TournamentStatsSerializer
+from .serializers import TournamentHistorySerializer, ShortTournamentHistorySerializer
 
+from .serializers import TournamentHistorySerializer, TournamentStatsSerializer
+from django.contrib.auth.hashers import make_password
+import base64
+from .request_api import create_qr_code
+from django.conf import settings
+from .utils import find_emty_room, getUserData, Start_Playing, getmatchdata
+import json
+from math import floor
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -92,10 +101,180 @@ class HomeExpandedActiveTournamentsView(generics.GenericAPIView):
 
 
 
+class GetTournamentInfo(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, pk):
+        try:
+            tournament = Tournament_History.objects.get(id=pk)
+            return Response(ShortTournamentHistorySerializer(tournament).data, status=status.HTTP_200_OK)
+        except:
+            return Response({"message": "Tournament Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 
 
+class GetTournamentsData(generics.GenericAPIView):
+    # permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        tournaments = Tournament_History.objects.all()
+        serializer = TournamentHistorySerializer(tournaments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class Membertournament(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        try:
+            if (request.query_params.get('tournament_name') is None):
+                return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+            tournaments = Tournament_History.objects.get(name=request.query_params.get('tournament_name'))
+            return Response({"members":tournaments.members}, status=status.HTTP_200_OK)
+        except Tournament_History.DoesNotExist:
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+
+class GetTournamentroomData(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+
+        if (request.query_params.get('tournament_name') is None):
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+        tournament_name = request.query_params.get('tournament_name')
+        try:
+            tournament = Tournament_History.objects.get(name=tournament_name)
+            if tournament:
+                data = {
+                    "tournament_name":tournament_name,
+                    "visibility":tournament.visibility,
+                    "avatar":tournament.avatar,
+                    "members":len(tournament.members),
+                    "room_size":tournament.room_size,
+                    "game_name":tournament.game_name,
+
+                }
+            return Response(data, status.HTTP_200_OK)
+        except Tournament_History.DoesNotExist:
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+    def post(self, request):
+        try:
+            tournament = Tournament_History.objects.get(name=request.data['tournament_name'])
+            if request.user.id in tournament.members:
+                return Response({"error":"user already joined the tournament"}, status.HTTP_400_BAD_REQUEST)
+            
+            if tournament.room_size == len(tournament.members):
+                return Response({"error":"room is full"}, status.HTTP_400_BAD_REQUEST)
+            if tournament.visibility == "private":
+                if not request.data['password'] or not tournament.check_passwd(request.data['password']):
+                    return Response({"error":"Wrong password"}, status.HTTP_400_BAD_REQUEST)
+            match_room = tournament.bracket_data[tournament.bracket_data["current_round"]]
+            match_instance = find_emty_room(match_room)
+            if match_instance is None:
+                return Response({"error":"room is full"}, status.HTTP_400_BAD_REQUEST)
+            tournament.members.append(request.user.id)
+            tournament.bracket_data[tournament.bracket_data["current_round"]][match_instance[0]][match_instance[1]] = request.user.id
+            tournament.save()
+            if (len(tournament.members) == tournament.room_size):
+                tournament.status = "In progress"
+                tournament.save()
+                Start_Playing(request, tournament)
+            return Response({"success":"user joined the tournament", "tournament_name":tournament.name}, status.HTTP_200_OK)
+        except Tournament_History.DoesNotExist:
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+
+
+def create_bracket(room_size):
+    brackets = {}
+    round = {"16":"round_of_16","8":"quarterfinals","4":"semifinals","2":"finals"}
+    brackets["current_round"] = round[str(room_size)]
+    while (room_size > 1):
+        room_size = floor(room_size/2)
+        bracket = []
+        for _ in range(room_size):
+            bracket.append([0,0])
+        brackets[round[str(room_size*2)]] = bracket
+    print(brackets)
+    return brackets
+        
+class CreateTournamentroom(generics.GenericAPIView):
+
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        request.data['password'] = make_password(request.data['password'])
+        serializer = TournamentHistorySerializer(data=request.data)
+        brackets = create_bracket(request.data['room_size'])
+        brackets[brackets["current_round"]][0][0] = request.user.id
+        request.data['bracket_data'] = brackets
+        request.data['members'] = [request.user.id]
+        if serializer.is_valid():
+            serializer.save()
+            data = serializer.data
+            if request.data['img']:
+                image = request.data['img'].split(',')[1]
+                image = base64.b64decode(image)
+                path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
+                with open(path_in_disk,'wb') as file:
+                    file.write(image)
+            create_qr_code(data['avatar'], f"http://127.0.0.1:3000/tournament/join/?tourname_name={data['name']}",data['qr_code'].split('/')[-1])
+            return Response({
+                    "success": "Server Created Successfully"
+                }, status=status.HTTP_201_CREATED)
+        return Response({"error":serializer.errors["non_field_errors"]}, status=status.HTTP_400_BAD_REQUEST)
+
+    # def put(self, request):
+
+    #     try:
+    #         server = Server.objects.get(name=request.data['old_name'])
+    #     except Server.DoesNotExist:
+    #         return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
+    #     if (request.user.id not in server.staffs):
+    #         return Response({"error":"you are not staff of this server"}, status.HTTP_400_BAD_REQUEST)
+    #     data = request.data
+
+    #     if data['img']:
+    #         image = data['img'].split(',')[1]
+    #         image = base64.b64decode(image)
+    #         path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
+    #         with open(path_in_disk,'wb') as file:
+    #             file.write(image)
+    #     create_qr_code(data['avatar'], f"http://127.0.0.1:3000/chat/join_server/{data['name']}/",data['qr_code'].split('/')[-1])
+    #     server.name = data['name']
+    #     server.visibility = data['visibility']
+    #     server.avatar = data['avatar']
+    #     server.qr_code = data['qr_code']
+    #     print(f"nmade password = {server.password}")
+    #     server.password = make_password(data['password'])
+    #     print(f"made password = {server.password}")
+    #     server.save()
+    #     return Response({
+    #             "success": "Server Created Successfully"
+    #         }, status=status.HTTP_201_CREATED)
+
+
+class TournamentjoinedUsers(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        if (request.query_params.get('tournament_name') is None):
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+        tournament_name = request.query_params.get('tournament_name')
+        try:
+            tournament = Tournament_History.objects.get(name=tournament_name)
+            print(tournament.bracket_data)
+            users = {}
+            for user_id in tournament.members:
+                data = getUserData(request, user_id)
+                users[user_id] = data
+
+            data = {
+                "users":users,
+                "data":tournament.bracket_data,
+                "avatar":tournament.avatar,
+            }
+            return Response(data, status.HTTP_200_OK)
+        except Tournament_History.DoesNotExist:
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
 
 
 import random
@@ -112,3 +291,66 @@ class GenerateRandomTournamentHistoryData(generics.GenericAPIView):
 
 
         return Response({"message": "Tournament History Created Successfully"}, status=status.HTTP_201_CREATED)
+
+class testplaying(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        try:
+            tournament = Tournament_History.objects.get(name=request.query_params.get('tournament_name'))
+        except tournament.DoesNotExist:
+            return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+        if (request.user.id == tournament.members[0]):
+            if (tournament.status == "In progress"):
+                return Response({"error":"Tournament already started"}, status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error":"you are not the tournament host"}, status.HTTP_400_BAD_REQUEST)
+        if Start_Playing(request, tournament):
+            return Response({"error":"Failed to start tournament"}, status.HTTP_400_BAD_REQUEST)
+        tournament.status = "In progress"
+        tournament.save()
+        return Response({"message": "Tournament History Created Successfully"}, status=status.HTTP_201_CREATED)
+class advanceTournamentmatch(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            data = getmatchdata(request)
+
+            tournament = Tournament_History.objects.get(id=data["tournament_id"])
+            current_round = tournament.bracket_data["current_round"]
+            if (current_round == "finals"):
+                return Response({"error":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
+
+            next_round = "finals"
+            if (current_round == "quarterfinals"):
+                next_round = "semifinals"
+            elif current_round == "round_of_16":
+                next_round = "quarterfinals"
+            current_round = tournament.bracket_data["current_round"]
+            datalist = tournament.bracket_data[current_round]
+            for index ,element in enumerate(datalist, start=0):
+                if (data["player1"]["id"] in element and data["player2"]["id"] in element):
+                    if(next_round == "finals"):
+                        if index%2:
+                            tournament.bracket_data[next_round][0][1] = data["winner"]
+                        else:
+                            tournament.bracket_data[next_round][0][0] = data["winner"]
+                    else:
+                        if index%2:
+                            tournament.bracket_data[next_round][index-1][1] = data["winner"]
+                        else:
+                            tournament.bracket_data[next_round][index][0] = data["winner"]
+                    tournament.save()
+            matchlen = 0
+            for element in tournament.bracket_data[next_round]:
+                if (element[0] ==0 or element[1] == 0):
+                    break
+                matchlen += 1
+            if matchlen == len(tournament.bracket_data[next_round]):
+                tournament.bracket_data["current_round"] = next_round
+                tournament.save()
+                Start_Playing(request, tournament)
+        except Tournament_History.DoesNotExist:
+            return Response({"error":"Tournament not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"success": "Tournament game ended"}, status=status.HTTP_200_OK)

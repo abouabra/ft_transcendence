@@ -119,8 +119,6 @@ export default class Edit_Server_page extends HTMLElement {
 	});
 });
 
-
-
 submit_click.addEventListener('click', ()=>
 {
 	if (!name_tag.value)

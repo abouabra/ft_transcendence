@@ -37,7 +37,7 @@ export default class Game_Page extends HTMLElement {
 				return;		
 			}
 
-			console.log(data);
+			console.log("makeRequest /api/game/get_game_info ",data);
 
 			if(data.has_ended == true)
 			{
@@ -79,13 +79,14 @@ export default class Game_Page extends HTMLElement {
 		localStorage.setItem("player1_id", data.player1.id);
 		localStorage.setItem("player2_id", data.player2.id);
 
+
 		if(data.player2.id == current_id)
 		{
 			let tmp = data.player2;
 			data.player2 = data.player1;
 			data.player1 = tmp;
-
 		}
+		
 		localStorage.setItem("opponent_id", data.player2.id);
 
 
@@ -160,6 +161,11 @@ export default class Game_Page extends HTMLElement {
 			const response = JSON.parse(event.data);
 			// console.log("Game.js onmessage", response);
 
+			if(response.type == "start_game") 
+			{
+				const current_id = localStorage.getItem("id");
+				localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+			}
 			if(response.type == "si_from_server_to_client")
 			{
 				if(this.game_name == "space_invaders" && this.opponent.mesh && response.data.position && response.data.quaternion)
@@ -184,11 +190,15 @@ export default class Game_Page extends HTMLElement {
 				console.log("Game Over loser is", response.loser);
 				
 				if(this.game_name == "pong")
+				{
+					this.game.gameState = "game_over"
 					this.game.stats.dom.style.display = "none";
+				}
 
 				if(this.player)
 					this.player.isAlive = false;
 				
+				window.game_socket.onmessage = null;
 				window.game_socket.close();
 				delete window.game_socket;
 				window.game_socket = null;
@@ -198,8 +208,36 @@ export default class Game_Page extends HTMLElement {
 					this.setup.opponentTracker.destroy();
 					this.setup.opponentTracker = null;
 				}
-				
-				this.display_game_results(response);
+				let game_id = parseInt(localStorage.getItem("game_id"));
+
+				localStorage.removeItem("game_id");
+				localStorage.removeItem("opponent_id");
+				localStorage.removeItem("player1_id");
+				localStorage.removeItem("player2_id");
+				localStorage.removeItem("starting_time");
+				localStorage.removeItem("initial_data");
+
+				makeRequest(`/api/game/get_game_info/${game_id}`)
+				.then((data) => {
+					if(data.response_code == 404)
+					{
+						this.innerHTML = /* html */`
+							<h1> Game not found</h1>
+						`;
+						return;		
+					}
+					if(data.isTournemantMatch == true)
+					{
+						makeRequest(`/api/tournaments/get_tournament_info/${data.tournament_id}`).then(data=>{
+							GoTo(`/tournament/match/?tournament_name=${data.name}`);
+						})
+					}
+					else
+						this.display_game_results(response);
+				});
+
+				// this.display_game_results(response);
+
 			}
 		};
 	}
@@ -210,26 +248,26 @@ export default class Game_Page extends HTMLElement {
 		game_canvas.innerHTML = /* html */`
 			<div class="game-page-stats-container">
 				<div class="game-page-stats-part">
-					<img src="/assets/games/space_invaders/ui/heart.svg" alt="heart" style="width: 16px;"></img>
+					<img src="/assets/games/space_invaders/ui/heart.svg" alt="heart" style="width: 16px;">
 					<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="2000" style="width: 200px;" id="powerup_health">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 100%"><span>2000</span></div>
 					</div>
 				</div>
 
 				<div class="game-page-stats-part">
-					<img src="/assets/games/space_invaders/ui/rocket.svg" alt="rocket" style="width: 16px;"></img>
+					<img src="/assets/games/space_invaders/ui/rocket.svg" alt="rocket" style="width: 16px;">
 					<div class="progress" role="progressbar" aria-label="Animated striped example"  aria-valuemin="0" aria-valuemax="100" style="width: 200px;" id="powerup_boost">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"><span>100</span></div>
 					</div>
 				</div>
 
 				<div class="game-page-stats-part">
-					<img src="/assets/games/space_invaders/ui/damage.svg" alt="damage" style="width: 16px;"></img>
+					<img src="/assets/games/space_invaders/ui/damage.svg" alt="damage" style="width: 16px;">
 					<span id="powerup_damage"> x 1 </span>
 				</div>
 
 				<div class="game-page-stats-part">
-					<img src="/assets/games/space_invaders/ui/speed.svg" alt="speed" style="width: 16px;" ></img>
+					<img src="/assets/games/space_invaders/ui/speed.svg" alt="speed" style="width: 16px;" >
 					<span id="powerup_speed"> x 1 </span>
 				</div>
 			</div>
@@ -298,7 +336,8 @@ export default class Game_Page extends HTMLElement {
 	connectedCallback() {}
 
 	disconnectedCallback() {
-
+		
+		
 		if(this.game && this.game_type == "local")
 		{
 			console.log("disconnected from game page");
@@ -306,7 +345,10 @@ export default class Game_Page extends HTMLElement {
 			return;
 		}
 		if(this.game && this.game.stats)
+		{
+			this.game.gameState = "game_over"
 			this.game.stats.dom.style.display = "none";
+		}
 
 
 		if(this.setup && this.setup.opponentTracker)
@@ -316,7 +358,15 @@ export default class Game_Page extends HTMLElement {
 		}
 
 		if(!window.game_socket)
+		{
+			localStorage.removeItem("game_id");
+			localStorage.removeItem("opponent_id");
+			localStorage.removeItem("player1_id");
+			localStorage.removeItem("player2_id");
+			localStorage.removeItem("starting_time");
+			localStorage.removeItem("initial_data");
 			return;
+		}
 
 		console.log("disconnected from game page");
 		const uid = parseInt(localStorage.getItem("id"));
@@ -333,12 +383,16 @@ export default class Game_Page extends HTMLElement {
 			game_time : delta_time_in_sec
 		}));
 
+		
 		localStorage.removeItem("game_id");
 		localStorage.removeItem("opponent_id");
+		localStorage.removeItem("player1_id");
+		localStorage.removeItem("player2_id");
 		localStorage.removeItem("starting_time");
 		localStorage.removeItem("initial_data");
 
 
+		window.game_socket.onmessage = null;
 		window.game_socket.close();
 		delete window.game_socket;
 		window.game_socket = null;

@@ -6,7 +6,7 @@ class Server(models.Model):
     # direct value to take = iduser 1 + iduser2 sorted so we know the communicated party
     name = models.CharField(max_length=255) 
     avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/server_avatars/default.jpg")
-    qr_code = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/servers_qr_codes/default_qr_code.png")
+    qr_code = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/servers_qr_codes/default.jpg")
 
     VISISBILITY_CHOICES = (
         ("public", "Public"),

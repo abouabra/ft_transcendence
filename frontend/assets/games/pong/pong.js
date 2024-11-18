@@ -14,7 +14,7 @@ const GAME_CONSTANTS = {
 	BASE_SPEED: 7,
 	BALL_SPEED_CAP: 23,
 
-	SCORE_TO_WIN: 11,
+	SCORE_TO_WIN: 12,
 	TIME_TO_WIN: 5,
 	INC_SPEED: 0,
 
@@ -212,7 +212,6 @@ class PongGame {
 		this.setupResizeHandler();
 
 		if(window.game_socket) {
-			console.log("Game socket exists");
 			window.game_socket.send(JSON.stringify({
 				type: "si_clients_ready",
 				game_room_id: parseInt(localStorage.getItem('game_id')),
@@ -347,10 +346,16 @@ class PongGame {
 	}
 
 	ws_update(data) {
-		this.rightPaddle.position.y = data.position * this.canvas.height;
-		this.rightPaddle.score = data.score;
-
-		if(data.ball)
+		if(this.rightPaddle)
+		{
+			if(data.position)
+				this.rightPaddle.position.y = data.position * this.canvas.height;
+			
+			if(data.score)
+				this.rightPaddle.score = data.score;
+		}
+	
+		if(data.ball && this.ball)
 			this.ball.position.set(data.ball.x, data.ball.y);
 	}
 
@@ -381,6 +386,8 @@ class PongGame {
 
 		if (this.gameState === "game_over") return;
 
+		console.log("Game Loop");
+
 		this.update();
 		this.draw();
 
@@ -400,9 +407,13 @@ class PongGame {
 	}
 
 	endGame() {
+		this.gameState === "game_over"
+		
 		this.stats.dom.style.display = "none";
 		const game_id = parseInt(localStorage.getItem("game_id"));
-		
+
+		makeRequest("/api/tournaments/advancematch/", "POST", {"game_id":game_id})
+
 		if(this.gameMode === GAME_CONSTANTS.MODES.LOCAL)
 		{
 			makeRequest("/api/game/pong/end/", "POST", {
@@ -420,10 +431,10 @@ class PongGame {
 		else {
 			let uid = -1;
 			if(this.leftPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN)
-				uid = parseInt(localStorage.getItem("id"));
-			else
 				uid = parseInt(localStorage.getItem("opponent_id"));
-	
+			else
+				uid = parseInt(localStorage.getItem("id"));
+		
 			const current_time = new Date().getTime();
 			const delta_time_in_sec = (current_time - parseInt(localStorage.getItem('starting_time'))) / 1000;
 			console.log("delta time in seconds", delta_time_in_sec);

@@ -24,6 +24,9 @@ const routes = {
     "^/shop/$": "shop-page",
     "^/signup/$": "signup-routes",
     "^/tournament/$": "tournament-page",
+    "^/tournament/create_tournament/$": "tournament-create",
+    "^/tournament/join_tournament/$": "join-tournament",
+    "^/tournament/match/$": "tournament-match",
     
     404: "not-found-page",
 };

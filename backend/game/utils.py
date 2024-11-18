@@ -3,13 +3,18 @@ import requests
 from .models import GameStats, Game_History
 
 
-def getUserData(request, userID=None, username=None):
-    access_token = request.COOKIES.get("access_token")
+def getUserData(request, userID=None, username=None, noAccessToken=False):
+    
+    if not noAccessToken:
+        access_token = request.COOKIES.get("access_token")
 
     request_headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     }
+    cookies = {}
+    if not noAccessToken:
+        cookies = {"access_token": access_token}
 
     if userID:
         url = f"http://127.0.0.1:8000/api/auth/user/{userID}/"
@@ -18,7 +23,7 @@ def getUserData(request, userID=None, username=None):
     else:
         raise ValueError("Either userID or username must be provided")
 
-    response = requests.get(url, headers=request_headers, cookies={"access_token": access_token})
+    response = requests.get(url, headers=request_headers, cookies=cookies)
     return response.json()
 
 
@@ -103,3 +108,22 @@ def update_stats_after_game(player_1_id, player_2_id, game_name, game_id):
     player_1_stats.save()
     player_2_stats.save()
     match_obj.save()
+
+
+def sendHTTPNotification(request, jsonData):
+    access_token = request.COOKIES.get("access_token")
+
+    request_headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    url = f"http://127.0.0.1:8000/api/auth/recieve_http_notification/"
+
+
+    response = requests.post(url, headers=request_headers, cookies={"access_token": access_token}, json=jsonData)
+    
+    if(response.status_code != 200):
+        raise ValueError("Failed to send HTTP Notification")
+    
+    return response.json()

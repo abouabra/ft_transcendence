@@ -23,6 +23,9 @@ import pyotp
 import qrcode
 import requests
 import secrets
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +140,7 @@ class MeView(generics.GenericAPIView):
     )
 
 class UserView(generics.GenericAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     serializer_class = ShortUserSerializer
     
     def get(self, request, pk):
@@ -352,6 +355,84 @@ class AcceptFriendRequestView(generics.GenericAPIView):
                 {"detail": "Error encountered while accepting the friend request"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+class RecieveHttpNotification(generics.GenericAPIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        try:
+            data = request.data
+            player_1 = User.objects.get(id=data["player1_id"])
+            player_2 = User.objects.get(id=data["player2_id"])
+
+            data["type"] = "tournament_game_invitation"
+            data["player1_id"] = ShortUserSerializer(player_1).data
+            data["player2_id"] = ShortUserSerializer(player_2).data
+
+            p1_group_name = f"user_{player_1.id}"
+            p2_group_name = f"user_{player_2.id}"
+
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                p1_group_name,
+                {
+                    "type": "send_notification",
+                    "message": data,
+                },
+            )
+
+            async_to_sync(channel_layer.group_send)(
+                p2_group_name,
+                {
+                    "type": "send_notification",
+                    "message": data,
+                },
+            )
+
+
+
+
+            return Response(
+                {"detail": "Notification recieved successfully"},
+                status=status.HTTP_200_OK,
+            )
+
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while recieving the notification"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

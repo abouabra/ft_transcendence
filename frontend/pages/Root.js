@@ -38,6 +38,9 @@ import Side_Bar from "../components/common/side_bar.js";
 import Signup_Routes from "../utils/signup_routes.js";
 import Small_Cards from "../components/common/small_cards.js";
 import Tournament_Page from "./Tournament.js";
+import Tournament_Create from "./Tournament_create.js";
+import Join_Tournament from "./Tournament_join.js";
+import Tournament_Match from "./Tournament_match.js";
 import TwoFactorAuth from "./TwoFactorAuth.js"
 import User_Bar from "../components/common/user_bar.js";
 

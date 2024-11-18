@@ -20,6 +20,8 @@ function handle_action(action, id, data = null) {
 			extra_data = {...extra_data, ...data};
 		sendNotification("game_invitation", id, extra_data);
 
+		console.log("invite_to_pong", extra_data);
+
 		Make_Small_Card("waiting_for_accept_game", null, null, null, extra_data.game_name, extra_data.username, extra_data.avatar, null, id);
 	}
 	else if (action == "invite_to_space_invaders") {
@@ -58,8 +60,8 @@ function handle_action(action, id, data = null) {
 				game_id: response.game_room_id,
 			});
 
-
-			window.game_socket = new WebSocket(`ws://localhost:8000/ws/game/`);
+			if(window.game_socket == null)
+				window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
 			window.game_socket.onopen = () => {
 				console.log("Game socket opened | join_game");
 
@@ -89,8 +91,80 @@ function handle_action(action, id, data = null) {
 			window.game_socket.onmessage = (event) => {
 				const data = JSON.parse(event.data);
 				console.log(`join_game | Received data:`, data);
+
+				if(data.type == "start_game") 
+				{
+					const current_id = localStorage.getItem("id");
+					localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+				}
 			};
 		});
+
+
+	}
+	else if (action == "join_tournament_game") {
+		console.log("Joining game", id);
+		data = JSON.parse(data);
+		data.opponent_id = parseInt(data.opponent_id);
+		console.log("Extra data: ", data);
+		
+		const game_id = parseInt(data.game_id);
+		
+		console.log("handle_action join_tournament_game: ", game_id);
+
+		// sendNotification("game_invitation_response", data.opponent_id, {
+		// 	player1:  parseInt(localStorage.getItem("id")),
+		// 	player2: data.opponent_id,
+		// 	game_name: data.game_name,
+		// 	game_id: game_id,
+		// });
+
+		// if(window.game_socket == null)
+		// if (window.game_socket)
+		// 	window.game_socket.close();
+		
+		if(!window.game_socket)
+			window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
+
+		window.game_socket.onopen = () => {
+			console.log("join_tournament_game: Game socket opened | join_game");
+
+			window.game_socket.send(JSON.stringify({
+				type: "join_custom_game",
+
+				player_id: parseInt(localStorage.getItem("id")),
+				player_username: localStorage.getItem("username"),
+				player_avatar: localStorage.getItem("avatar"),
+
+				game_name: data.game_name,
+
+				game_id: game_id,
+			}));
+
+			setTimeout(() => {
+				GoTo(`/play/game/${game_id}`);
+			}, 1000);
+		};
+
+		window.game_socket.onclose = function (event) {
+			console.log("Game socket closed | join_game");
+		};
+
+		window.game_socket.onerror = function (event) {
+			console.log("Game socket error | join_game");
+		};
+
+		window.game_socket.onmessage = (event) => {
+			const data = JSON.parse(event.data);
+			console.log(`join_game | Received data:`, data);
+			
+			if(data.type == "start_game") 
+			{
+				const current_id = localStorage.getItem("id");
+				localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+			}
+		};
+
 
 
 	}

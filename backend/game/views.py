@@ -202,7 +202,7 @@ class ConstructGameHistoryData(generics.GenericAPIView):
 
 
 class GetGameInfo(generics.GenericAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     serializer_class = ShortGameHistorySerializer
 
     def get(self, request, pk):
@@ -213,6 +213,8 @@ class GetGameInfo(generics.GenericAPIView):
            
             game_info["player1"] = getUserData(request, game_info["player1"])
             game_info["player2"] = getUserData(request, game_info["player2"])
+
+            logger.error(f" player1 {game_info["player1"]}    player2 {game_info["player2"]}")
 
             if(game_info["player1"]["id"] != logged_in_user_id and game_info["player2"]["id"] != logged_in_user_id):
                 return Response({"detail": "You are not part of this game"}, status=status.HTTP_403_FORBIDDEN)

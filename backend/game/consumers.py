@@ -4,9 +4,12 @@ import json
 from channels.db import database_sync_to_async
 from .models import Game_History, GameStats
 import asyncio
-from .utils import update_stats_after_game, ELO_System, getUserData
+from .utils import update_stats_after_game, ELO_System, getUserData, sendAdvanceMatchRequest
 from django.http import HttpRequest
 from rest_framework_simplejwt.tokens import RefreshToken
+import jwt
+from django.conf import settings
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -99,6 +102,10 @@ class GameConsumer(AsyncWebsocketConsumer):
                             if(GAME_ROOMS[game_room_id].finished_peacefully == False):
                                 game_obj = GAME_ROOMS[game_room_id]
                                 me = PLAYERS[game_name][object]
+                                
+                                me.score = 11
+                                opponent.score = 0
+                                print(f"before stats_wrapper {me.score} {opponent.score}")
                                 await self.stats_wrapper(game_obj, me, opponent)
 
                             await opponent.ws_obj.send(text_data=json.dumps({
@@ -440,6 +447,20 @@ class GameConsumer(AsyncWebsocketConsumer):
         
         update_stats_after_game(me.user_id, opponent.user_id, match_obj.game_name, game_obj.id)
 
+        if match_obj.isTournemantMatch:
+            def generate_access_token(user_id):
+                payload = {
+                    'user_id': user_id,  # Replace 'id' with the appropriate key
+                    'exp': datetime.datetime.utcnow() + settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],  # Access expiration from settings
+                    # Add other custom claims as required
+                }
+
+                encoded_token = jwt.encode(payload, settings.SIMPLE_JWT['SIGNING_KEY'], algorithm=settings.SIMPLE_JWT['ALGORITHM'])
+                print(f"generate_access_token: {encoded_token}")
+                return encoded_token
+                        
+            access_token = generate_access_token(me.user_id)
+            sendAdvanceMatchRequest(access_token, match_obj.id)
 
 
     @database_sync_to_async

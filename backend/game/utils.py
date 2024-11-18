@@ -69,9 +69,10 @@ def ELO_System(RatingA, RatingB, ResultA, ResultB, K):
         player2 = 0
 
     return int(player1), int(player2)
-    
+
 
 def update_stats_after_game(player_1_id, player_2_id, game_name, game_id):
+    print(f"update_stats_after_game: {player_1_id} vs {player_2_id} in {game_name}")
     player_1_stats = GameStats.objects.get(user_id=player_1_id, game_name=game_name)
     player_2_stats = GameStats.objects.get(user_id=player_2_id, game_name=game_name)
     
@@ -127,3 +128,22 @@ def sendHTTPNotification(request, jsonData):
         raise ValueError("Failed to send HTTP Notification")
     
     return response.json()
+
+
+
+
+def sendAdvanceMatchRequest(access_token, game_id):    
+
+    print(f"sendAdvanceMatchRequest: game_id = {game_id}")
+    request_headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    
+    cookies = {"access_token": access_token}
+
+    url = f"http://127.0.0.1:8000/api/tournaments/advancematch/"
+
+    response = requests.post(url, headers=request_headers, cookies=cookies, json={"game_id": game_id})
+    return response.json()
+

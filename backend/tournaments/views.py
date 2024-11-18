@@ -303,6 +303,8 @@ class testplaying(generics.GenericAPIView):
         if (request.user.id == tournament.members[0]):
             if (tournament.status == "In progress"):
                 return Response({"error":"Tournament already started"}, status.HTTP_400_BAD_REQUEST)
+            if (tournament.status == "Ended"):
+                return Response({"error":"Tournament ended"}, status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"error":"you are not the tournament host"}, status.HTTP_400_BAD_REQUEST)
         if Start_Playing(request, tournament):
@@ -320,7 +322,8 @@ class advanceTournamentmatch(generics.GenericAPIView):
             tournament = Tournament_History.objects.get(id=data["tournament_id"])
             current_round = tournament.bracket_data["current_round"]
             if (current_round == "finals"):
-                return Response({"error":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
+                Start_Playing(request, tournament)
+                return Response({"success":"Tournament Ended"}, status=status.HTTP_200_OK)
 
             next_round = "finals"
             if (current_round == "quarterfinals"):
@@ -328,6 +331,8 @@ class advanceTournamentmatch(generics.GenericAPIView):
             elif current_round == "round_of_16":
                 next_round = "quarterfinals"
             current_round = tournament.bracket_data["current_round"]
+            if (next_round == current_round):
+                return Response({"error":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
             datalist = tournament.bracket_data[current_round]
             for index ,element in enumerate(datalist, start=0):
                 if (data["player1"]["id"] in element and data["player2"]["id"] in element):

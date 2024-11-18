@@ -30,6 +30,7 @@ def Start_Playing(request, tournament):
     access_token = {"access_token":request.COOKIES.get("access_token")}
     matches = tournament.bracket_data[tournament.bracket_data["current_round"]]
     print(f"bada {tournament.bracket_data[tournament.bracket_data["current_round"]]} round = {tournament.bracket_data["current_round"]}")
+
     for match in matches:
         print(f"starting {match[0]} vs {match[1]}")
         data = {
@@ -39,6 +40,13 @@ def Start_Playing(request, tournament):
             "tournament_id": tournament.id,
             "tournament": ShortTournamentHistorySerializer(tournament).data}
         responce = requests.post("http://127.0.0.1:8000/api/game/construct_tournament_game/", cookies=access_token,json= data)
+        if (tournament.bracket_data["current_round"] == "finals"):
+            request.data["game_id"] = responce.json()["game_room_id"]
+            gameresult = getmatchdata(request)
+            tournament.tournament_winner = gameresult["winner"]
+            tournament.status = "Ended"
+            tournament.save()
+            return 1
         print(responce.json())
         if (responce.status_code > 300):
             return 1

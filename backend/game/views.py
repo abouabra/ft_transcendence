@@ -7,7 +7,7 @@ import logging
 from .utils import getUserData
 from rest_framework import generics, permissions, status
 from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer, LeaderboardSerializer, ProfileGameHistorySerializer
-from .utils import update_stats_after_game, sendHTTPNotification, getTournamentProfileStats
+from .utils import update_stats_after_game, sendHTTPNotification, getTournamentProfileStats, generate_elo_graph
 from django.db.models import Q
 
 logger = logging.getLogger(__name__)
@@ -362,12 +362,13 @@ class ProfileStatsView(generics.GenericAPIView):
                         "tournaments": TournamentProfileStats["win_los_ratio"][game],
                     },
                     "average": {
-                        "avg_duration": round(game_stats[game].total_time_spent / game_stats[game].total_games_played, 2) if game_stats[game].total_games_played > 0 else 0,
+                        "avg_duration": int(game_stats[game].total_time_spent / game_stats[game].total_games_played) if game_stats[game].total_games_played > 0 else 0,
                         "avg_score": round(game_stats[game].total_score / game_stats[game].total_games_played, 2) if game_stats[game].total_games_played > 0 else 0,
                     }
                 }
                 
                 all_player_games_objects = Game_History.objects.filter((Q(player1=pk) | Q(player2=pk)), game_name=game, has_ended=True).order_by('-game_date')
+                response_data[game].update(generate_elo_graph(pk, all_player_games_objects, game_stats[game].current_elo)),
                 response_data[game]["current_elo"] = round(game_stats[game].current_elo, 2)
                 response_data[game]["leaderboard_rank"] = GameStats.objects.filter(game_name=game, current_elo__gt=game_stats[game].current_elo).count() + 1
                 response_data[game]["recent_games"] = ProfileGameHistorySerializer(all_player_games_objects, many=True).data

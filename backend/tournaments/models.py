@@ -36,7 +36,9 @@ class Tournament_History(models.Model):
     visibility = models.CharField(choices=VISISBILITY_CHOICES, max_length=20, default="public")
     password = models.CharField(max_length=255, blank=True, null=True)
     bracket_data = models.JSONField(default=dict)
+
     members = ArrayField(models.IntegerField(), default=list)
+
     GAMES_CHOICES = (
         ("pong", "Pong"),
         ("space_invaders", "Space Invaders"),

@@ -23,11 +23,15 @@ export default class Friends_Bar extends HTMLElement {
 		this.innerHTML = /*html*/ `
 			${data
 				.map((item) => {
+					console.log("friends bar", item);
 					return /*html*/ `
 						<div class="friends_bar_item" data-link="/profile/${item.id}">
 							<div>
 								<img src="${item.avatar}" class="friends_bar_item_icon"/>
-								<div class="friends_bar_item_icon_status"></div>
+								${item.status == "online" ? 
+									/*html*/ `<div class="friends_bar_item_icon_status online_status"></div>`: 
+									/*html*/ `<div class="friends_bar_item_icon_status offline_status"></div>`
+								}
 								${
 									item.is_playing ? /*html*/ `
 									<div class="in_game_bar">

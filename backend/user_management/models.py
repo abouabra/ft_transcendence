@@ -27,8 +27,9 @@ class User(AbstractUser):
 
     is_playing = models.CharField(choices=PLAYING_CHOICES, max_length=255, blank=True, null=True)
 
-    friends = models.ManyToManyField("self", blank=True, symmetrical=False)
-
+    friends = models.ManyToManyField("self", blank=True, symmetrical=False, related_name="user_friends")
+    blocked = models.ManyToManyField("self", blank=True, symmetrical=False, related_name="user_blocked")
+    
 
 
 

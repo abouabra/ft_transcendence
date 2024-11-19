@@ -14,9 +14,8 @@ const GAME_CONSTANTS = {
 	BASE_SPEED: 7,
 	BALL_SPEED_CAP: 23,
 
-	SCORE_TO_WIN: 12,
-	TIME_TO_WIN: 5,
-	INC_SPEED: 0,
+	SCORE_TO_WIN: 11,
+	INC_SPEED: 1,
 
 	TIMOUT_DURATION: 200,
 };
@@ -287,9 +286,10 @@ class PongGame {
 			this.rightPaddle.update(this.inputManager, this.canvas);
 
 		this.checkCollisions();
-		this.send_ws_data();
-		
 		this.checkScore();
+		this.updateStatsHeader();
+
+		this.send_ws_data();
 	}
 
 	checkCollisions() {
@@ -375,14 +375,9 @@ class PongGame {
 			console.log("Score reached");
 			return true;
 		}
-
-		const timeDiff = new Date() - this.gameStartTime;
-		const minutes = Math.floor(timeDiff / 60000);
-		return minutes >= GAME_CONSTANTS.TIME_TO_WIN;
 	}
 
 	gameLoop = () => {
-		this.updateStatsHeader();
 
 		if (this.gameState === "game_over") return;
 

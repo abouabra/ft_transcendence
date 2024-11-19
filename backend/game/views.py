@@ -383,3 +383,35 @@ class ProfileStatsView(generics.GenericAPIView):
                 {"detail": "Error encountered while fetching the stats"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+class ResetStatsView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, pk):
+        try:
+            game_stats = {}
+            game_stats["pong"] = GameStats.objects.get(user_id=pk, game_name="pong")
+            game_stats["space_invaders"] = GameStats.objects.get(user_id=pk, game_name="space_invaders")
+            game_stats["road_fighter"] = GameStats.objects.get(user_id=pk, game_name="road_fighter")
+
+            for game in ["pong", "space_invaders", "road_fighter"]:
+                game_stats[game].games_won = 0
+                game_stats[game].games_lost = 0
+                game_stats[game].games_drawn = 0
+                game_stats[game].total_games_played = 0
+                game_stats[game].current_elo = 25
+                game_stats[game].total_score = 0
+                game_stats[game].total_time_spent = 0
+                game_stats[game].save()
+
+            Game_History.objects.filter(Q(player1=pk) | Q(player2=pk)).delete()
+
+            return Response({"message": "Stats Reset Successfully"}, status=status.HTTP_200_OK)
+        except GameStats.DoesNotExist:
+            return Response({"detail": "Stats Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while resetting the stats"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

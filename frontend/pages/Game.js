@@ -380,7 +380,8 @@ export default class Game_Page extends HTMLElement {
 			type: "game_over",
 			user_id: uid,
 			game_room_id: parseInt(localStorage.getItem('game_id')),
-			game_time : delta_time_in_sec
+			game_time : delta_time_in_sec,
+			is_interupted: true
 		}));
 
 		

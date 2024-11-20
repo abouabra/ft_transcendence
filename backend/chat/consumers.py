@@ -4,9 +4,15 @@ from .models import Message, Server
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 import datetime
+from  base64 import b64decode
 class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
+        jsondata = str(self.scope["cookies"]["access_token"].split('.')[1])
+        jsondata += '='
+        jsondata = b64decode(jsondata)
+        jsondata = json.loads(jsondata.decode('utf-8'))
+        self.user_id = jsondata["user_id"]
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         print(self.scope['cookies'])
         token = self.scope['cookies']['refresh_token']  # Extract token from query string
@@ -37,14 +43,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         print(f"chat data = {text_data_json}")
         message = text_data_json["content"]
         server_name = text_data_json["server_name"]
-        user_id = text_data_json["user_id"]
         server_chat = await self.get_server(server_name)
         print(f"server_chat = {server_chat.banned}")
-        if (int(user_id) in server_chat.banned):
+        if (int(self.user_id) in server_chat.banned):
             return
-        db_msg = await self.create_message(server_chat, user_id, message)
+        db_msg = await self.create_message(server_chat, self.user_id, message)
         text_data_json["message_id"] = db_msg.id
-        print(f"Message send by {user_id} channel: {server_name} message: {message}")
+        print(f"Message send by {self.user_id} channel: {server_name} message: {message}")
         text_data_json['timestamp'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         event = {

@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from .serializers import TournamentHistorySerializer, ShortTournamentHistorySerializer
 
 from .serializers import TournamentHistorySerializer, TournamentStatsSerializer, ProfileTournamentHistorySerializer
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 import base64
 from .request_api import create_qr_code
 from django.conf import settings
@@ -116,10 +116,13 @@ class GetTournamentInfo(generics.GenericAPIView):
 
 
 class GetTournamentsData(generics.GenericAPIView):
-    # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        tournaments = Tournament_History.objects.all()
+        tournamentsjoind = Tournament_History.objects.filter(members__contains=[request.user.id])
+        tournaments = Tournament_History.objects.exclude(status="Ended")
+        if (tournamentsjoind):
+            tournaments = tournamentsjoind
         serializer = TournamentHistorySerializer(tournaments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -134,12 +137,11 @@ class Membertournament(generics.GenericAPIView):
             return Response({"members":tournaments.members}, status=status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
-
+import logging
 class GetTournamentroomData(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-
         if (request.query_params.get('tournament_name') is None):
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
         tournament_name = request.query_params.get('tournament_name')
@@ -167,7 +169,7 @@ class GetTournamentroomData(generics.GenericAPIView):
             if tournament.room_size == len(tournament.members):
                 return Response({"error":"room is full"}, status.HTTP_400_BAD_REQUEST)
             if tournament.visibility == "private":
-                if not request.data['password'] or not tournament.check_passwd(request.data['password']):
+                if not check_password(request.data['password'], tournament.password):
                     return Response({"error":"Wrong password"}, status.HTTP_400_BAD_REQUEST)
             match_room = tournament.bracket_data[tournament.bracket_data["current_round"]]
             match_instance = find_emty_room(match_room)
@@ -273,7 +275,8 @@ class TournamentjoinedUsers(generics.GenericAPIView):
                 "data":tournament.bracket_data,
                 "avatar":tournament.avatar,
                 "winner":winner,
-                "owner": tournament.members[0]
+                "owner": tournament.members[0],
+                "status":tournament.status
             }
             return Response(data, status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
@@ -341,24 +344,16 @@ class advanceTournamentmatch(generics.GenericAPIView):
             elif current_round == "round_of_16":
                 next_round = "quarterfinals"
             datalist = tournament.bracket_data[current_round]
-
-            for index ,element in enumerate(datalist, start=0):
-
+            bracket_tofill = 0
+            turn = 0
+            for element in datalist:
+                if turn == 2:
+                    bracket_tofill += 1
+                    turn = 0
                 if (data["player1"]["id"] in element and data["player2"]["id"] in element):
-                    if(next_round == "finals"):
-                        if index%2:
-                            tournament.bracket_data[next_round][0][1] = data["winner"]
-                        else:
-                            tournament.bracket_data[next_round][0][0] = data["winner"]
-                    else:
-                        i=0
-                        if (index):
-                            i = index - 1
-                        if index%2:
-                            tournament.bracket_data[next_round][i-1][1] = data["winner"]
-                        else:
-                            tournament.bracket_data[next_round][i][0] = data["winner"]
+                    tournament.bracket_data[next_round][bracket_tofill][turn] = data["winner"]
                     tournament.save()
+                turn += 1
             matchlen = 0
             for element in tournament.bracket_data[next_round]:
                 if (element[0] ==0 or element[1] == 0):

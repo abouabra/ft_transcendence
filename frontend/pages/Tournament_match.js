@@ -27,7 +27,7 @@ export default class Tournament_Match extends HTMLElement {
             let winner = 0
             if (data.winner != 0)
                 winner = usersdata[data.winner]
-            console.log(data.winner)
+            const winner_block = `<span class="header_h3 text-center">${winner.username}</span>`
             this.innerHTML = /*html*/`
                 <div class="match_main_container">
                     <div class="parts_container d-flex flex-row">
@@ -40,7 +40,10 @@ export default class Tournament_Match extends HTMLElement {
                             <span class="header_h1 final_text">SEMI-FINALS</span>
                             <div class="winner_content">
                                 <span class="header_h2">WINNER</span>
-                                <img src="${winner !== 0 ? winner.avatar : data.avatar}" class="winner_img">
+                                <div class="d-flex flex-column winner_block">
+                                    <img src="${winner !== 0 ? winner.avatar : data.avatar}" class="winner_img">
+                                    ${winner !== 0 ?winner_block:''}
+                                </div>
                             </div>
                             <div class="d-flex flex-column align-items-center justify-content-center">
                                 ${Tournament_leftBracket(finals, usersdata, data.avatar)}
@@ -50,7 +53,7 @@ export default class Tournament_Match extends HTMLElement {
                                 <span class="p1_bold">TO GET THIS ACHIEVEMENT</span>
                                 <img src="/assets/images/winner_icon.jpg" class="winner_img" alt="winner_icone">
                             </div>
-                            ${localStorage.getItem('id') == data.owner ? '<div class="playing2 p3_bold">Start Tournament</div>': ''}
+                            ${(localStorage.getItem('id') == data.owner && data.status == "Waiting for players") ? '<div class="playing2 p3_bold">Start Tournament</div>': ''}
                         </div>
 
                         <div class="Right_part">
@@ -61,6 +64,8 @@ export default class Tournament_Match extends HTMLElement {
                     </div>
                 </div>
             `
+            if (winner !== 0)
+                this.querySelector(".winner_img").classList.add("winner_styling");
             let play = document.querySelector(".playing2");
             const keys= Object.keys(data.data)
 
@@ -112,17 +117,22 @@ export default class Tournament_Match extends HTMLElement {
             {
                 play.addEventListener("click", () => {
                     makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
-                        console.log("started playing awla la")
+                    }).catch(error =>{
+                        showToast("error", error.message)
                     })
                 })
             }
         })
         .catch(error => {
-            this.innerHTML = /*html*/`
-                <div class="error_container">
-                    <span class="header_h1">Error</span>
-                </div>`
-        });
+			this.innerHTML = /* html */`
+            <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
+				<div class="d-flex justify-content-center align-items-center flex-column" style="gap: 50px">
+					<span class="header_h1"> ${error.message} </span>
+					<button-component data-text="Go back to tournament" onclick="GoTo('/tournament/')"> </button-component>
+                </div>
+            </div>
+			`;
+		});
         
     }
 

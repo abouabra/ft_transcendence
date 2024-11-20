@@ -27,7 +27,7 @@ export default class Profile_Page extends HTMLElement {
 
 	async waitForSocket() {
 		while (!window.notification_socket || window.notification_socket.readyState !== WebSocket.OPEN) {
-			await new Promise(resolve => setTimeout(resolve, 100)); // Poll every 100ms
+			await new Promise(resolve => setTimeout(resolve, 100));
 		}
 	}
 	

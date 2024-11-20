@@ -4,14 +4,19 @@ import json
 from channels.db import database_sync_to_async
 from .models import Notification, User
 from .serializers import ShortUserSerializer
+import base64
 
 logger = logging.getLogger(__name__)
 
+
+
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.user_id = 0
         self.goup_name = 0
         await self.accept()
+        self.user_id = await self.get_user_id_from_access_token(self.scope['cookies'].get('access_token'))
+        await self.set_status(self.user_id, 'online')
+
 
     async def disconnect(self, close_code):
         if self.user_id:
@@ -43,8 +48,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
         if type == 'join_group':
             group_name = f'user_{sender_id}'
-            self.user_id = sender_id
-            await self.set_status(sender_id, 'online')
+            # self.user_id = sender_id
+            # await self.set_status(sender_id, 'online')
             await self.channel_layer.group_add(group_name, self.channel_name)
         else:
             await self.create_notification(data)
@@ -80,9 +85,19 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def set_status(self, user_id, status):
         try: 
+            print(f"set user online status => {user_id} {status}")
             user = User.objects.get(id=user_id)
             user.status = status
             user.save()
         
         except User.DoesNotExist:
             pass
+    
+
+    async def get_user_id_from_access_token(self, access_token):
+        payload = access_token.split('.')[1]
+        payload += '=' * (4 - (len(payload) % 4))
+        decoded_payload = base64.b64decode(payload)
+        user_id = json.loads(decoded_payload)['user_id']
+        print(f"\n\nget_user_id_from_access_token: {user_id}\n\n")
+        return user_id

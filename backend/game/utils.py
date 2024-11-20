@@ -71,12 +71,11 @@ def ELO_System(RatingA, RatingB, ResultA, ResultB, K):
     return int(player1), int(player2)
 
 
-def update_stats_after_game(player_1_id, player_2_id, game_name, game_id):
+def update_stats_after_game(player_1_id, player_2_id, game_name, match_obj):
     print(f"update_stats_after_game: {player_1_id} vs {player_2_id} in {game_name}")
     player_1_stats = GameStats.objects.get(user_id=player_1_id, game_name=game_name)
     player_2_stats = GameStats.objects.get(user_id=player_2_id, game_name=game_name)
     
-    match_obj = Game_History.objects.get(id=game_id)
 
     if match_obj.winner == player_1_id:
         player_1_stats.games_won += 1
@@ -94,8 +93,6 @@ def update_stats_after_game(player_1_id, player_2_id, game_name, game_id):
     
     print("\n\n\n")
     print(f"update_stats_after_game: {player_1_id} vs {player_2_id} on {game_name} result {match_obj.player_1_score} : {match_obj.player_2_score}")
-    print("\n\n\n")
-
     player_1_new_elo, player_2_new_elo = ELO_System(player_1_stats.current_elo, player_2_stats.current_elo, match_obj.player_1_score, match_obj.player_2_score, 32)
     print("\n\n\n")
     print(f"update_stats_after_game: {player_1_id} current_elo: {player_1_stats.current_elo} new ELO: {player_1_new_elo}")
@@ -174,30 +171,46 @@ def getTournamentProfileStats(request, userID):
 
     return response.json()
 
-def generate_elo_graph(userID, all_player_games_objects, current_elo):
+def generate_elo_graph(userID, all_player_games_objects, game_stats):
     try:
         data = []
-        loop_elo = current_elo
+        loop_elo = game_stats.current_elo
         
-        # Reverse the game objects to trace from current to previous ELO
-        for i, game in enumerate(reversed(all_player_games_objects)):
-            # Determine the ELO change based on which player the user was
-            if game.player1 == userID:
-                elo_change = game.player1_elo_change
-            else:
-                elo_change = game.player2_elo_change
+
+        for game in all_player_games_objects:
+            elo_change = game.player1_elo_change if game.player1 == userID else game.player2_elo_change
             
-            # Subtract the ELO change to get the previous ELO
+            game_date = int(game.game_date.timestamp())
+
+            data.append({"match_id": game.id, "elo": loop_elo, "date": game_date})
             loop_elo -= elo_change
-            loop_elo = max(loop_elo, 0)  # Ensure ELO doesn't go below 0
-            
-            # Use negative index to maintain correct chronological order when plotting
-            data.append({"match": i, "elo": loop_elo, "date": game.game_date})
-        
-        # Reverse the data to maintain original game order
+            loop_elo = max(loop_elo, 0)
+
+        data.append({"match_id": "account_creation", "elo": 25, "date": int(game_stats.created_at.timestamp())})
+
         data.reverse()
-        
+
+
         return {"elo_graph": data}
     except Exception as e:
         logging.error(f"====\nError in generate_elo_graph: {e}\n====")
         return {"elo_graph": []}
+
+def setUserToPlaying(access_token, userID, game_name):
+    request_headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    url = f"http://127.0.0.1:8000/api/auth/set_user_playing_game/"
+    data = {
+        "user_id": userID,
+        "game_name": game_name
+    }
+
+    response = requests.post(url, headers=request_headers, cookies={"access_token": access_token}, json=data)
+
+    if(response.status_code != 200):
+        raise Exception(f"Error encountered while fetching profile stats {response.text}")
+
+    return response.json()

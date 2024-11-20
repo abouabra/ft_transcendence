@@ -142,3 +142,5 @@ def getProfileStats(request, userID):
 
     return response.json()
 
+def replace_spaces_with_underscores(string):
+    return string.replace(" ", "_")

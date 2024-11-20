@@ -5,17 +5,23 @@ export default class Friends_Bar extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/common.css"));
 
-		makeRequest("/api/auth/friends_bar/")
-		.then((data) => {
-			this.render_data(data);
-		})
-		.catch((error) => {
-			showToast("error", error);
+		
+		this.waitForSocket().then(() => {
+			makeRequest("/api/auth/friends_bar/")
+			.then((data) => {
+				this.render_data(data);
+			})
+			.catch((error) => {
+				showToast("error", error);
+			});
 		});
-
 		
+	}
 
-		
+	async waitForSocket() {
+		while (!window.notification_socket || window.notification_socket.readyState !== WebSocket.OPEN) {
+			await new Promise(resolve => setTimeout(resolve, 100)); // Poll every 100ms
+		}
 	}
 
 	render_data(data)

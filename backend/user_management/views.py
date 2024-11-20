@@ -343,6 +343,7 @@ class AcceptFriendRequestView(generics.GenericAPIView):
                 )
 
             request.user.friends.add(sender)
+            sender.friends.add(request.user)
             return Response(
                 {"detail": "Friend request accepted successfully"},
                 status=status.HTTP_200_OK,
@@ -358,6 +359,33 @@ class AcceptFriendRequestView(generics.GenericAPIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+class RemoveFriendView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ShortUserSerializer
+
+    def delete(self, request, pk):
+        try:
+            friend = User.objects.get(id=pk)
+            if friend not in request.user.friends.all():
+                return Response(
+                    {"detail": "User is not your friend"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            request.user.friends.remove(friend)
+            friend.friends.remove(request.user)
+            return Response(
+                {"detail": "Friend removed successfully"}, status=status.HTTP_200_OK
+            )
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while removing the friend"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 class RecieveHttpNotification(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
@@ -845,8 +873,9 @@ class VerifyTwoFactorAuthView(TokenObtainPairView):
 #             print("faild")
 #             return Response({"error": "code incorrect."}, status=400)
         
+from datetime import datetime
+import os
 
-    
 class user_info(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
@@ -891,8 +920,11 @@ class user_info(APIView):
             try:
                 split_base_64 = bannerInput.split(';base64,')
                 image_data = base64.b64decode(split_base_64[1])
-                filename = f"user_banner{request.user.id}.jpg"
+                filename_0 = f"{datetime.now()}user_banner{request.user.id}.jpg"
+                filename = utils.replace_spaces_with_underscores(filename_0)
                 file_path = f"./assets/images/banners/{filename}"
+                if(os.path.exists(f".{user.profile_banner}")):
+                    os.remove(f".{user.profile_banner}")  
                 with open (file_path, "wb") as f:
                     f.write(image_data)
                 user.profile_banner = file_path[1:]
@@ -904,10 +936,15 @@ class user_info(APIView):
             try:
                 split_base_64 = avatarInput.split(';base64,')
                 image_data = base64.b64decode(split_base_64[1])
-                filename = f"user_{request.user.id}.jpg"
+                filename_0 = f"{datetime.now()}user_{request.user.id}.jpg"
+                filename = utils.replace_spaces_with_underscores(filename_0)
                 file_path = f"./assets/images/avatars/{filename}"
+                if(os.path.exists(f".{user.avatar}")):
+                    os.remove(f".{user.avatar}")    
                 with open (file_path, "wb") as f:
                     f.write(image_data)
+                print(file_path)
+                print(file_path[1:])
                 user.avatar = file_path[1:]
                 change = True
             except(IndexError, base64.binascii.Error) as e:
@@ -924,7 +961,7 @@ class user_info(APIView):
 class ProfileView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ShortUserSerializer
-    
+
     def get(self, request, pk):
         try:
             user = User.objects.get(id=pk)
@@ -962,5 +999,38 @@ class ProfileView(generics.GenericAPIView):
             logger.error(f"==============\n\n {str(e)} \n\n==============")
             return Response(
                 {"detail": "Error encountered while fetching the user"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+class SetUserPlayingGameView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        game_name = request.data.get("game_name")
+        user_id = request.data.get("user_id")
+        
+        if not user_id:
+            return Response({"error": "User ID is required"}, status=400)
+
+        if game_name not in ["pong", "space_invaders", "road_fighter", None]:
+            return Response(
+                {"error": "Invalid game name"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            print(f"\n\n\n\nuser_id: {user_id} game_name: {game_name}\n\n\n\n")
+            user = User.objects.get(id=user_id)
+            user.is_playing = game_name
+            user.save()
+            return Response({"detail": "User playing status updated successfully"}, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while updating the user playing status"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

@@ -368,7 +368,7 @@ class ProfileStatsView(generics.GenericAPIView):
                 }
                 
                 all_player_games_objects = Game_History.objects.filter((Q(player1=pk) | Q(player2=pk)), game_name=game, has_ended=True).order_by('-game_date')
-                response_data[game].update(generate_elo_graph(pk, all_player_games_objects, game_stats[game].current_elo)),
+                response_data[game].update(generate_elo_graph(pk, all_player_games_objects, game_stats[game])),
                 response_data[game]["current_elo"] = round(game_stats[game].current_elo, 2)
                 response_data[game]["leaderboard_rank"] = GameStats.objects.filter(game_name=game, current_elo__gt=game_stats[game].current_elo).count() + 1
                 response_data[game]["recent_games"] = ProfileGameHistorySerializer(all_player_games_objects, many=True).data

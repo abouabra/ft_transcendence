@@ -262,14 +262,13 @@ export default class Settings_Page extends HTMLElement {
 				return;
 			}
 		}
-		console.log(data);
 		makeRequest('/api/auth/user_info/', 'POST', data)
 		.then(response => {
 			if(response.success)
 			{
+				document.getElementsByClassName("header_h1")[0].innerHTML=username;
+				const pro=document.getElementsByClassName("user-bar-icon")[0].src=response.avatar;
 				showToast("success", response.success)
-				const uname = document.getElementsByClassName("header_h1")[0].innerHTML=username;
-				const pdp = document.getElementsByClassName("user-bar-icon")[0].src=response.avatar;
 				localStorage.setItem("username", username);
 				localStorage.setItem("avatar", response.avatar);
 			}

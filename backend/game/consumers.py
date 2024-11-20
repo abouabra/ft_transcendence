@@ -4,7 +4,7 @@ import json
 from channels.db import database_sync_to_async
 from .models import Game_History, GameStats
 import asyncio
-from .utils import update_stats_after_game, ELO_System, getUserData, sendAdvanceMatchRequest
+from .utils import update_stats_after_game, ELO_System, getUserData, sendAdvanceMatchRequest, setUserToPlaying
 from django.http import HttpRequest
 from rest_framework_simplejwt.tokens import RefreshToken
 import jwt
@@ -102,8 +102,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                             if(GAME_ROOMS[game_room_id].finished_peacefully == False):
                                 game_obj = GAME_ROOMS[game_room_id]
                                 me = PLAYERS[game_name][object]
-                                
-                                await self.stats_wrapper(game_obj, me, opponent)
+                                me.score = 0
+                                opponent.score = 11
+                                game_obj.player1.score = 0 if game_obj.player1 == me else 11
+                                game_obj.player2.score = 0 if game_obj.player2 == me else 11
+                                await self.stats_wrapper(game_obj)
 
                             await opponent.ws_obj.send(text_data=json.dumps({
                                 'type': 'game_over',
@@ -222,15 +225,18 @@ class GameConsumer(AsyncWebsocketConsumer):
             if "is_interupted" in text_data_json:
                 me.score = 0
                 opponent.score = 11
-                game_obj.player1.score = 0 if game_obj.player1.user_id == user_id else 11
-                game_obj.player2.score = 0 if game_obj.player2.user_id == user_id else 11
-                print(f"\n\n\ngame_over is_interupted {me.score} {opponent.score}\n\n\n")
+                game_obj.player1.score = 0 if game_obj.player1 == me else 11
+                game_obj.player2.score = 0 if game_obj.player2 == me else 11
+            
+           
 
             message = {
                     'type': 'game_over',
                     'winner': opponent.get_user_info(),
                     'loser': me.get_user_info(),
                 }
+            if "is_interupted" in text_data_json:
+                message["is_interupted"] = True
             
             await opponent.ws_obj.send(text_data=json.dumps(message))
             await me.ws_obj.send(text_data=json.dumps(message))
@@ -238,7 +244,9 @@ class GameConsumer(AsyncWebsocketConsumer):
             if(game_obj.game_task != None):
                 game_obj.game_task.cancel()
             
-            await self.stats_wrapper(game_obj, me, opponent)
+            await self.stats_wrapper(game_obj)
+            await self.setUserToPlayingWrapper(me.user_id, None)
+            await self.setUserToPlayingWrapper(opponent.user_id, None)
 
 
             await opponent.ws_obj.close()
@@ -288,8 +296,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         player1 = game_obj.player1
         player2 = game_obj.player2
 
-        # pop the two players from the PLAYERS dict
-        
+
         logger.error(f'start_game between {player1} and {player2}')
 
         message = {
@@ -299,7 +306,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             "game_room_id": game_obj.id,
         }
         
-
         if game_obj.game_name == "space_invaders":
             message["initial_data"] = {
                 player1.user_id: {'x': 0, 'y': 0, 'z': 50},
@@ -317,6 +323,9 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         await player1.ws_obj.send(text_data=json.dumps(message))
         await player2.ws_obj.send(text_data=json.dumps(message))
+
+        await self.setUserToPlayingWrapper(player1.user_id, game_obj.game_name)
+        await self.setUserToPlayingWrapper(player2.user_id, game_obj.game_name)
 
     async def start_game_task(self, game_obj):
         if game_obj.game_name == "space_invaders":
@@ -423,7 +432,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
     @database_sync_to_async
-    def stats_wrapper(self, game_obj, me, opponent):
+    def stats_wrapper(self, game_obj):
 
         player_1_score = game_obj.player1.score
         player_2_score = game_obj.player2.score
@@ -440,12 +449,11 @@ class GameConsumer(AsyncWebsocketConsumer):
             match_obj.winner = game_obj.player1.user_id
         elif player_1_score < player_2_score:
             match_obj.winner = game_obj.player2.user_id
-        else:
-            match_obj.winner = 0
 
         match_obj.save()
+        print(f"\n\n\nstats_wrapper {match_obj.player1} vs {match_obj.player2} => {match_obj.player_1_score} : {match_obj.player_2_score}\n\n\n")
         
-        update_stats_after_game(game_obj.player1.user_id, game_obj.player2.user_id, match_obj.game_name, game_obj.id)
+        update_stats_after_game(match_obj.player1, match_obj.player2, match_obj.game_name, match_obj)
 
         if match_obj.isTournemantMatch:
             access_token = self.scope['cookies'].get('access_token')
@@ -457,3 +465,11 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         request = HttpRequest()
         return getUserData(request, user_id, True)
+
+    @database_sync_to_async
+    def setUserToPlayingWrapper(self, user_id, game_name):
+        try:
+            access_token = self.scope['cookies'].get('access_token')
+            setUserToPlaying(access_token,user_id, game_name)
+        except Exception as e:
+            pass

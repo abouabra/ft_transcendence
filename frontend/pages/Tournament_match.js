@@ -24,7 +24,10 @@ export default class Tournament_Match extends HTMLElement {
             let middle = semi_finals.length/2
             let finals = data.data.finals
             let Left_side;
-
+            let winner = 0
+            if (data.winner != 0)
+                winner = usersdata[data.winner]
+            console.log(data.winner)
             this.innerHTML = /*html*/`
                 <div class="match_main_container">
                     <div class="parts_container d-flex flex-row">
@@ -37,7 +40,7 @@ export default class Tournament_Match extends HTMLElement {
                             <span class="header_h1 final_text">SEMI-FINALS</span>
                             <div class="winner_content">
                                 <span class="header_h2">WINNER</span>
-                                <img src="${data.avatar}" class="winner_img">
+                                <img src="${winner !== 0 ? winner.avatar : data.avatar}" class="winner_img">
                             </div>
                             <div class="d-flex flex-column align-items-center justify-content-center">
                                 ${Tournament_leftBracket(finals, usersdata, data.avatar)}
@@ -47,7 +50,7 @@ export default class Tournament_Match extends HTMLElement {
                                 <span class="p1_bold">TO GET THIS ACHIEVEMENT</span>
                                 <img src="/assets/images/winner_icon.jpg" class="winner_img" alt="winner_icone">
                             </div>
-                            <div class="playing2 p3_bold">Start Tournament</div>
+                            ${localStorage.getItem('id') == data.owner ? '<div class="playing2 p3_bold">Start Tournament</div>': ''}
                         </div>
 
                         <div class="Right_part">
@@ -105,11 +108,14 @@ export default class Tournament_Match extends HTMLElement {
                     element.style.width = "250px";
                 });
             }
-            play.addEventListener("click", () => {
-                makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
-                    console.log("started playing awla la")
+            if (play)
+            {
+                play.addEventListener("click", () => {
+                    makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
+                        console.log("started playing awla la")
+                    })
                 })
-            })
+            }
         })
         .catch(error => {
             this.innerHTML = /*html*/`

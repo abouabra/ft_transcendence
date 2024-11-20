@@ -177,10 +177,6 @@ class GetTournamentroomData(generics.GenericAPIView):
             tournament.total_number_of_players += 1
             tournament.bracket_data[tournament.bracket_data["current_round"]][match_instance[0]][match_instance[1]] = request.user.id
             tournament.save()
-            if (len(tournament.members) == tournament.room_size):
-                tournament.status = "In progress"
-                tournament.save()
-                Start_Playing(request, tournament)
             return Response({"success":"user joined the tournament", "tournament_name":tournament.name}, status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
@@ -263,6 +259,9 @@ class TournamentjoinedUsers(generics.GenericAPIView):
         tournament_name = request.query_params.get('tournament_name')
         try:
             tournament = Tournament_History.objects.get(name=tournament_name)
+            winner = 0
+            if (tournament.status == "Ended"):
+                winner = tournament.tournament_winner
             print(tournament.bracket_data)
             users = {}
             for user_id in tournament.members:
@@ -273,6 +272,8 @@ class TournamentjoinedUsers(generics.GenericAPIView):
                 "users":users,
                 "data":tournament.bracket_data,
                 "avatar":tournament.avatar,
+                "winner":winner,
+                "owner": tournament.members[0]
             }
             return Response(data, status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
@@ -300,6 +301,8 @@ class testplaying(generics.GenericAPIView):
     def get(self, request):
         try:
             tournament = Tournament_History.objects.get(name=request.query_params.get('tournament_name'))
+            if (tournament.room_size != len(tournament.members)):
+                return Response({"error":"Tournament is not full"}, status=400)
         except tournament.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
         if (request.user.id == tournament.members[0]):
@@ -309,11 +312,12 @@ class testplaying(generics.GenericAPIView):
                 return Response({"error":"Tournament ended"}, status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"error":"you are not the tournament host"}, status.HTTP_400_BAD_REQUEST)
-        if Start_Playing(request, tournament):
+        game_id= Start_Playing(request, tournament)
+        if (game_id == 0):
             return Response({"error":"Failed to start tournament"}, status.HTTP_400_BAD_REQUEST)
         tournament.status = "In progress"
         tournament.save()
-        return Response({"message": "Tournament History Created Successfully"}, status=status.HTTP_201_CREATED)
+        return Response({"success": "Tournament History Created Successfully"}, status=status.HTTP_201_CREATED)
 
 class advanceTournamentmatch(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -323,19 +327,29 @@ class advanceTournamentmatch(generics.GenericAPIView):
             data = getmatchdata(request)
 
             tournament = Tournament_History.objects.get(id=data["tournament_id"])
+            if (tournament.status == "final_round" or tournament.status == "Ended"):
+                if (tournament.status == "final_round"):
+                    request.data["game_id"] = tournament.tournament_winner
+                    data = getmatchdata(request)
+                    tournament.tournament_winner = data["winner"]
+                    tournament.status = "Ended"
+                    tournament.save()
+                    print(f" gamee winner  = {tournament.tournament_winner}")
+                    print(f" gamee winner  = {tournament.tournament_winner}")
+                    print(f" gamee winner  = {tournament.tournament_winner}")
+                    print(f" gamee winner  = {tournament.tournament_winner}")
+                    print(f" gamee winner  = {tournament.tournament_winner}")
+                return Response({"success":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
             current_round = tournament.bracket_data["current_round"]
-            if (current_round == "finals"):
-                Start_Playing(request, tournament)
-                return Response({"success":"Tournament Ended"}, status=status.HTTP_200_OK)
 
             next_round = "finals"
             if (current_round == "quarterfinals"):
                 next_round = "semifinals"
             elif current_round == "round_of_16":
                 next_round = "quarterfinals"
+
             current_round = tournament.bracket_data["current_round"]
-            if (next_round == current_round):
-                return Response({"error":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
+
             datalist = tournament.bracket_data[current_round]
             for index ,element in enumerate(datalist, start=0):
                 if (data["player1"]["id"] in element and data["player2"]["id"] in element):
@@ -357,6 +371,11 @@ class advanceTournamentmatch(generics.GenericAPIView):
                 matchlen += 1
             if matchlen == len(tournament.bracket_data[next_round]):
                 tournament.bracket_data["current_round"] = next_round
+                if (next_round == "finals"):
+                    tournament.status = "final_round"
+                    tournament.tournament_winner = Start_Playing(request, tournament)
+                    tournament.save()
+                    return Response({"success":"Tournament final"}, status=status.HTTP_200_OK)
                 tournament.save()
                 Start_Playing(request, tournament)
         except Tournament_History.DoesNotExist:
@@ -379,7 +398,7 @@ class ProfileStatsView(generics.GenericAPIView):
                 response_data["win_los_ratio"][key] = int(tournament_stats[key].games_won / tournament_stats[key].total_games_played * 100) if tournament_stats[key].total_games_played != 0 else 0
             
             for game in ["pong", "space_invaders", "road_fighter"]:
-                recent_tournaments = Tournament_History.objects.filter(game_name=game, members__contains=[pk]).exclude(status="Waiting for players").order_by('-created_at') # TODO: Replace Waiting for players with what baanni decides
+                recent_tournaments = Tournament_History.objects.filter(game_name=game, members__contains=[pk], status="Ended").order_by('-created_at') # TODO: Replace Waiting for players with what baanni decides
                 response_data["recent_tournaments"][game] = ProfileTournamentHistorySerializer(recent_tournaments, many=True, context={'user_id': pk}).data
             return Response(response_data, status=status.HTTP_200_OK)
         except:

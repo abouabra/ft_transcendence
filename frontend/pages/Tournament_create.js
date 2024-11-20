@@ -36,7 +36,7 @@ export default class Tournament_Create extends HTMLElement {
 							<span id="text_avatar">150x150 image required</span>
 						</div>
 						<div class="server_name platinum_40_color_border  d-flex flex-column justify-content-center align-items-center">
-							<input class="create_server_input" id= "name" type="text" placeholder="Name" maxlength="255">
+							<input class="create_server_input" id= "name" type="text" placeholder="Name" maxlength="255" pattern="[a-zA-Z0-9_.]*">
 						</div>
                         <div class="server_visibility platinum_40_color_border position-relative">
                             <select class="form-select-1" required>

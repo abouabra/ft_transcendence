@@ -228,9 +228,12 @@ export default class Game_Page extends HTMLElement {
 					}
 					if(data.isTournemantMatch == true)
 					{
-						makeRequest(`/api/tournaments/get_tournament_info/${data.tournament_id}`).then(data=>{
-							GoTo(`/tournament/match/?tournament_name=${data.name}`);
-						})
+						this.display_game_results(response);
+						setTimeout(()=>{
+							makeRequest(`/api/tournaments/get_tournament_info/${data.tournament_id}`).then(data=>{
+								GoTo(`/tournament/match/?tournament_name=${data.name}`);
+							})
+						}, 2000)
 					}
 					else
 						this.display_game_results(response);

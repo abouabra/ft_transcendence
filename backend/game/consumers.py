@@ -230,9 +230,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 opponent.score = 11
                 game_obj.player1.score = 0 if game_obj.player1 == me else 11
                 game_obj.player2.score = 0 if game_obj.player2 == me else 11
-                print(f"\n\n\ngame_over is_interupted inside +++++ {me.user_id} vs {opponent.user_id} => {game_obj.player1.score} : {game_obj.player2.score}\n\n\n")
             
-            print(f"\n\n\ngame_over is_interupted {me.user_id} vs {opponent.user_id} => {game_obj.player1.score} : {game_obj.player2.score}\n\n\n")
            
 
             message = {
@@ -248,7 +246,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             
             if(game_obj.game_task != None):
                 game_obj.game_task.cancel()
-            print(f"\n\n\nbefore stats_wrapper {game_obj.player1} vs {game_obj.player2} => {game_obj.player1.score} : {game_obj.player1.score}")
             
             await self.stats_wrapper(game_obj)
             await self.setUserToPlayingWrapper(me.user_id, None)
@@ -439,7 +436,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def stats_wrapper(self, game_obj):
-        print(f"\n\n\ninside stats_wrapper {game_obj.player1} vs {game_obj.player2} => {game_obj.player1.score} : {game_obj.player1.score}")
 
         player_1_score = game_obj.player1.score
         player_2_score = game_obj.player2.score

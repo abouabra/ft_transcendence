@@ -79,6 +79,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def set_status(self, user_id, status):
-        user = User.objects.get(id=user_id)
-        user.status = status
-        user.save()
+        try: 
+            user = User.objects.get(id=user_id)
+            user.status = status
+            user.save()
+        
+        except User.DoesNotExist:
+            pass

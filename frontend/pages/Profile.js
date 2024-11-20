@@ -1,27 +1,34 @@
-
 export default class Profile_Page extends HTMLElement {
 	constructor() {
 		super();
 		
+		// Append the stylesheet link
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/profile_page.css'));
 
 		const user_id = window.location.pathname.split("/")[2];
 
-		makeRequest(`/api/auth/profile/${user_id}/`)
-		.then((data) => {
-			if(data.response_code == 404)
-			{
-				this.innerHTML = /* html */`
-				<h1> User not found</h1>
-				`;
-				return;
-			}
-			this.render_data(data, user_id);
-		})
-		.catch((error) => {
-			showToast("error", error);
+		this.waitForSocket().then(() => {
+			makeRequest(`/api/auth/profile/${user_id}/`)
+			.then((data) => {
+				if (data.response_code === 404) {
+					this.innerHTML = /* html */`
+						<h1>User not found</h1>
+					`;
+					return;
+				}
+				this.render_data(data, user_id);
+			})
+			.catch((error) => {
+				showToast("error", error);
+			});
 		});
+	}
+
+	async waitForSocket() {
+		while (!window.notification_socket || window.notification_socket.readyState !== WebSocket.OPEN) {
+			await new Promise(resolve => setTimeout(resolve, 100)); // Poll every 100ms
+		}
 	}
 	
 	render_data(data, user_id)

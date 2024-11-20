@@ -961,7 +961,7 @@ class user_info(APIView):
 class ProfileView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ShortUserSerializer
-    
+
     def get(self, request, pk):
         try:
             user = User.objects.get(id=pk)

@@ -162,6 +162,7 @@ class MeView(generics.GenericAPIView):
             user.is_playing = None
             user.save()
 
+
             Notification.objects.filter(receiver=user).delete()
             Notification.objects.filter(sender=user).delete()
 

@@ -36,4 +36,6 @@ urlpatterns = [
     path('user_info/', views.user_info.as_view(), name='user_info'),
 
     path('profile/<int:pk>/', views.ProfileView.as_view(), name='profile'),
+
+    path("set_user_playing_game/", views.SetUserPlayingGameView.as_view(), name="set_user_playing_game"),
 ]

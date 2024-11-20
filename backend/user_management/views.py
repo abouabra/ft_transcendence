@@ -1001,3 +1001,36 @@ class ProfileView(generics.GenericAPIView):
                 {"detail": "Error encountered while fetching the user"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+class SetUserPlayingGameView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        game_name = request.data.get("game_name")
+        user_id = request.data.get("user_id")
+        
+        if not user_id:
+            return Response({"error": "User ID is required"}, status=400)
+
+        if game_name not in ["pong", "space_invaders", "road_fighter", None]:
+            return Response(
+                {"error": "Invalid game name"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            print(f"\n\n\n\nuser_id: {user_id} game_name: {game_name}\n\n\n\n")
+            user = User.objects.get(id=user_id)
+            user.is_playing = game_name
+            user.save()
+            return Response({"detail": "User playing status updated successfully"}, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while updating the user playing status"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

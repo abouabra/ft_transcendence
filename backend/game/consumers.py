@@ -4,7 +4,7 @@ import json
 from channels.db import database_sync_to_async
 from .models import Game_History, GameStats
 import asyncio
-from .utils import update_stats_after_game, ELO_System, getUserData, sendAdvanceMatchRequest
+from .utils import update_stats_after_game, ELO_System, getUserData, sendAdvanceMatchRequest, setUserToPlaying
 from django.http import HttpRequest
 from rest_framework_simplejwt.tokens import RefreshToken
 import jwt
@@ -229,6 +229,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                 game_obj.player2.score = 0 if game_obj.player2.user_id == user_id else 11
                 print(f"\n\n\ngame_over is_interupted {me.score} {opponent.score}\n\n\n")
 
+            await self.setUserToPlayingWrapper(me.user_id, None)
+            await self.setUserToPlayingWrapper(opponent.user_id, None)
+
             message = {
                     'type': 'game_over',
                     'winner': opponent.get_user_info(),
@@ -292,7 +295,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         player2 = game_obj.player2
 
         # pop the two players from the PLAYERS dict
-        
+        await self.setUserToPlayingWrapper(player1.user_id, game_obj.game_name)
+        await self.setUserToPlayingWrapper(player2.user_id, game_obj.game_name)
         logger.error(f'start_game between {player1} and {player2}')
 
         message = {
@@ -460,3 +464,11 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         request = HttpRequest()
         return getUserData(request, user_id, True)
+
+    @database_sync_to_async
+    def setUserToPlayingWrapper(self, user_id, game_name):
+        try:
+            access_token = self.scope['cookies'].get('access_token')
+            setUserToPlaying(access_token,user_id, game_name)
+        except Exception as e:
+            pass

@@ -201,3 +201,22 @@ def generate_elo_graph(userID, all_player_games_objects, current_elo):
     except Exception as e:
         logging.error(f"====\nError in generate_elo_graph: {e}\n====")
         return {"elo_graph": []}
+
+def setUserToPlaying(access_token, userID, game_name):
+    request_headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    url = f"http://127.0.0.1:8000/api/auth/set_user_playing_game/"
+    data = {
+        "user_id": userID,
+        "game_name": game_name
+    }
+
+    response = requests.post(url, headers=request_headers, cookies={"access_token": access_token}, json=data)
+
+    if(response.status_code != 200):
+        raise Exception(f"Error encountered while fetching profile stats {response.text}")
+
+    return response.json()

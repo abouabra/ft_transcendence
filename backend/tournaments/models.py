@@ -27,6 +27,7 @@ class Tournament_History(models.Model):
     qr_code = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/servers_qr_codes/default.jpg")
 
     tournament_winner = models.IntegerField(default=0)
+    last_game = models.IntegerField(default=0)
 
     VISISBILITY_CHOICES = (
         ("public", "Public"),

@@ -306,13 +306,11 @@ class testplaying(generics.GenericAPIView):
         except tournament.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
         if (request.user.id == tournament.members[0]):
-            if (tournament.status == "In progress"):
+            if (tournament.status != "Waiting for players"):
                 return Response({"error":"Tournament already started"}, status.HTTP_400_BAD_REQUEST)
-            if (tournament.status == "Ended"):
-                return Response({"error":"Tournament ended"}, status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"error":"you are not the tournament host"}, status.HTTP_400_BAD_REQUEST)
-        game_id= Start_Playing(request, tournament)
+        game_id = Start_Playing(request, tournament)
         if (game_id == 0):
             return Response({"error":"Failed to start tournament"}, status.HTTP_400_BAD_REQUEST)
         tournament.status = "In progress"
@@ -325,19 +323,14 @@ class advanceTournamentmatch(generics.GenericAPIView):
     def post(self, request):
         try:
             data = getmatchdata(request)
-
             tournament = Tournament_History.objects.get(id=data["tournament_id"])
             if (tournament.status == "final_round" or tournament.status == "Ended"):
                 if (tournament.status == "final_round"):
-                    request.data["game_id"] = tournament.tournament_winner
+                    request.data["game_id"] = tournament.last_game
                     data = getmatchdata(request)
                     tournament.tournament_winner = data["winner"]
                     tournament.status = "Ended"
                     tournament.save()
-                    print(f" gamee winner  = {tournament.tournament_winner}")
-                    print(f" gamee winner  = {tournament.tournament_winner}")
-                    print(f" gamee winner  = {tournament.tournament_winner}")
-                    print(f" gamee winner  = {tournament.tournament_winner}")
                     print(f" gamee winner  = {tournament.tournament_winner}")
                 return Response({"success":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
             current_round = tournament.bracket_data["current_round"]
@@ -347,11 +340,10 @@ class advanceTournamentmatch(generics.GenericAPIView):
                 next_round = "semifinals"
             elif current_round == "round_of_16":
                 next_round = "quarterfinals"
-
-            current_round = tournament.bracket_data["current_round"]
-
             datalist = tournament.bracket_data[current_round]
+
             for index ,element in enumerate(datalist, start=0):
+
                 if (data["player1"]["id"] in element and data["player2"]["id"] in element):
                     if(next_round == "finals"):
                         if index%2:
@@ -359,10 +351,13 @@ class advanceTournamentmatch(generics.GenericAPIView):
                         else:
                             tournament.bracket_data[next_round][0][0] = data["winner"]
                     else:
+                        i=0
+                        if (index):
+                            i = index - 1
                         if index%2:
-                            tournament.bracket_data[next_round][index-1][1] = data["winner"]
+                            tournament.bracket_data[next_round][i-1][1] = data["winner"]
                         else:
-                            tournament.bracket_data[next_round][index][0] = data["winner"]
+                            tournament.bracket_data[next_round][i][0] = data["winner"]
                     tournament.save()
             matchlen = 0
             for element in tournament.bracket_data[next_round]:
@@ -373,7 +368,7 @@ class advanceTournamentmatch(generics.GenericAPIView):
                 tournament.bracket_data["current_round"] = next_round
                 if (next_round == "finals"):
                     tournament.status = "final_round"
-                    tournament.tournament_winner = Start_Playing(request, tournament)
+                    tournament.last_game = Start_Playing(request, tournament)
                     tournament.save()
                     return Response({"success":"Tournament final"}, status=status.HTTP_200_OK)
                 tournament.save()

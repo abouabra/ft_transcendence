@@ -107,10 +107,11 @@ class Ball extends GameObject {
 
 	respawn(canvas) {
 		this.position.x = canvas.width / 2;
-		this.position.y = Math.random() * (canvas.height - canvas.height * 0.4) + canvas.height * 0.4;
-
-		this.velocity.x = Math.sign(this.velocity.x) * -1 * GAME_CONSTANTS.BASE_SPEED;
-		this.velocity.y = Math.sign(this.velocity.y) * -1 * GAME_CONSTANTS.BASE_SPEED;
+		
+		this.position.y = Math.random() * (canvas.height * 0.4) + canvas.height * 0.3;
+		
+		this.velocity.x = (Math.sign(this.velocity.x) || 1) * -1 * GAME_CONSTANTS.BASE_SPEED;
+		this.velocity.y = (Math.sign(this.velocity.y) || 1) * -1 * GAME_CONSTANTS.BASE_SPEED;
 	}
 }
 
@@ -121,6 +122,7 @@ class Paddle extends GameObject {
 		this.side = side;
 		this.score = 0;
 		this.velocity = new Vector2D(0, GAME_CONSTANTS.BASE_SPEED);
+		this.lastCollisionTime = 0;
 	}
 
 	update(inputManager, canvas) {
@@ -151,22 +153,60 @@ class Paddle extends GameObject {
 
 	}
 
-	checkBallCollision(ball) {
-		const willCollide =
-			ball.position.x + ball.size.x >= this.position.x &&
-			ball.position.x <= this.position.x + this.size.x &&
-			ball.position.y + ball.size.y >= this.position.y &&
-			ball.position.y <= this.position.y + this.size.y;
+checkBallCollision(ball) {
+        // Add a small buffer to prevent edge case collisions
+        const COLLISION_BUFFER = 2;
+        
+        // Calculate collision bounds with buffer
+        const paddleLeft = this.position.x - COLLISION_BUFFER;
+        const paddleRight = this.position.x + this.size.x + COLLISION_BUFFER;
+        const paddleTop = this.position.y - COLLISION_BUFFER;
+        const paddleBottom = this.position.y + this.size.y + COLLISION_BUFFER;
+        
+        // Calculate ball bounds
+        const ballLeft = ball.position.x;
+        const ballRight = ball.position.x + ball.size.x;
+        const ballTop = ball.position.y;
+        const ballBottom = ball.position.y + ball.size.y;
 
-		if (willCollide) {
-			ball.velocity.x = ball.velocity.x * -1 + Math.sign(ball.velocity.x) * -1 * GAME_CONSTANTS.INC_SPEED;
+        // Prevent multiple collisions in quick succession
+        const now = performance.now();
+        const COLLISION_COOLDOWN = 50; // 50ms cooldown
+        
+        const willCollide = 
+            ballRight >= paddleLeft &&
+            ballLeft <= paddleRight &&
+            ballBottom >= paddleTop &&
+            ballTop <= paddleBottom;
 
-			if (Math.abs(ball.velocity.x) > GAME_CONSTANTS.BALL_SPEED_CAP)
-				ball.velocity.x = Math.sign(ball.velocity.x) * GAME_CONSTANTS.BALL_SPEED_CAP;
-		}
+        if (willCollide && (now - this.lastCollisionTime) > COLLISION_COOLDOWN) {
+            // Update collision timestamp
+            this.lastCollisionTime = now;
+            
+            // Calculate where on the paddle the ball hit (0 = top, 1 = bottom)
+            const hitPosition = (ball.position.y + (ball.size.y / 2) - this.position.y) / this.size.y;
+            
+            // Angle modifier based on where the ball hits (-1 to 1)
+            const angleModifier = (hitPosition - 0.5) * 2;
+            
+            // Base speed after collision
+            const baseSpeed = Math.abs(ball.velocity.x) + GAME_CONSTANTS.INC_SPEED;
+            
+            // Cap the speed
+            const newSpeed = Math.min(baseSpeed, GAME_CONSTANTS.BALL_SPEED_CAP);
+            
+            // Reverse horizontal direction
+            ball.velocity.x = Math.sign(ball.velocity.x) * -1 * newSpeed;
+            
+            // Add vertical velocity based on hit position
+            const maxVerticalAngle = Math.PI / 4; // 45 degrees
+            ball.velocity.y = newSpeed * Math.sin(angleModifier * maxVerticalAngle);
+            
+            return true;
+        }
 
-		return willCollide;
-	}
+        return false;
+    }
 }
 
 // Game manager class

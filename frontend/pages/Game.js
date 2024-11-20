@@ -341,6 +341,9 @@ export default class Game_Page extends HTMLElement {
 		if(this.game && this.game_type == "local")
 		{
 			console.log("disconnected from game page");
+			if(this.game.leftPaddle.score == this.game.rightPaddle.score)
+				this.game.rightPaddle.score += 1;
+
 			this.game.endGame();
 			return;
 		}

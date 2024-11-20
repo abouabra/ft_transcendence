@@ -55,7 +55,8 @@ async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
 		}
 	}
 
-	if (response.status >= 400) {
+	if (response.status >= 400 && response.status != 404)
+	{
 		let response_data = await response.json();
 		throw new Error(response_data.error);
 	}
@@ -369,4 +370,8 @@ function construct_tournament_game() {
 		
 		})
 	})
+}
+
+function replaceSpacesWithUnderscores(str) {
+    return str.replace(/ /g, "_");
 }

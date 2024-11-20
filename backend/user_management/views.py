@@ -843,8 +843,9 @@ class VerifyTwoFactorAuthView(TokenObtainPairView):
 #             print("faild")
 #             return Response({"error": "code incorrect."}, status=400)
         
+from datetime import datetime
+import os
 
-    
 class user_info(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
@@ -889,8 +890,11 @@ class user_info(APIView):
             try:
                 split_base_64 = bannerInput.split(';base64,')
                 image_data = base64.b64decode(split_base_64[1])
-                filename = f"user_banner{request.user.id}.jpg"
+                filename_0 = f"{datetime.now()}user_banner{request.user.id}.jpg"
+                filename = utils.replace_spaces_with_underscores(filename_0)
                 file_path = f"./assets/images/banners/{filename}"
+                if(os.path.exists(f".{user.profile_banner}")):
+                    os.remove(f".{user.profile_banner}")  
                 with open (file_path, "wb") as f:
                     f.write(image_data)
                 user.profile_banner = file_path[1:]
@@ -902,10 +906,15 @@ class user_info(APIView):
             try:
                 split_base_64 = avatarInput.split(';base64,')
                 image_data = base64.b64decode(split_base_64[1])
-                filename = f"user_{request.user.id}.jpg"
+                filename_0 = f"{datetime.now()}user_{request.user.id}.jpg"
+                filename = utils.replace_spaces_with_underscores(filename_0)
                 file_path = f"./assets/images/avatars/{filename}"
+                if(os.path.exists(f".{user.avatar}")):
+                    os.remove(f".{user.avatar}")    
                 with open (file_path, "wb") as f:
                     f.write(image_data)
+                print(file_path)
+                print(file_path[1:])
                 user.avatar = file_path[1:]
                 change = True
             except(IndexError, base64.binascii.Error) as e:

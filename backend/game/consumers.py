@@ -225,6 +225,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             if "is_interupted" in text_data_json:
                 me.score = 0
                 opponent.score = 11
+                game_obj.player1.score = 0 if game_obj.player1.user_id == user_id else 11
+                game_obj.player2.score = 0 if game_obj.player2.user_id == user_id else 11
                 print(f"\n\n\ngame_over is_interupted {me.score} {opponent.score}\n\n\n")
 
             message = {
@@ -446,7 +448,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         match_obj.save()
         
-        update_stats_after_game(me.user_id, opponent.user_id, match_obj.game_name, game_obj.id)
+        update_stats_after_game(game_obj.player1.user_id, game_obj.player2.user_id, match_obj.game_name, game_obj.id)
 
         if match_obj.isTournemantMatch:
             access_token = self.scope['cookies'].get('access_token')

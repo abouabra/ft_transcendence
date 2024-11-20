@@ -28,7 +28,7 @@ def init_user_stats(request, userID):
         raise Exception("Error encountered while creating tournament stats")
 
 def delete_user_stats(request, userID):
-    access_token = request["COOKIES"].get("access_token")
+    access_token = request.COOKIES.get("access_token")
 
     request_headers = {
         "Content-Type": "application/json",

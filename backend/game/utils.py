@@ -91,8 +91,16 @@ def update_stats_after_game(player_1_id, player_2_id, game_name, game_id):
     
     player_1_stats.total_games_played += 1
     player_2_stats.total_games_played += 1
+    
+    print("\n\n\n")
+    print(f"update_stats_after_game: {player_1_id} vs {player_2_id} on {game_name} result {match_obj.player_1_score} : {match_obj.player_2_score}")
+    print("\n\n\n")
 
     player_1_new_elo, player_2_new_elo = ELO_System(player_1_stats.current_elo, player_2_stats.current_elo, match_obj.player_1_score, match_obj.player_2_score, 32)
+    print("\n\n\n")
+    print(f"update_stats_after_game: {player_1_id} current_elo: {player_1_stats.current_elo} new ELO: {player_1_new_elo}")
+    print(f"update_stats_after_game: {player_2_id} current_elo: {player_2_stats.current_elo} new ELO: {player_2_new_elo}")
+    print("\n\n\n")
 
     match_obj.player1_elo_change = player_1_new_elo - player_1_stats.current_elo
     match_obj.player2_elo_change = player_2_new_elo - player_2_stats.current_elo
@@ -165,3 +173,31 @@ def getTournamentProfileStats(request, userID):
         raise Exception(f"Error encountered while fetching profile stats {response.text}")
 
     return response.json()
+
+def generate_elo_graph(userID, all_player_games_objects, current_elo):
+    try:
+        data = []
+        loop_elo = current_elo
+        
+        # Reverse the game objects to trace from current to previous ELO
+        for i, game in enumerate(reversed(all_player_games_objects)):
+            # Determine the ELO change based on which player the user was
+            if game.player1 == userID:
+                elo_change = game.player1_elo_change
+            else:
+                elo_change = game.player2_elo_change
+            
+            # Subtract the ELO change to get the previous ELO
+            loop_elo -= elo_change
+            loop_elo = max(loop_elo, 0)  # Ensure ELO doesn't go below 0
+            
+            # Use negative index to maintain correct chronological order when plotting
+            data.append({"match": i, "elo": loop_elo, "date": game.game_date})
+        
+        # Reverse the data to maintain original game order
+        data.reverse()
+        
+        return {"elo_graph": data}
+    except Exception as e:
+        logging.error(f"====\nError in generate_elo_graph: {e}\n====")
+        return {"elo_graph": []}

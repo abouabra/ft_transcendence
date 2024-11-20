@@ -103,6 +103,8 @@ function logout() {
     makeRequest("/api/auth/logout/")
     .then((data) => {
         if (data.response_code === 200) {
+            window.notification_socket.close();
+            window.notification_socket = null;
             console.log("Logged out successfully");
             GoTo("/");
         }

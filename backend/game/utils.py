@@ -71,12 +71,11 @@ def ELO_System(RatingA, RatingB, ResultA, ResultB, K):
     return int(player1), int(player2)
 
 
-def update_stats_after_game(player_1_id, player_2_id, game_name, game_id):
+def update_stats_after_game(player_1_id, player_2_id, game_name, match_obj):
     print(f"update_stats_after_game: {player_1_id} vs {player_2_id} in {game_name}")
     player_1_stats = GameStats.objects.get(user_id=player_1_id, game_name=game_name)
     player_2_stats = GameStats.objects.get(user_id=player_2_id, game_name=game_name)
     
-    match_obj = Game_History.objects.get(id=game_id)
 
     if match_obj.winner == player_1_id:
         player_1_stats.games_won += 1
@@ -94,8 +93,6 @@ def update_stats_after_game(player_1_id, player_2_id, game_name, game_id):
     
     print("\n\n\n")
     print(f"update_stats_after_game: {player_1_id} vs {player_2_id} on {game_name} result {match_obj.player_1_score} : {match_obj.player_2_score}")
-    print("\n\n\n")
-
     player_1_new_elo, player_2_new_elo = ELO_System(player_1_stats.current_elo, player_2_stats.current_elo, match_obj.player_1_score, match_obj.player_2_score, 32)
     print("\n\n\n")
     print(f"update_stats_after_game: {player_1_id} current_elo: {player_1_stats.current_elo} new ELO: {player_1_new_elo}")

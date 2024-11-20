@@ -164,7 +164,7 @@ export default class Game_Page extends HTMLElement {
 			if(response.type == "start_game") 
 			{
 				const current_id = localStorage.getItem("id");
-				localStorage.setItem("initial_data", JSON.stringify(data.initial_data[current_id]));
+				localStorage.setItem("initial_data", JSON.stringify(response.initial_data[current_id]));
 			}
 			if(response.type == "si_from_server_to_client")
 			{

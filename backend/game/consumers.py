@@ -98,14 +98,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                                 GAME_ROOMS[game_room_id].game_task.cancel()
                             
                             opponent = GAME_ROOMS[game_room_id].player1 if GAME_ROOMS[game_room_id].player2 == PLAYERS[game_name][object] else GAME_ROOMS[game_room_id].player2
-                            
+
                             if(GAME_ROOMS[game_room_id].finished_peacefully == False):
                                 game_obj = GAME_ROOMS[game_room_id]
                                 me = PLAYERS[game_name][object]
                                 
-                                me.score = 11
-                                opponent.score = 0
-                                print(f"before stats_wrapper {me.score} {opponent.score}")
                                 await self.stats_wrapper(game_obj, me, opponent)
 
                             await opponent.ws_obj.send(text_data=json.dumps({
@@ -225,6 +222,12 @@ class GameConsumer(AsyncWebsocketConsumer):
             me = game_obj.player1 if game_obj.player1.user_id == user_id else game_obj.player2
             opponent = game_obj.player1 if game_obj.player2.user_id == user_id else game_obj.player2
             
+            if "is_interupted" in text_data_json:
+                me.score = 0
+                opponent.score = 11
+                game_obj.player1.score = 0 if game_obj.player1.user_id == user_id else 11
+                game_obj.player2.score = 0 if game_obj.player2.user_id == user_id else 11
+                print(f"\n\n\ngame_over is_interupted {me.score} {opponent.score}\n\n\n")
 
             message = {
                     'type': 'game_over',
@@ -445,7 +448,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         match_obj.save()
         
-        update_stats_after_game(me.user_id, opponent.user_id, match_obj.game_name, game_obj.id)
+        update_stats_after_game(game_obj.player1.user_id, game_obj.player2.user_id, match_obj.game_name, game_obj.id)
 
         if match_obj.isTournemantMatch:
             access_token = self.scope['cookies'].get('access_token')

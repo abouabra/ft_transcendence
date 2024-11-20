@@ -118,6 +118,10 @@ class LogoutView(generics.GenericAPIView):
             response.data = {"detail": "Logged out successfully"}
             response.status_code = status.HTTP_200_OK
 
+            user = User.objects.get(id=request.user.id)
+            user.status = "offline"
+            user.save()
+
             return response
 
         except Exception as e:
@@ -300,8 +304,7 @@ class FriendsBarView(generics.GenericAPIView):
     serializer_class = ShortUserSerializer
 
     def get(self, request):
-        friends = request.user.friends.filter(status="online")
-
+        friends = request.user.friends.all()
         PLAYING_CHOICES = (
             (None, None),
             ("pong", "Pong"),
@@ -320,9 +323,8 @@ class FriendsBarView(generics.GenericAPIView):
 
 
 
-        # i want to order them, the ones who playing (aka who have is_playing != None) then the rest
-        data.sort(key=lambda x: x["is_playing"] is not None, reverse=True)
-
+        # i want to order them, the ones who playing (aka who have is_playing != None) then the status="online" then rest
+        data.sort(key=lambda x: (x["is_playing"] is not None, x["status"] == "online"), reverse=True)
          
         return Response (data, status=status.HTTP_200_OK)
     
@@ -937,6 +939,9 @@ class ProfileView(generics.GenericAPIView):
             user = User.objects.get(id=pk)
             response_data = {}
             response_data["user"] = ShortUserSerializer(user).data
+            response_data["user"]["is_friend"] = user in request.user.friends.all()
+            response_data["user"]["is_blocked"] = user in request.user.blocked.all()
+            response_data["user"]["profile_banner"] = user.profile_banner
             stats = getProfileStats(request, user.id)
 
             user_ids = set()

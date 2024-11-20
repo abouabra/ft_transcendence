@@ -172,11 +172,11 @@ a:hover{
 }
 
 .online_status {
-    background-color: var(--green);
+    background-color: var(--green) !important;
 }
 
 .offline_status {
-    background-color: var(--red);
+    background-color: var(--red) !important;
 }
 
 body {

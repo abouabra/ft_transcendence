@@ -343,6 +343,7 @@ class AcceptFriendRequestView(generics.GenericAPIView):
                 )
 
             request.user.friends.add(sender)
+            sender.friends.add(request.user)
             return Response(
                 {"detail": "Friend request accepted successfully"},
                 status=status.HTTP_200_OK,
@@ -358,6 +359,33 @@ class AcceptFriendRequestView(generics.GenericAPIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+class RemoveFriendView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ShortUserSerializer
+
+    def delete(self, request, pk):
+        try:
+            friend = User.objects.get(id=pk)
+            if friend not in request.user.friends.all():
+                return Response(
+                    {"detail": "User is not your friend"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            request.user.friends.remove(friend)
+            friend.friends.remove(request.user)
+            return Response(
+                {"detail": "Friend removed successfully"}, status=status.HTTP_200_OK
+            )
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            return Response(
+                {"detail": "Error encountered while removing the friend"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 class RecieveHttpNotification(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
@@ -933,7 +961,7 @@ class user_info(APIView):
 class ProfileView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ShortUserSerializer
-    
+
     def get(self, request, pk):
         try:
             user = User.objects.get(id=pk)

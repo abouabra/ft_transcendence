@@ -58,7 +58,7 @@ async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
 	if (response.status >= 400 && response.status != 404)
 	{
 		let response_data = await response.json();
-		throw new Error(response_data.error);
+		throw new Error(response_data.error || response_data.detail || response_data.message);
 	}
 
 	// Parse JSON response
@@ -374,4 +374,27 @@ function construct_tournament_game() {
 
 function replaceSpacesWithUnderscores(str) {
     return str.replace(/ /g, "_");
+}
+
+
+function send_user_to_direct(user_id)
+{
+    handle_action("go_to_direct", user_id)
+}
+
+function send_friend_request(user_id)
+{
+    showToast("success", "Friend request sent")
+    sendNotification("friend_request", user_id)
+}
+
+function remove_friend(user_id)
+{
+	makeRequest(`/api/auth/remove_friend/${user_id}/`, "DELETE")
+	.then((response) => {
+		showToast("success", "Friend removed")
+	})
+	.catch((error) => {
+		showToast("error", error.message);
+	})
 }

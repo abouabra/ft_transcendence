@@ -19,7 +19,10 @@ urlpatterns = [
     path('notifications_brief/', views.NotificationsBriefView.as_view(), name='notifications_brief'),
     path('notifications/', views.NotificationsView.as_view(), name='notifications'),
     path('friends_bar/', views.FriendsBarView.as_view(), name='friends_bar'),
+
     path('accept_friend_request/<int:pk>/', views.AcceptFriendRequestView.as_view(), name='accept_friend_request'),
+    path('remove_friend/<int:pk>/', views.RemoveFriendView.as_view(), name='remove_friend'),
+
     path('recieve_http_notification/', views.RecieveHttpNotification.as_view(), name='recieve_http_notification'),
     path('signup/', views.Account.as_view(), name='Account'),
     path('login/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),

@@ -99,5 +99,4 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         payload += '=' * (4 - (len(payload) % 4))
         decoded_payload = base64.b64decode(payload)
         user_id = json.loads(decoded_payload)['user_id']
-        print(f"\n\nget_user_id_from_access_token: {user_id}\n\n")
         return user_id

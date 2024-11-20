@@ -171,29 +171,26 @@ def getTournamentProfileStats(request, userID):
 
     return response.json()
 
-def generate_elo_graph(userID, all_player_games_objects, current_elo):
+def generate_elo_graph(userID, all_player_games_objects, game_stats):
     try:
         data = []
-        loop_elo = current_elo
+        loop_elo = game_stats.current_elo
         
-        # Reverse the game objects to trace from current to previous ELO
-        for i, game in enumerate(reversed(all_player_games_objects)):
-            # Determine the ELO change based on which player the user was
-            if game.player1 == userID:
-                elo_change = game.player1_elo_change
-            else:
-                elo_change = game.player2_elo_change
+
+        for game in all_player_games_objects:
+            elo_change = game.player1_elo_change if game.player1 == userID else game.player2_elo_change
             
-            # Subtract the ELO change to get the previous ELO
+            game_date = int(game.game_date.timestamp())
+
+            data.append({"match_id": game.id, "elo": loop_elo, "date": game_date})
             loop_elo -= elo_change
-            loop_elo = max(loop_elo, 0)  # Ensure ELO doesn't go below 0
-            
-            # Use negative index to maintain correct chronological order when plotting
-            data.append({"match": i, "elo": loop_elo, "date": game.game_date})
-        
-        # Reverse the data to maintain original game order
+            loop_elo = max(loop_elo, 0)
+
+        data.append({"match_id": "account_creation", "elo": 25, "date": int(game_stats.created_at.timestamp())})
+
         data.reverse()
-        
+
+
         return {"elo_graph": data}
     except Exception as e:
         logging.error(f"====\nError in generate_elo_graph: {e}\n====")

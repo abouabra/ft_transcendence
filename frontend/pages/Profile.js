@@ -26,16 +26,13 @@ export default class Profile_Page extends HTMLElement {
 	
 	render_data(data, user_id)
 	{
-		console.log(user_id, data.user.id);
 		let dot_color="";
-		console.log(data);
-		console.log(data.user.status);
 
 		if(data.user.status=="online")
 			dot_color='"#11ac12"'
 		else
 			dot_color="#e84c3d";
-		console.log(dot_color);
+		console.log(data);
 		this.innerHTML = /* html */`
 			<div class="first_part">
 				<img src="${data.user.profile_banner}" class="banner">
@@ -68,18 +65,26 @@ export default class Profile_Page extends HTMLElement {
 			<div class="third_part">
 			</div>
 		`;
-		// let user_id_int = parseInt(user_id, 10);
+		if(data.user.is_blocked)
+		{
+			
+		}
 		if(data.user.id != localStorage.getItem("id"))
 		{
-
+			
 			const first_right_top = document.querySelector(".top_part");
 			first_right_top.innerHTML=/*html*/`
 			<div class="buttons_right_top">
-				<button-component class="button_right_top " data-text="Add friend" data-type="no-bg"></button-component>
-				<button-component class="button_right_top " data-text="Message" data-type="no-bg"></button-component>
-				<button-component class="button_right_top three_point" data-text=". . ." data-type="no-bg"></button-component>
+			<button-component class="button_right_top" data-text="Add friend" data-type="no-bg"></button-component>
+			<button-component class="button_right_top" data-text="Message" data-type="no-bg"></button-component>
+			<button-component class="button_right_top three_point" data-text=". . ." data-type="no-bg"></button-component>
 			</div>
 			`;
+		}
+		if(data.user.is_friend)
+		{
+			const is_friend = document.querySelector("[data-text='Add friend']");
+			is_friend.setAttribute("data-text", "Delete friend");
 		}
 			
 	}

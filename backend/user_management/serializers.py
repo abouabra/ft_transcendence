@@ -42,7 +42,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ShortUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "avatar", "status", "profile_banner"]
+        fields = ["id", "username", "avatar", "status"]
 
 
 class NotificationSerializer(serializers.ModelSerializer):

@@ -199,7 +199,7 @@ export default class Tournament_Create extends HTMLElement {
 		creation_container.style.opacity = 0.5
 		makeRequest('/api/tournaments/Tournamentcreate/', 'POST', body)
 		.then(data =>{
-			this.querySelector('.qr_codeimg').src = `/assets/images/tournament_qr_code/${name_tag.value}.${image_extention}`
+			this.querySelector('.qr_codeimg').src = data.qr_code
 			loader_container.style.display = 'none'
 			creation_container.classList.add('pointer_enable')
 			creation_container.classList.remove("platinum_40_color_border")
@@ -208,7 +208,6 @@ export default class Tournament_Create extends HTMLElement {
 		.catch(error => {
 			creation_container.style.opacity = 1
 			loader_container.style.display = 'none'
-			console.log(error.message)
 			showToast("error", error.message);
 		});
 

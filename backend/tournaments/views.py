@@ -112,17 +112,15 @@ class GetTournamentInfo(generics.GenericAPIView):
         except:
             return Response({"message": "Tournament Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
-
-
-
 class GetTournamentsData(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        tournamentsjoind = Tournament_History.objects.filter(members__contains=[request.user.id])
-        tournaments = Tournament_History.objects.exclude(status="Ended")
-        if (tournamentsjoind):
-            tournaments = tournamentsjoind
+        tournaments = Tournament_History.objects.exclude(status="Ended").order_by('-created_at')
+        tournamentjoined = tournaments.filter(members__contains=[request.user.id])
+        if tournamentjoined:
+            tournaments = tournamentjoined
+
         serializer = TournamentHistorySerializer(tournaments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -137,7 +135,7 @@ class Membertournament(generics.GenericAPIView):
             return Response({"members":tournaments.members}, status=status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
-import logging
+
 class GetTournamentroomData(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -162,6 +160,9 @@ class GetTournamentroomData(generics.GenericAPIView):
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
     def post(self, request):
         try:
+            tournamentjoined = Tournament_History.objects.filter(members__contains=[request.user.id])
+            if (tournamentjoined):
+                return Response({"error":"user already joined a tournament"}, status.HTTP_400_BAD_REQUEST)
             tournament = Tournament_History.objects.get(name=request.data['tournament_name'])
             if request.user.id in tournament.members:
                 return Response({"error":"user already joined the tournament"}, status.HTTP_400_BAD_REQUEST)
@@ -201,6 +202,15 @@ class CreateTournamentroom(generics.GenericAPIView):
 
     permission_classes = (permissions.IsAuthenticated,)
     def post(self, request):
+
+        tournament_joind = Tournament_History.objects.filter(members__contains=[request.user.id]).exclude(status="Ended")
+        if tournament_joind:
+            return Response({"error": "Can't create a tournament if you are participated in one"}, status=401)
+
+        if check_reserver_uri(request.data["name"]):
+            return Response({"error": "tournament name contains reserved uri character"}, status=status.HTTP_201_CREATED)
+        if (request.data['visibility'] == "private" and request.data['password'] == ''):
+            return Response({"error": "must enter password for private room"}, status=status.HTTP_201_CREATED)
         request.data['password'] = make_password(request.data['password'])
         serializer = TournamentHistorySerializer(data=request.data)
         brackets = create_bracket(request.data['room_size'])
@@ -208,7 +218,7 @@ class CreateTournamentroom(generics.GenericAPIView):
         request.data['bracket_data'] = brackets
         request.data['members'] = [request.user.id]
         if serializer.is_valid():
-            serializer.save()
+            instence = serializer.save()
             data = serializer.data
             if request.data['img']:
                 image = request.data['img'].split(',')[1]
@@ -216,41 +226,14 @@ class CreateTournamentroom(generics.GenericAPIView):
                 path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
                 with open(path_in_disk,'wb') as file:
                     file.write(image)
-            create_qr_code(data['avatar'], f"http://127.0.0.1:3000/tournament/join/?tourname_name={data['name']}",data['qr_code'].split('/')[-1])
+
+            if (not create_qr_code(data['avatar'], f"http://127.0.0.1:3000/tournament/join_tournament/?room_name={data['name']}",data['qr_code'].split('/')[-1])):
+                instence.qr_code = instence.avatar
+                instence.save()
             return Response({
-                    "success": "Server Created Successfully"
+                    "success": "Server Created Successfully", "qr_code":instence.qr_code
                 }, status=status.HTTP_201_CREATED)
         return Response({"error":serializer.errors["non_field_errors"]}, status=status.HTTP_400_BAD_REQUEST)
-
-    # def put(self, request):
-
-    #     try:
-    #         server = Server.objects.get(name=request.data['old_name'])
-    #     except Server.DoesNotExist:
-    #         return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
-    #     if (request.user.id not in server.staffs):
-    #         return Response({"error":"you are not staff of this server"}, status.HTTP_400_BAD_REQUEST)
-    #     data = request.data
-
-    #     if data['img']:
-    #         image = data['img'].split(',')[1]
-    #         image = base64.b64decode(image)
-    #         path_in_disk = f"{settings.BASE_DIR}{data['avatar']}"
-    #         with open(path_in_disk,'wb') as file:
-    #             file.write(image)
-    #     create_qr_code(data['avatar'], f"http://127.0.0.1:3000/chat/join_server/{data['name']}/",data['qr_code'].split('/')[-1])
-    #     server.name = data['name']
-    #     server.visibility = data['visibility']
-    #     server.avatar = data['avatar']
-    #     server.qr_code = data['qr_code']
-    #     print(f"nmade password = {server.password}")
-    #     server.password = make_password(data['password'])
-    #     print(f"made password = {server.password}")
-    #     server.save()
-    #     return Response({
-    #             "success": "Server Created Successfully"
-    #         }, status=status.HTTP_201_CREATED)
-
 
 class TournamentjoinedUsers(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -261,6 +244,8 @@ class TournamentjoinedUsers(generics.GenericAPIView):
         tournament_name = request.query_params.get('tournament_name')
         try:
             tournament = Tournament_History.objects.get(name=tournament_name)
+            if (request.user.id not in  tournament.members):
+                return Response({"error":"Can't view tournament if you are not joined"}, status.HTTP_400_BAD_REQUEST)
             winner = 0
             if (tournament.status == "Ended"):
                 winner = tournament.tournament_winner
@@ -393,3 +378,11 @@ class ProfileStatsView(generics.GenericAPIView):
             return Response(response_data, status=status.HTTP_200_OK)
         except:
             return Response({"message": "Tournament Stats Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+def check_reserver_uri(name):
+    reserved_character = ":/?#[]@!$&'()*+,;="
+    for char in name:
+        if char in reserved_character:
+            return True
+    return False

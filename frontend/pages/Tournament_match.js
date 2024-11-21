@@ -124,13 +124,8 @@ export default class Tournament_Match extends HTMLElement {
             }
         })
         .catch(error => {
-			this.innerHTML = /* html */`
-            <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
-				<div class="d-flex justify-content-center align-items-center flex-column" style="gap: 50px">
-					<span class="header_h1"> ${error.message} </span>
-					<button-component data-text="Go back to tournament" onclick="GoTo('/tournament/')"> </button-component>
-                </div>
-            </div>
+            this.innerHTML = /* html */`
+            <not-found-page text_span="${error.message}" text_button="Go back to tournament" go_to="/tournament/"></not-found-page>
 			`;
 		});
         

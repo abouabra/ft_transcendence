@@ -4,7 +4,18 @@ export default class Privacy_Page extends HTMLElement {
 
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/privacy.css"));
+		makeRequest("/api/auth/is_authenticated/", "GET")
+		.then(response => {
+			console.log(response)
 
+			if(response.response_code == 200)
+				this.render_data("Back To Home");
+			else
+				this.render_data("GET STARTED");
+		})
+		.catch(error => this.render_data("GET STARTED"));
+	}
+	render_data(text_if_auth){
 		this.innerHTML = /*html*/ `
 		<div class="privacy_page_container blur platinum_40_color_border">
 			<div class="d-flex flex-column align-items-center" style="margin-bottom: 50px">
@@ -135,7 +146,7 @@ export default class Privacy_Page extends HTMLElement {
 				</div>
 			
 		</div>
-		<landing-page-footer></landing-page-footer>
+		<landing-page-footer text_span="${text_if_auth}"></landing-page-footer>
 	
 		`;
 	}

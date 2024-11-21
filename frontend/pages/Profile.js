@@ -13,7 +13,7 @@ export default class Profile_Page extends HTMLElement {
 			.then((data) => {
 				if (data.response_code === 404) {
 					this.innerHTML = /* html */`
-						<h1>User not found</h1>
+						<not-found-page text_span="User Not Found"></not-found-page>
 					`;
 					return;
 				}

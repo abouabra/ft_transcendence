@@ -6,8 +6,8 @@ from .models import Game_History, GameStats
 import logging
 from .utils import getUserData
 from rest_framework import generics, permissions, status
-from .serializers import GameStatsSerializer, GameHistorySerializer, ShortGameHistorySerializer, LeaderboardSerializer, ProfileGameHistorySerializer
-from .utils import update_stats_after_game, sendHTTPNotification, getTournamentProfileStats, generate_elo_graph
+from .serializers import GameStatsSerializer, GameHistorySerializer, LeaderboardSerializer, ProfileGameHistorySerializer, GameInfoGameHistorySerializer
+from .utils import update_stats_after_game, sendHTTPNotification, getTournamentProfileStats, generate_elo_graph, sendAdvanceMatchRequest
 from django.db.models import Q
 
 logger = logging.getLogger(__name__)
@@ -178,15 +178,13 @@ class ConstructGameHistoryData(generics.GenericAPIView):
     def post(self, request):
         player_1 = request.data["user_id"]
         game_type = request.data["game_type"]
-        
+
         if game_type == "local":
             player_2 = getUserData(request, username="local_user")["id"]
         else:
             player_2 = request.data["opponent_id"]
 
         game_name = request.data["game_name"]
-
-       
 
         game_obj = Game_History.objects.create(
             player1=player_1,
@@ -204,21 +202,21 @@ class ConstructGameHistoryData(generics.GenericAPIView):
 
 class GetGameInfo(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
-    serializer_class = ShortGameHistorySerializer
+    serializer_class = GameInfoGameHistorySerializer
 
     def get(self, request, pk):
         try:
             logged_in_user_id = request.user.id
             game_obj = Game_History.objects.get(id=pk)
-            game_info = ShortGameHistorySerializer(game_obj).data
+            game_info = self.serializer_class(game_obj).data
            
             game_info["player1"] = getUserData(request, game_info["player1"])
             game_info["player2"] = getUserData(request, game_info["player2"])
 
             logger.error(f" player1 {game_info["player1"]}    player2 {game_info["player2"]}")
 
-            if(game_info["player1"]["id"] != logged_in_user_id and game_info["player2"]["id"] != logged_in_user_id):
-                return Response({"detail": "You are not part of this game"}, status=status.HTTP_403_FORBIDDEN)
+            # if(game_info["player1"]["id"] != logged_in_user_id and game_info["player2"]["id"] != logged_in_user_id):
+            #     return Response({"detail": "You are not part of this game"}, status=status.HTTP_403_FORBIDDEN)
 
 
             return Response(game_info, status=status.HTTP_200_OK)
@@ -311,6 +309,8 @@ class ConstructTournamentGame(generics.GenericAPIView):
 
         if "tournament_id" in request.data:
             print("tournament_id", request.data["tournament_id"])
+        
+        shouldSendNotification = True
 
         game_obj = Game_History.objects.create(
             player1=data["player1_id"],
@@ -321,10 +321,35 @@ class ConstructTournamentGame(generics.GenericAPIView):
         )
         game_obj.save()
 
+        user1_data = getUserData(request, data["player1_id"])
+        user2_data = getUserData(request, data["player2_id"])
+        if user1_data["status"] == "offline" or user2_data["status"] == "offline" and user1_data["status"] != user2_data["status"]:
+            shouldSendNotification = False
+            game_obj.has_ended = True
+            game_obj.winner = user1_data["id"] if user2_data["status"] == "offline" else user2_data["id"]
+            game_obj.player_1_score = 11 if user2_data["status"] == "offline" else 0
+            game_obj.player_2_score = 11 if user1_data["status"] == "offline" else 0
+            game_obj.save()
+            update_stats_after_game(data["player1_id"], data["player2_id"], data["game_name"], game_obj)
+
+        elif user1_data["status"] == "offline" and user2_data["status"] == "offline":
+            shouldSendNotification = False
+            game_obj.has_ended = True
+            game_obj.winner = user1_data["id"]
+            game_obj.player_1_score = 11
+            game_obj.player_2_score = 0
+            game_obj.save()
+            update_stats_after_game(data["player1_id"], data["player2_id"], data["game_name"], game_obj)
+
         data["game_id"] = game_obj.id
 
         try:
-            sendHTTPNotification(request, data)
+            if shouldSendNotification:
+                sendHTTPNotification(request, data)
+
+            if not shouldSendNotification:
+                sendAdvanceMatchRequest(request.COOKIES.get("access_token") , game_obj.id)
+
 
             return Response({
                 "game_room_id": game_obj.id,

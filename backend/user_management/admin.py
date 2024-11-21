@@ -10,6 +10,8 @@ class CustomUserAdmin(UserAdmin):
     change_password_form = AdminPasswordChangeForm
     change_user_password_template = None
 
+    list_display = ('username', 'id', 'status')
+
     # Define the fields to display in the admin panel for each section
     fieldsets = (
         (None, {'fields': ('username', 'password')}),

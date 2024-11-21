@@ -7,6 +7,7 @@ export default class Tournament_Browse extends HTMLElement {
 
 
         let user_data = ''
+        console.log("soooo")
         makeRequest(`/api/tournaments/TournamentsData/`, 'GET')
         .then(data =>{
             data.forEach(element =>
@@ -33,7 +34,7 @@ export default class Tournament_Browse extends HTMLElement {
                         <div class="join_server" data-id="${element.name}">
                             <div class="server_visibility_lock">
                                 ${element.members.includes(parseInt(localStorage.getItem("id"))) ? `<button-component data-text="View Tournament" id="${element.name}"></button-component>`
-                                    :  (element.members.length === element.room_size ? (`<button-component data-text="Room Full" id="${element.name}"></button-component>`) : (element.visibility === "private" ? `<img src="/assets/images/common/Iconly/Bold/Lock.svg" class="icon_lock">`: `<img src="/assets/images/common/Iconly/Bold/Unlock.svg" class="icon_lock">
+                                    :  (element.members.length === element.room_size ? (`<button-component data-text="Room Full" id="${element.name}"></button-component>`) : (element.visibility === "private" ? `<img src="/assets/images/common/Iconly/Bold/Lock.svg" class="icon_lock"><button-component data-text="join" id="${element.name}"></button-component>`: `<img src="/assets/images/common/Iconly/Bold/Unlock.svg" class="icon_lock">
                                         <button-component data-text="join" id="${element.name}"></button-component>`))
                                 }
                             </div>

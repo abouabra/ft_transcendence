@@ -17,10 +17,10 @@ class GameHistorySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ShortGameHistorySerializer(serializers.ModelSerializer):
+class GameInfoGameHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Game_History
-        fields = ["id", "player1", "player2", "game_name", "game_type", "has_ended", "isTournemantMatch", "tournament_id", "winner"]
+        fields = ["id", "player1", "player2", "game_name", "game_type", "has_ended", "isTournemantMatch", "tournament_id", "winner", "player_1_score", "player_2_score"]
 
 
 class ProfileGameHistorySerializer(serializers.ModelSerializer):

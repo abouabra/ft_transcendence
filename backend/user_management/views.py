@@ -148,6 +148,14 @@ class MeView(generics.GenericAPIView):
             user = User.objects.get(id=request.user.id)
 
             delete_user_stats(request, user.id)
+            avatar_disk_path = str(settings.BASE_DIR) + user.avatar
+            if os.path.exists(avatar_disk_path) and user.avatar.startswith("/assets/images/avatars/") and user.avatar != "/assets/images/avatars/default.jpg":
+                print(f"Deleting {user.id} avatar: {avatar_disk_path}")
+                os.remove(avatar_disk_path)
+            profile_banner_disk_path = str(settings.BASE_DIR) + user.profile_banner
+            if os.path.exists(profile_banner_disk_path) and user.profile_banner.startswith("/assets/images/banners/") and user.profile_banner != "/assets/images/banners/default_banner.png":
+                print(f"Deleting {user.id} profile banner: {profile_banner_disk_path}")
+                os.remove(profile_banner_disk_path)
 
             user.friends.clear()
             user.blocked.clear()
@@ -181,14 +189,14 @@ class MeView(generics.GenericAPIView):
 
         except Exception as e:
             logger.error(f"==============\n\n {str(e)} \n\n==============")
-            resonse = Response(
+            response = Response(
                 {"detail": "Error encountered while deleting the user"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-            resonse.delete_cookie("access_token")
-            resonse.delete_cookie("refresh_token")
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
             
-            return resonse
+            return Response
 
 class UserView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)

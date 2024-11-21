@@ -47,11 +47,10 @@ export default class Join_Tournament extends HTMLElement {
             {
                 makeRequest(`/api/tournaments/tournament_rooms/`, "POST", {'tournament_name':tournament_name, 'password':join_password.value}).then((data) => {                    
                     this.socket.send(JSON.stringify({"sender_id": localStorage.getItem("id")}))
-                    GoTo(`/tournament/?tournament_name=${data.tournament_name}`)
+                    GoTo(`/tournament/match/?tournament_name=${data.tournament_name}`)
                     }).catch(error => {
-                        // fixe this  after editing makeRequest
                         console.log(error)
-                        if (error == "Error: Error: user already joined the tournament")
+                        if (error == "Error: user already joined the tournament")
                         {
                             this.innerHTML = /* html */`
                                 <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
@@ -63,7 +62,7 @@ export default class Join_Tournament extends HTMLElement {
                             `;
                         }
                         else
-                            showToast("error", error)
+                            showToast("error", error.message)
                     })
             }
         })

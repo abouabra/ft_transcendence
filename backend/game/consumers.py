@@ -201,9 +201,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             if GAME_ROOMS[game_obj.id].player1 != None and GAME_ROOMS[game_obj.id].player2 != None:
                 await self.start_initial_game_state(GAME_ROOMS[game_obj.id])
 
-
-
-
         elif type == "cancel_match_making":
             user = text_data_json["user"]
             user_id = user["id"]

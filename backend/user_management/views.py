@@ -1004,7 +1004,6 @@ class user_info(APIView):
                 change = True
             except(IndexError, base64.binascii.Error) as e:
                 return Response({"error": "Invalid avatar image format"}, status=400)
-            
         if change == True :
             user.save()
             return Response({"success":"succefully changed", "avatar":user.avatar} ,status=200)
@@ -1093,3 +1092,29 @@ class SetUserPlayingGameView(APIView):
                 {"detail": "Error encountered while updating the user playing status"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+            
+class UnblockAndBlock(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self, request):
+        is_blocked = request.data.get("isBlocked")
+        friend_id = request.data.get("id")
+        friend = User.objects.get(id=friend_id)
+        if(is_blocked):
+            print(request.user.blocked.all())
+            if friend not in request.user.blocked.all():
+                return Response(
+                    {"error": "User is not blocked"}, status=status.HTTP_400_BAD_REQUEST
+                )
+            request.user.blocked.remove(friend)
+            friend.blocked.remove(request.user)
+        elif(not is_blocked):
+            if friend in request.user.blocked.all():
+                return Response(
+                    {"error": "User is already blocked"}, status=status.HTTP_400_BAD_REQUEST
+                )
+            request.user.blocked.add(friend)
+            friend.blocked.add(request.user)
+        return Response({"detail": "nothing change"}, status=status.HTTP_200_OK)
+        
+        

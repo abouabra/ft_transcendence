@@ -4,7 +4,10 @@ export default class Landing_Page_Footer extends HTMLElement {
 
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/landing_page.css"));
-
+		let text_span = this.getAttribute("text_span");
+		console.log(text_span);
+		if(!text_span)
+			text_span = "GET STARTED";
 		this.innerHTML = /*html*/ `
 		<div class="d-flex w-100 justify-content-center" style="padding: 20px 0px">
 			<div class="d-flex flex-column justify-content-center align-items-center" style="gap: 100px; width: max-content" >
@@ -12,7 +15,7 @@ export default class Landing_Page_Footer extends HTMLElement {
 				<div class="d-flex flex-wrap justify-content-center" style="gap: 20px" >
 					<span class="header_h2 text-center">Play, Compete, and Conquer!</span>
 
-					<button-component data-text='GET STARTED' data-type="no-bg" > </button-component>
+					<button-component data-text='${text_span}' data-type="no-bg" > </button-component>
 				</div>
 				
 				<div class="d-flex w-100 justify-content-between">

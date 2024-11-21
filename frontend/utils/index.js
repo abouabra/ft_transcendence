@@ -31,11 +31,16 @@ const routes = {
     404: "not-found-page",
 };
 
+const allowedRoutesWithoutOrWitLogin = [
+    "^/about_us/$",
+    "^/privacy/$",
+];
+
 // Update allowedRoutesWithoutLogin to use regex patterns as well
 const allowedRoutesWithoutLogin = [
     "^/$",
-    "^/about_us/$",
-    "^/privacy/$",
+    // "^/about_us/$",
+    // "^/privacy/$",
     "^/login/$",
     "^/signup/$",
     "^/forgot_password/$",
@@ -54,6 +59,10 @@ function matchRoute(path) {
     return routes[404]; // Fallback to 404 if no match
 }
 
+function isAllowedWithoutOrWithLogin(path) {
+    return allowedRoutesWithoutOrWitLogin.some(pattern => new RegExp(pattern).test(path));
+}
+
 function isAllowedWithoutLogin(path) {
     return allowedRoutesWithoutLogin.some(pattern => new RegExp(pattern).test(path));
 }
@@ -67,7 +76,7 @@ async function handleLocationChange() {
     try {
         
         await makeRequest("/api/auth/is_authenticated/");
-        
+
         if (isAllowedWithoutLogin(path)) {
             GoTo("/home/");
             return;
@@ -81,13 +90,13 @@ async function handleLocationChange() {
         base_page.innerHTML = `<${component}></${component}>`;
     }
     catch (error) {
-        if ((isAllowedWithoutLogin(path) || component == routes[404] )) {
+        if ((isAllowedWithoutLogin(path) || isAllowedWithoutOrWithLogin(path) || component == routes[404] )) {
             root_div.innerHTML = `<${component}></${component}>`;
             return;
         }
 
         if (path !== ("/"))
-            GoTo("/");
+            GoTo("/login/");
 
     }
 }

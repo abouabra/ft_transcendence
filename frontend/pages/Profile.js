@@ -13,7 +13,7 @@ export default class Profile_Page extends HTMLElement {
 			.then((data) => {
 				if (data.response_code === 404) {
 					this.innerHTML = /* html */`
-						<h1>User not found</h1>
+						<not-found-page text_span="User Not Found"></not-found-page>
 					`;
 					return;
 				}
@@ -66,15 +66,26 @@ export default class Profile_Page extends HTMLElement {
 						</div>
 					</div>
 				</div>
-			</div>
 			<div class="sec_part">
 			</div>
 			<div class="third_part">
 			</div>
+		</div>
 		`;
 		if(data.user.is_blocked)
 		{
-			
+			const child = document.querySelector(".first_part");
+			const parent = child.parentElement;
+			parent.innerHTML= /*html*/ `
+				<not-found-page text_span="You blocked this user" text_button="Tap to unblock" go_to="/unblock_${data.user.id}"></not-found-page>
+			`;
+			// makeRequest(`/api/auth/profile/${user_id}/`)
+			// .then((data) => {
+			// 	this.render_data(data, user_id);
+			// })
+			// .catch((error) => {
+			// 	showToast("error", error);
+			// });
 		}
 		if(data.user.id != localStorage.getItem("id"))
 		{
@@ -85,6 +96,10 @@ export default class Profile_Page extends HTMLElement {
 			<button-component class="button_right_top" data-text="Add friend" data-type="no-bg"></button-component>
 			<button-component class="button_right_top" data-text="Message" data-type="no-bg"></button-component>
 			<button-component class="button_right_top three_point" data-text=". . ." data-type="no-bg"></button-component>
+			<div class="three_point_options">
+				<span class="button_right_top-items p3_regular" >Block</span>
+				<span class="button_right_top-items p3_regular" >Report</span>
+			</div>
 			</div>
 			`;
 		}
@@ -93,7 +108,13 @@ export default class Profile_Page extends HTMLElement {
 			const is_friend = document.querySelector("[data-text='Add friend']");
 			is_friend.setAttribute("data-text", "Delete friend");
 		}
-			
+		const three_point_options = this.querySelector(".three_point_options");
+		const  three_points = document.querySelector(".three_point button");
+			three_points.addEventListener("click", () => {
+				three_point_options.classList.toggle("show");
+				const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--primary_color");
+    			three_points.style.backgroundColor = primaryColor.trim();
+			})
 	}
 
 	connectedCallback() {}

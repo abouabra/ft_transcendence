@@ -3,7 +3,7 @@ from .models import User
 from .models import User, Notification
 from .serializers import SerializerSignup, ValidEmail
 from .serializers import UserSerializer, NotificationSerializer, ShortUserSerializer, ProfileUserSerializer
-from .utils import set_refresh_and_access_token, init_user_stats, create_qr_code, getProfileStats
+from .utils import set_refresh_and_access_token, init_user_stats, create_qr_code, getProfileStats, delete_user_stats
 from datetime import datetime, timezone
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -142,6 +142,53 @@ class MeView(generics.GenericAPIView):
         return Response(
             self.serializer_class(request.user).data, status=status.HTTP_200_OK
     )
+
+    def delete(self, request):
+        try:
+            user = User.objects.get(id=request.user.id)
+
+            delete_user_stats(request, user.id)
+
+            user.friends.clear()
+            user.blocked.clear()
+            user.username = f"deleted_{user.id}"
+            user.email = f"deleted_{user.id}@fesablanca.com"
+            user.is_active = False
+            user.avatar = "/assets/images/avatars/default.jpg"
+            user.profile_banner = "/assets/images/banners/default_banner.png"
+            user.status = "deleted"
+            user.two_factor_auth = False
+            user.otp_secret = ""
+            user.is_playing = None
+            user.save()
+
+
+            Notification.objects.filter(receiver=user).delete()
+            Notification.objects.filter(sender=user).delete()
+
+            resonse = Response({"detail": "User deleted successfully"}, status=status.HTTP_200_OK)
+            resonse.delete_cookie("access_token")
+            resonse.delete_cookie("refresh_token")
+            return resonse
+
+        except User.DoesNotExist:
+            resonse = Response(
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+            resonse.delete_cookie("access_token")
+            resonse.delete_cookie("refresh_token")
+            return resonse
+
+        except Exception as e:
+            logger.error(f"==============\n\n {str(e)} \n\n==============")
+            resonse = Response(
+                {"detail": "Error encountered while deleting the user"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+            resonse.delete_cookie("access_token")
+            resonse.delete_cookie("refresh_token")
+            
+            return resonse
 
 class UserView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
@@ -964,6 +1011,10 @@ class ProfileView(generics.GenericAPIView):
     def get(self, request, pk):
         try:
             user = User.objects.get(id=pk)
+            if user.status == "deleted":
+                return Response(
+                    {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                )
             response_data = {}
             response_data["user"] = ShortUserSerializer(user).data
             response_data["user"]["is_friend"] = user in request.user.friends.all()

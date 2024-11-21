@@ -398,3 +398,17 @@ function remove_friend(user_id)
 		showToast("error", error.message);
 	})
 }
+
+
+function delete_user()
+{
+	makeRequest(`/api/auth/me/`, "DELETE")
+	.then((response) => {
+		showToast("success", "User deleted");
+		localStorage.clear();
+		GoTo("/");
+	})
+	.catch((error) => {
+		showToast("error", error.message);
+	})
+}

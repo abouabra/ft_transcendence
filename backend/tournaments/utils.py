@@ -36,15 +36,15 @@ def Start_Playing(request, tournament):
 
     for match in matches:
         print(f"starting {match[0]} vs {match[1]}")
-        print(f"starting {match[0]} vs {match[1]}")
-        print(f"starting {match[0]} vs {match[1]}")
+
+        # "isFakeMatch": True
         data = {
             "player1_id" : match[0],
             "player2_id": match[1],
             "game_name": tournament.game_name,
             "tournament_id": tournament.id,
             "tournament": ShortTournamentHistorySerializer(tournament).data}
-        responce = requests.post("http://127.0.0.1:8000/api/game/construct_tournament_game/", cookies=access_token,json= data)
+        responce = requests.post("http://127.0.0.1:8000/api/game/construct_tournament_game/", cookies=access_token,json=data)
         # if (tournament.bracket_data["current_round"] == "finals"):
         #     request.data["game_id"] = responce.json()["game_room_id"]
         #     gameresult = getmatchdata(request)
@@ -59,8 +59,8 @@ def Start_Playing(request, tournament):
         game_id = responce.json()["game_room_id"]
     return game_id
 
-def getmatchdata(request):
+def getmatchdata(request, game_id):
     access_token = {"access_token":request.COOKIES.get("access_token")}
-    responce = requests.get(f"http://127.0.0.1:8000/api/game/get_game_info/{request.data["game_id"]}", cookies=access_token)
+    responce = requests.get(f"http://127.0.0.1:8000/api/game/get_game_info/{game_id}", cookies=access_token)
     data = responce.json()
     return data

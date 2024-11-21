@@ -61,7 +61,7 @@ function handle_action(action, id, data = null) {
 			});
 
 			if(window.game_socket == null)
-				window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
+				window.game_socket = new WebSocket(`ws://${window.location.hostname}:8000/ws/game/`);
 			window.game_socket.onopen = () => {
 				console.log("Game socket opened | join_game");
 
@@ -124,7 +124,7 @@ function handle_action(action, id, data = null) {
 		// 	window.game_socket.close();
 		
 		if(!window.game_socket)
-			window.game_socket = new WebSocket(`ws://127.0.0.1:8000/ws/game/`);
+			window.game_socket = new WebSocket(`ws://${window.location.hostname}:8000/ws/game/`);
 
 		window.game_socket.onopen = () => {
 			console.log("join_tournament_game: Game socket opened | join_game");

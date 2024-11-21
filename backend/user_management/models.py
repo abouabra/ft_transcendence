@@ -13,7 +13,7 @@ class User(AbstractUser):
     avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/avatars/default.jpg")
     profile_banner = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/banners/default_banner.png")
     status = models.CharField(max_length=255, blank=False, null=False, default="offline")
-    
+
     two_factor_auth = models.BooleanField(default=False)
     otp_secret = models.CharField(max_length=128 , blank=True, null=True)
 
@@ -28,8 +28,6 @@ class User(AbstractUser):
 
     friends = models.ManyToManyField("self", blank=True, symmetrical=False, related_name="user_friends")
     blocked = models.ManyToManyField("self", blank=True, symmetrical=False, related_name="user_blocked")
-    
-
 
 
     def __str__(self):

@@ -11,7 +11,7 @@ export default class UserSideBar extends HTMLElement
         this.server_name = location.pathname.split('/').pop()
         _data  = JSON.parse(this.getAttribute('data-text'))
         
-        this.socket = new WebSocket(`ws:/127.0.0.1:8000/chat/userpermition/${this.server_name}`)
+        this.socket = new WebSocket(`ws://127.0.0.1:8000/chat/userpermition/${this.server_name}`)
 
         const chatbody = document.querySelector(".chatbodymain")
 
@@ -24,15 +24,11 @@ export default class UserSideBar extends HTMLElement
                 {
                     if (data.action === "ban" && data.user_id == localStorage.getItem("id"))
                     {
-                        console.log("enteringgggggggggg11111")
-                        console.log(data)
                         chatbody.style.opacity = 0.5;
                         chatbody.blocked = true;
                     }
                     else
                     {
-                        console.log("enteringgggggggggg222222")
-                        console.log(data)
                         chatbody.style.opacity = 1;
                         chatbody.blocked = false;
                     }
@@ -52,6 +48,7 @@ export default class UserSideBar extends HTMLElement
 
     renderPannels(title, data, server_result)
     {
+
         let username = server_result.username
         if (username.length > 15)
             username = username.slice(0, 15) + "..."
@@ -127,12 +124,13 @@ export default class UserSideBar extends HTMLElement
 
         let title = "Server info"
         let server_item
+        const my_id = parseInt(localStorage.getItem("id"))
         if (type === 'groupsettings')
         {
             server_item = [
                 {"pannel": "pannel_share" ,"icon": "/assets/images/common/Iconly/Bold/Scan.svg", "text": "Share", "red": false, "onclick": Qr_codedisplay, 'args': _data.qr_code},
                 {"pannel": "pannel_leave" ,"icon": "/assets/images/common/Iconly/Bold/Logout.svg", "text": "Leave Server", "red": true, "onclick": LeavePanel, 'args': _data.server_name}]
-            if (_data.staffs.includes(parseInt(localStorage.getItem("id"))))
+            if (_data.staffs.includes(my_id))
             {
                 server_item.push({"pannel": "pannel_delete" ,"icon": "/assets/images/common/Iconly/Bold/Delete.svg", "text": "Delete Server", "red": true, "onclick": DeletePanel, 'args': _data})
                 server_item.unshift({"pannel": "pannel_edit" ,"icon": "/assets/images/common/Iconly/Bold/Edit.svg", "text": "Edit", "red": false, "onclick": EditPanel, 'args': _data})
@@ -143,20 +141,17 @@ export default class UserSideBar extends HTMLElement
             title = "User info"
             server_item = [
                 {"pannel": "pannel_view" ,"icon": "/assets/images/common/Iconly/Bold/Profile.svg", "text": "View profile", "red": false, "onclick":ViewProfile, 'args':_data.user_id},
-
-                {"pannel": "pannel_pong" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Pong", "red": false, "onclick":invite_user_to_pong, 'args': _data},
-                {"pannel": "pannel_space_invaders" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Space Invaders", "red": false, "onclick":invite_user_to_space_invaders, 'args': _data},
-
-                {"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick": send_user_to_direct, 'args':_data.user_id},
-                
             ]
-            
-            console.log("before if condition", _data.friends_list)
-            
-            if(!_data.friends_list.includes(parseInt(localStorage.getItem("id"))) && _data.user_id != localStorage.getItem("id"))
+            if (_data.user_id != my_id)
+            {
+                server_item.push({"pannel": "pannel_pong" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Pong", "red": false, "onclick":invite_user_to_pong, 'args': _data})
+                server_item.push({"pannel": "pannel_space_invaders" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Space Invaders", "red": false, "onclick":invite_user_to_space_invaders, 'args': _data})
+                server_item.push({"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick": send_user_to_direct, 'args':_data.user_id})
+            }
+            if(!_data.friends_list.includes(my_id) && _data.user_id != localStorage.getItem("id"))
                 server_item.push({"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":send_friend_request, 'args':_data.user_id})
 
-            if (_data.visibility != "protected" && _data.staffs.includes(parseInt(localStorage.getItem("id"))) && _data.user_id !== parseInt(localStorage.getItem("id")))
+            if (_data.visibility != "protected" && _data.staffs.includes(my_id) && _data.user_id !== my_id)
             {
             
                 if (_data.staffs.includes(parseInt(_data.user_id)))
@@ -173,14 +168,14 @@ export default class UserSideBar extends HTMLElement
         {
             title = "User info"
             server_item = [{"pannel": "pannel_view" ,"icon": "/assets/images/common/Iconly/Bold/Profile.svg", "text": "View profile", "red": false, "onclick":ViewProfile, 'args':_data.user_id}]
-            if(_data.user_id !== parseInt(localStorage.getItem("id")))
+            console.log(`data user = ${_data.user_id}`)
+            console.log(`my user = ${localStorage.getItem("id")}`)
+            if(_data.user_id !== my_id)
             {
                 server_item.push({"pannel": "pannel_pong" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Pong", "red": false, "onclick":invite_user_to_pong, 'args': _data})
                 server_item.push({"pannel": "pannel_space_invaders" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Space Invaders", "red": false, "onclick":invite_user_to_space_invaders, 'args': _data})
 
-                server_item.push({"pannel": "pannel_message" ,"icon": "/assets/images/common/Iconly/Bold/Message.svg", "text": "Message", "red": false, "onclick": send_user_to_direct, 'args':_data.user_id})
-
-                if(!_data.friends_list.includes(parseInt(localStorage.getItem("id"))) && _data.user_id != localStorage.getItem("id"))
+                if(!_data.friends_list.includes(my_id) && _data.user_id != localStorage.getItem("id"))
                     server_item.push({"pannel": "pannel_invite" ,"icon": "/assets/images/common/Iconly/Bold/Add User.svg", "text": "Add to friend list", "red": false, "onclick":send_friend_request, 'args':_data.user_id})
             }
         }

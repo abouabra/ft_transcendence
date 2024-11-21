@@ -384,7 +384,11 @@ function replaceSpacesWithUnderscores(str) {
 
 function send_user_to_direct(user_id)
 {
-    handle_action("go_to_direct", user_id)
+	makeRequest(`/api/chat/create_chat_room/${user_id}`).then(()=>{
+		handle_action("go_to_direct", user_id)
+	}).catch(error=>{
+		showToast('error', error.message)
+	})
 }
 
 function send_friend_request(user_id)

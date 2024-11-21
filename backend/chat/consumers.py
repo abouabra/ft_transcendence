@@ -13,23 +13,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         jsondata = b64decode(jsondata)
         jsondata = json.loads(jsondata.decode('utf-8'))
         self.user_id = jsondata["user_id"]
+
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        print(self.scope['cookies'])
-        token = self.scope['cookies']['refresh_token']  # Extract token from query string
-        print(f"token {token}")
-        try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-            print(f"paylod = {payload}")
-        except jwt.ExpiredSignatureError:  
-            print("expiredddd")
-        except jwt.InvalidTokenError:
-            print("invalideeee")
-        except:
-            print("faiiiled")
-        print(f"ssssssss {self.scope["user"]}")
         print(f"room = {self.room_name} connecting")
         self.room_group_name = f"chat_{self.room_name}"
-        # Join room group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
@@ -40,16 +27,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from WebSocket
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        print(f"chat data = {text_data_json}")
         message = text_data_json["content"]
         server_name = text_data_json["server_name"]
         server_chat = await self.get_server(server_name)
-        print(f"server_chat = {server_chat.banned}")
         if (int(self.user_id) in server_chat.banned):
             return
         db_msg = await self.create_message(server_chat, self.user_id, message)
         text_data_json["message_id"] = db_msg.id
-        print(f"Message send by {self.user_id} channel: {server_name} message: {message}")
         text_data_json['timestamp'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         event = {
@@ -82,9 +66,12 @@ class ChatConsumerUserPermition(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        print(f"room_permition = {self.room_name} connecting")
-        print(f"okay = {self.scope['user']}")
         self.room_group_name = f"chat_{self.room_name}_permition"
+        jsondata = str(self.scope["cookies"]["access_token"].split('.')[1])
+        jsondata += '='
+        jsondata = b64decode(jsondata)
+        jsondata = json.loads(jsondata.decode('utf-8'))
+        self.user_id = jsondata["user_id"]
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
@@ -94,13 +81,12 @@ class ChatConsumerUserPermition(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        user_id = text_data_json["user_id"]
         changed = text_data_json["permition_to_change"]
         server_name = text_data_json["server_name"]
         event = {
             "type" : "permition_message",
             "message": f"{changed}",
-            "user_id":user_id,
+            "user_id":self.user_id,
             "action":text_data_json["action"]
         }
         await self.channel_layer.group_send(self.room_group_name, event)

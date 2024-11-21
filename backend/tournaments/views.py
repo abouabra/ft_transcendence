@@ -298,6 +298,7 @@ class testplaying(generics.GenericAPIView):
                 return Response({"error":"Tournament already started"}, status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"error":"you are not the tournament host"}, status.HTTP_400_BAD_REQUEST)
+        
         game_id = Start_Playing(request, tournament)
         if (game_id == 0):
             return Response({"error":"Failed to start tournament"}, status.HTTP_400_BAD_REQUEST)
@@ -310,12 +311,15 @@ class advanceTournamentmatch(generics.GenericAPIView):
 
     def post(self, request):
         try:
-            data = getmatchdata(request)
+            data = getmatchdata(request, request.data["game_id"])
+
+            print(f"\n\n\n+++++advanceTournamentmatch {data}+++++\n\n\n")
+
             tournament = Tournament_History.objects.get(id=data["tournament_id"])
             if (tournament.status == "final_round" or tournament.status == "Ended"):
                 if (tournament.status == "final_round"):
                     request.data["game_id"] = tournament.last_game
-                    data = getmatchdata(request)
+                    data = getmatchdata(request, request.data["game_id"])
                     tournament.tournament_winner = data["winner"]
                     tournament.status = "Ended"
                     tournament.save()

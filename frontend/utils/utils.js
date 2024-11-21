@@ -60,12 +60,7 @@ async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
 		let response_data = await response.json();
 		throw new Error(response_data.error || response_data.detail || response_data.message);
 	}
-	//3lach m7yda 404
-	if (response.status == 404)
-	{
-		let response_data = await response.json();
-		throw new Error(response_data.error || response_data.detail || response_data.message);
-	}
+
 	// Parse JSON response
 	const jsonResponse = await response.json();
 	jsonResponse.response_code = response.status;

@@ -6,7 +6,7 @@ export default class Tournament_Match extends HTMLElement {
         const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/tournament_match.css'));
         this.tournament_name = new URLSearchParams(location.search).get("tournament_name")
-        this.socket = new WebSocket(`ws://127.0.0.1:8000/tournament/${this.tournament_name}`);
+        this.socket = new WebSocket(`ws://${window.location.hostname}:8000/tournament/${this.tournament_name}`);
 
         this.renderpage()
 

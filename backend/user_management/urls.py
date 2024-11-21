@@ -34,6 +34,10 @@ urlpatterns = [
     path('after_google/', views.get_user_data, name='after_google'),
     path('callback/', views.intra_42_callback, name='callback'),
     path('user_info/', views.user_info.as_view(), name='user_info'),
+    path('unblock_and_block/', views.UnblockAndBlock.as_view(), name='unblock_and_block'),
+    
+    
+    
 
     path('profile/<int:pk>/', views.ProfileView.as_view(), name='profile'),
 

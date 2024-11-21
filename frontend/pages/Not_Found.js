@@ -14,6 +14,22 @@ export default class Not_Found_Page extends HTMLElement {
 			text_button = "Go to home";
 		if(!go_to)
 			go_to = "/"
+		else if(go_to.startsWith("/unblock_"))
+		{
+			const without_begin = go_to.substring("/unblock_".length);
+			makeRequest("/api/auth/unblock_and_block/", "POST", {
+				isBlocked : true,
+				id : without_begin
+
+			}).then(response => {
+				if(response.success)
+				{	
+					showToast("success", response.success)
+					go_to = "/profile/"+without_begin;
+				}
+			})
+			.catch(error => showToast("error", error.message));	
+		}
 		this.innerHTML = /* html */`
 			<span class="header_h1">${text_span}</span>
 

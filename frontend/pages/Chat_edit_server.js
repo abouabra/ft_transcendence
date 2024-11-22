@@ -121,10 +121,11 @@ export default class Edit_Server_page extends HTMLElement {
 
 submit_click.addEventListener('click', ()=>
 {
-	if (!name_tag.value)
+	const regex = /[a-zA-Z0-9_.]+/;
+	if (name_tag.value.match(regex).join() !== name_tag.value || !name_tag.value)
 	{
-		showToast("error", "Server Name can't be empty");
-		return
+		showToast("error", "Server name not valide")
+		return false;
 	}
 	let visibility = "public"
 	if (selectElement.value == 2)

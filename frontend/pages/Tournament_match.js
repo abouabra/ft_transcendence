@@ -6,7 +6,7 @@ export default class Tournament_Match extends HTMLElement {
         const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/tournament_match.css'));
         this.tournament_name = new URLSearchParams(location.search).get("tournament_name")
-        this.socket = new WebSocket(`ws://127.0.0.1:8000/tournament/${this.tournament_name}`);
+        this.socket = new WebSocket(`ws://${window.location.hostname}:8000/tournament/${this.tournament_name}`);
 
         this.renderpage()
 
@@ -24,7 +24,10 @@ export default class Tournament_Match extends HTMLElement {
             let middle = semi_finals.length/2
             let finals = data.data.finals
             let Left_side;
-
+            let winner = 0
+            if (data.winner != 0)
+                winner = usersdata[data.winner]
+            const winner_block = `<span class="header_h3 text-center">${winner.username}</span>`
             this.innerHTML = /*html*/`
                 <div class="match_main_container">
                     <div class="parts_container d-flex flex-row">
@@ -37,7 +40,10 @@ export default class Tournament_Match extends HTMLElement {
                             <span class="header_h1 final_text">SEMI-FINALS</span>
                             <div class="winner_content">
                                 <span class="header_h2">WINNER</span>
-                                <img src="${data.avatar}" class="winner_img">
+                                <div class="d-flex flex-column winner_block">
+                                    <img src="${winner !== 0 ? winner.avatar : data.avatar}" class="winner_img">
+                                    ${winner !== 0 ?winner_block:''}
+                                </div>
                             </div>
                             <div class="d-flex flex-column align-items-center justify-content-center">
                                 ${Tournament_leftBracket(finals, usersdata, data.avatar)}
@@ -47,7 +53,7 @@ export default class Tournament_Match extends HTMLElement {
                                 <span class="p1_bold">TO GET THIS ACHIEVEMENT</span>
                                 <img src="/assets/images/winner_icon.jpg" class="winner_img" alt="winner_icone">
                             </div>
-                            <div class="playing2 p3_bold">Start Tournament</div>
+                            ${(localStorage.getItem('id') == data.owner && data.status == "Waiting for players") ? '<div class="playing2 p3_bold">Start Tournament</div>': ''}
                         </div>
 
                         <div class="Right_part">
@@ -58,6 +64,8 @@ export default class Tournament_Match extends HTMLElement {
                     </div>
                 </div>
             `
+            if (winner !== 0)
+                this.querySelector(".winner_img").classList.add("winner_styling");
             let play = document.querySelector(".playing2");
             const keys= Object.keys(data.data)
 
@@ -105,18 +113,21 @@ export default class Tournament_Match extends HTMLElement {
                     element.style.width = "250px";
                 });
             }
-            play.addEventListener("click", () => {
-                makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
-                    console.log("started playing awla la")
+            if (play)
+            {
+                play.addEventListener("click", () => {
+                    makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
+                    }).catch(error =>{
+                        showToast("error", error.message)
+                    })
                 })
-            })
+            }
         })
         .catch(error => {
-            this.innerHTML = /*html*/`
-                <div class="error_container">
-                    <span class="header_h1">Error</span>
-                </div>`
-        });
+            this.innerHTML = /* html */`
+            <not-found-page text_span="${error.message}" text_button="Go back to tournament" go_to="/tournament/"></not-found-page>
+			`;
+		});
         
     }
 

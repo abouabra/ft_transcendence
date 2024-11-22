@@ -36,7 +36,7 @@ export default class Tournament_Create extends HTMLElement {
 							<span id="text_avatar">150x150 image required</span>
 						</div>
 						<div class="server_name platinum_40_color_border  d-flex flex-column justify-content-center align-items-center">
-							<input class="create_server_input" id= "name" type="text" placeholder="Name" maxlength="255">
+							<input class="create_server_input" id= "name" type="text" placeholder="Name" maxlength="255" pattern="[a-zA-Z0-9_.]*">
 						</div>
                         <div class="server_visibility platinum_40_color_border position-relative">
                             <select class="form-select-1" required>
@@ -132,12 +132,13 @@ export default class Tournament_Create extends HTMLElement {
 
 	submit_click.addEventListener('click', ()=>
 	{
-
-		if (!name_tag.value)
+		const regex = /[a-zA-Z0-9_.]+/;
+		if (name_tag.value.match(regex).join() !== name_tag.value || !name_tag.value)
 		{
-			showToast("error", "Tournament Name can't be empty");
+			showToast("error", "Tournament name not valide")
 			return false;
 		}
+
         if (selectnumberplayer.value === "")
         {
             showToast("error", "Please select a number of participants");
@@ -156,6 +157,11 @@ export default class Tournament_Create extends HTMLElement {
 		let visibility = "public"
 		if (selectElement.value == 2)
 			visibility = "private"
+		if (visibility === "private" && !password_tag.value)
+		{
+			showToast("error", "must enter password for private tournament");
+            return false;
+		}
 		let roomsize = selectnumberplayer.value * 4
 		if (roomsize == 12)
 			roomsize = 16
@@ -163,7 +169,7 @@ export default class Tournament_Create extends HTMLElement {
         if (selectgame.value == 2)
             game_name = "space_invaders"
 		let image_extention = 'jpg';
-		let avatar = "/assets/images/tournament_avatars/default_tournament.jpg";
+		let avatar = "/assets/images/tournament_avatars/default.jpg";
 		
 		if(base64 != null)
 		{
@@ -193,7 +199,7 @@ export default class Tournament_Create extends HTMLElement {
 		creation_container.style.opacity = 0.5
 		makeRequest('/api/tournaments/Tournamentcreate/', 'POST', body)
 		.then(data =>{
-			this.querySelector('.qr_codeimg').src = `/assets/images/tournament_qr_code/${name_tag.value}.${image_extention}`
+			this.querySelector('.qr_codeimg').src = data.qr_code
 			loader_container.style.display = 'none'
 			creation_container.classList.add('pointer_enable')
 			creation_container.classList.remove("platinum_40_color_border")
@@ -202,7 +208,6 @@ export default class Tournament_Create extends HTMLElement {
 		.catch(error => {
 			creation_container.style.opacity = 1
 			loader_container.style.display = 'none'
-			console.log(error.message)
 			showToast("error", error.message);
 		});
 

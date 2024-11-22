@@ -14,7 +14,7 @@ const GAME_CONSTANTS = {
 	BASE_SPEED: 7,
 	BALL_SPEED_CAP: 23,
 
-	SCORE_TO_WIN: 11,
+	SCORE_TO_WIN: 5,
 	INC_SPEED: 1,
 
 	TIMOUT_DURATION: 200,
@@ -446,7 +446,6 @@ class PongGame {
 		this.stats.dom.style.display = "none";
 		const game_id = parseInt(localStorage.getItem("game_id"));
 
-		// makeRequest("/api/tournaments/advancematch/", "POST", {"game_id":game_id})
 
 		if(this.gameMode === GAME_CONSTANTS.MODES.LOCAL)
 		{

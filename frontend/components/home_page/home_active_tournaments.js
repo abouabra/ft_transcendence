@@ -81,12 +81,14 @@ export default class Home_Active_Tournaments extends HTMLElement {
 		});
 
 		const all_tournaments = this.querySelectorAll(".active-games-list-item div div .p4_bold");
-		all_tournaments.forEach((tournament) => {
-			tournament.addEventListener("click", (e) => {
-				const tournament_id = tournament.getAttribute("data-tournament-id");
-				GoTo(`/tournament/join/${tournament_id}`);
+			all_tournaments.forEach((tournament) => {
+				tournament.addEventListener("click", (e) => {
+					const tournament_id = tournament.getAttribute("data-tournament-id");
+					makeRequest(`/api/tournaments/get_tournament_info/${tournament_id}`).then(data=>{
+						GoTo(`/tournament/join_tournament/?room_name=${data.name}`)
+					})
+				});
 			});
-		});
 	}
 
 	connectedCallback() {}

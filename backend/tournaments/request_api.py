@@ -4,7 +4,7 @@ import os
 
 
 def create_qr_code(image="./assets/images/tournament_avatars/default_tournament.jpg", qr_data="empty", name="default.jpg"):
-    print(name)
+
     image_url = "https://api.qrcode-monkey.com/qr/uploadImage"
     url_qr = "https://api.qrcode-monkey.com/qr/custom"
     image_name = name
@@ -53,5 +53,8 @@ def create_qr_code(image="./assets/images/tournament_avatars/default_tournament.
     if response_qr.status_code == 200:
         with open(f"./assets/images/tournament_qr_code/{image_name}", "wb") as file:
             file.write(response_qr.content)
+        return True
+    else:
+        return False
 
 

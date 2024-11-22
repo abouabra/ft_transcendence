@@ -50,7 +50,7 @@ export function Tournament_rightBracket(matchs, users, avatar) {
                         <span class="p1_regular number_points">5</span>
                     </div>
                     <div class="data_bracket">
-                        <img src="${second.avatar}" class="bracket_player_img">
+                        <img src="${first.avatar}" class="bracket_player_img">
                         <span class="bracket_username">${first.username}</span>
                     </div>
                 </div>

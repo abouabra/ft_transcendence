@@ -1090,6 +1090,7 @@ class UnblockAndBlock(APIView):
     
     def post(self, request):
         is_blocked = request.data.get("isBlocked")
+        print("\n\n",is_blocked, "\n\n")
         friend_id = request.data.get("id")
         friend = User.objects.get(id=friend_id)
         if(is_blocked):
@@ -1107,6 +1108,27 @@ class UnblockAndBlock(APIView):
                 )
             request.user.blocked.add(friend)
             friend.blocked.add(request.user)
-        return Response({"detail": "nothing change"}, status=status.HTTP_200_OK)
+            print(request.user.blocked.all())
+        return Response({"detail": "change"}, status=status.HTTP_200_OK)
         
+
+class send_report(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self, request):
+        email = settings.EMAIL_HOST_USER
+        subject = request.data.get("subject")
+        description = request.data.get("description")
+        id = request.data.get("id")
+        user_reported = User.objects.get(id = id)
+        message = "**"+request.user.username+"**"+" report "+"**"+user_reported.username+"**"+"\n"+ description
+        send_mail(
+            subject,
+            message,
+            None,
+            [email],
+            fail_silently=False,
+            # html_message=html_message,
+        )
+        return Response({"success": "report sent"}, status=status.HTTP_200_OK)
         

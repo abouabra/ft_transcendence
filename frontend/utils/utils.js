@@ -412,3 +412,45 @@ function delete_user()
 		showToast("error", error.message);
 	})
 }
+
+
+function unblock_user(go_to){
+	const without_begin = go_to.substring("/unblock_".length);
+		makeRequest("/api/auth/unblock_and_block/", "POST", {
+			isBlocked : true,
+			id : without_begin
+
+		}).then(response => {	
+				showToast("success", "You unblocked this user successfully")
+				GoTo("/profile/");
+				GoTo("/profile/"+without_begin);
+		})
+		.catch(error => showToast("error", error.message));
+}
+
+function send_report(id)
+{
+	
+	const subject = document.querySelector(".subject").value;
+	const description = document.querySelector(".description").value;
+	if(!subject || !description)
+	{
+		showToast("error", "fill all fields");
+		return;
+	}
+	const data={
+		subject,
+		description,
+		id,
+	}
+	showSpinner()
+	makeRequest("/api/auth/send_report/", "POST",data)
+	.then(response=>{
+		hideSpinner()
+		if(response.response_code == 200)
+		{
+			showToast("success", "Your report has been successfully submited.")
+			Delete_Card('#card1');
+		}
+	})
+}

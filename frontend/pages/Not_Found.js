@@ -12,31 +12,18 @@ export default class Not_Found_Page extends HTMLElement {
 			text_span = "Page not found";
 		if(!text_button)
 			text_button = "Go to home";
-		if(!go_to)
-			go_to = "/"
-		else if(go_to.startsWith("/unblock_"))
-		{
-			const without_begin = go_to.substring("/unblock_".length);
-			makeRequest("/api/auth/unblock_and_block/", "POST", {
-				isBlocked : true,
-				id : without_begin
 
-			}).then(response => {
-				if(response.success)
-				{	
-					showToast("success", response.success)
-					go_to = "/profile/"+without_begin;
-				}
-			})
-			.catch(error => showToast("error", error.message));	
-		}
+		if(!go_to)
+			go_to = "/";
+
 		this.innerHTML = /* html */`
 			<span class="header_h1">${text_span}</span>
-
-			<button-component data-text="${text_button}" onclick="GoTo('${go_to}')"></button-component>
+			${go_to.startsWith("/unblock_") 
+			? `<button-component data-text="${text_button}" onclick="unblock_user('${go_to}')"></button-component>` 
+			: `<button-component data-text="${text_button}" onclick="GoTo('${go_to}')"></button-component>`}
 		`;
 	}
-
+	
 	connectedCallback() {}
 
 	disconnectedCallback() {}
@@ -45,3 +32,4 @@ export default class Not_Found_Page extends HTMLElement {
 }
 
 customElements.define("not-found-page", Not_Found_Page);
+

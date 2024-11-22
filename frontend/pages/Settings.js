@@ -72,6 +72,8 @@ export default class Settings_Page extends HTMLElement {
 				</div>
 				<div class="button">
 					<button-component class="save_button" data-text="save" ></button-component>
+					<span class="delete_account primary_color_color">Delete Account</span>
+
 				</div>
 			</div>
 		</div>
@@ -91,8 +93,25 @@ export default class Settings_Page extends HTMLElement {
 		this.querySelector('#input_banner').addEventListener('change', (event) => this.change_image_uploaded(event, "#banner"));
 		this.addEventListener('keydown', (event) => {if (event.key === 'Enter') {this.handleSave()}});
 		this.querySelector('#two_f_a_switch').addEventListener('change', (event) => this.change_state_2fa(event, response))
+		this.querySelector('.delete_account').addEventListener('click', () => this.delete_account());
 	}
 
+	delete_account(){
+		const center_part = document.getElementById("base_page");
+		center_part.innerHTML+=/*html*/
+		`
+			<div class="card " id="card2" tabindex="1" autofocus >
+				<div class="small_card card2">
+					<span class="header_h4">Are you sure you want to delete your account ?</span>
+					<span class="header_h5">Your account, including all informations and statistics, will be gone. they cannot be retrieved.</span>
+					<div class="small_card_cta">
+						<button-component data-text="Cancel" data-type="no-bg" onclick="Delete_Card('#card2')"></button-component>
+						<button-component data-text="Delete" class="validate_2fa" onclick="delete_user()"></button-component>
+					</div>
+				</div>
+			</div>
+		`;
+	}
 
 
 

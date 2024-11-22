@@ -36,20 +36,10 @@ export default class Profile_Page extends HTMLElement {
 		console.log(data);
 		if(data.user.is_blocked)
 		{
-			console.log("hnnnnnaaaaaa")
-			// const child = document.querySelector(".first_part");
-			// const parent = child.parentElement;
 			this.innerHTML= /*html*/ `
 				<not-found-page text_span="You blocked this user" text_button="Tap to unblock" go_to="/unblock_${data.user.id}"></not-found-page>
 			`;
 			return ;
-			// makeRequest(`/api/auth/profile/${user_id}/`)
-			// .then((data) => {
-			// 	this.render_data(data, user_id);
-			// })
-			// .catch((error) => {
-			// 	showToast("error", error);
-			// });
 		}
 		let dot_color="";
 
@@ -83,6 +73,7 @@ export default class Profile_Page extends HTMLElement {
 						</div>
 					</div>
 				</div>
+			</div>
 			<div class="sec_part">
 			</div>
 			<div class="third_part">
@@ -161,14 +152,31 @@ export default class Profile_Page extends HTMLElement {
 		if(block)
 		{
 			block.addEventListener('click', () => {
-				makeRequest("/api/auth/unblock_and_block/", "POST", {isBlocked:false, id:data.user.id})
-				.then(response => {
-					data.user.is_blocked=true;
-					this.render_data(data, user_id)
-				});
+				const center_part = document.getElementById("base_page");
+				center_part.innerHTML+=/*html*/
+				`
+					<div class="card " id="card2" tabindex="1" autofocus >
+						<div class="small_card card2">
+						<span class="header_h3">Block ${data.user.username}</span>
+						<span class="header_h5">Are you sure you want to block this account ?</span>
+							<div class="small_card_cta">
+								<button-component data-text="Cancel" data-type="no-bg" onclick="Delete_Card('#card2')"></button-component>
+								<button-component data-text="Block" class="validate_2fa block_in_card"></button-component>
+							</div>
+						</div>
+					</div>
+				`;
+				const block_in_card = document.querySelector(".block_in_card").addEventListener("click", ()=>{
+					makeRequest("/api/auth/unblock_and_block/", "POST", {isBlocked:false, id:data.user.id})
+					.then(response => {
+						data.user.is_blocked=true;
+						this.render_data(data, user_id)
+					});
+				})
 			})	
 		}
 
+		
 		const report=document.querySelector(".report")
 		if(report)
 		{

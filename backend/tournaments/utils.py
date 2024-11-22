@@ -32,7 +32,7 @@ def Start_Playing(request, tournament):
         time.sleep(3)
     access_token = {"access_token":request.COOKIES.get("access_token")}
     matches = tournament.bracket_data[tournament.bracket_data["current_round"]]
-    print(f"bada {tournament.bracket_data[tournament.bracket_data["current_round"]]} round = {tournament.bracket_data["current_round"]}")
+    print(f"round = {tournament.bracket_data["current_round"]}")
 
     for match in matches:
         print(f"starting {match[0]} vs {match[1]}")
@@ -56,8 +56,7 @@ def Start_Playing(request, tournament):
         print(responce.json())
         if (responce.status_code > 300):
             return 0
-        game_id = responce.json()["game_room_id"]
-    return game_id
+        return responce.json()["game_room_id"]
 
 def getmatchdata(request, game_id):
     access_token = {"access_token":request.COOKIES.get("access_token")}

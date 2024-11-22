@@ -316,33 +316,42 @@ class advanceTournamentmatch(generics.GenericAPIView):
             print(f"\n\n\n+++++advanceTournamentmatch {data}+++++\n\n\n")
 
             tournament = Tournament_History.objects.get(id=data["tournament_id"])
-            if (tournament.status == "final_round" or tournament.status == "Ended"):
-                if (tournament.status == "final_round"):
-                    request.data["game_id"] = tournament.last_game
-                    data = getmatchdata(request, request.data["game_id"])
-                    tournament.tournament_winner = data["winner"]
-                    tournament.status = "Ended"
-                    tournament.save()
-                    print(f" gamee winner  = {tournament.tournament_winner}")
-                return Response({"success":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
+            # if (tournament.status == "final_round" or tournament.status == "Ended"):
+            #     if (tournament.status == "final_round"):
+            #         request.data["game_id"] = tournament.last_game
+            #         data = getmatchdata(request, request.data["game_id"])
+            #         tournament.tournament_winner = data["winner"]
+            #         tournament.status = "Ended"
+            #         tournament.save()
+            #         print(f" gamee winner  = {tournament.tournament_winner}")
+            #     return Response({"success":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
+            if (tournament.status == "Ended"):
+                return Response({"error":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
             current_round = tournament.bracket_data["current_round"]
 
-            next_round = "finals"
             if (current_round == "quarterfinals"):
                 next_round = "semifinals"
             elif current_round == "round_of_16":
                 next_round = "quarterfinals"
+            else:
+                next_round = "finals"
+            if (next_round == current_round):
+                tournament.status = "Ended"
+                tournament.tournament_winner = data["winner"]
+                tournament.save()
+                return Response({"success":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
             datalist = tournament.bracket_data[current_round]
             bracket_tofill = 0
-            turn = 0
+            place = 0
+            print(f"current = {current_round} next = {next_round}")
             for element in datalist:
-                if turn == 2:
+                if  place == 2:
                     bracket_tofill += 1
-                    turn = 0
+                    place = 0
                 if (data["player1"]["id"] in element and data["player2"]["id"] in element):
-                    tournament.bracket_data[next_round][bracket_tofill][turn] = data["winner"]
+                    tournament.bracket_data[next_round][bracket_tofill][place] = data["winner"]
                     tournament.save()
-                turn += 1
+                place += 1
             matchlen = 0
             for element in tournament.bracket_data[next_round]:
                 if (element[0] ==0 or element[1] == 0):

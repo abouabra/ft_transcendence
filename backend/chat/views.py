@@ -168,8 +168,6 @@ class GetServerDataView(generics.GenericAPIView):
                     latest_message_data = MessageSerializer(latest_msg_obj).data
                     latest_message = latest_message_data["content"]
                     latest_timestamp = latest_message_data["timestamp"]
-
-
                 else:
                     raise Message.DoesNotExist
 
@@ -342,3 +340,17 @@ class BlockUserView(generics.GenericAPIView):
             server.save()
         except Server.DoesNotExist:
             return Response({'error':'chat not found'}, status=status.HTTP_400_BAD_REQUEST)
+class CreateRoomView(generics.GenericAPIView):
+
+    def get(self, request, id):
+        try:
+            if (id == request.user.id):
+                return Response({"error":"Won't create room for the same user"}, status=400)
+            name = f"{id}_{request.user.id}"
+            if (id > request.user.id):
+                name = f"{request.user.id}_{id}"
+            chat = Server.objects.get(name=name)
+            return Response({"success":"already exists"}, status=200)
+        except Server.DoesNotExist:
+            Server.objects.create(name=name,visibility="protected", members=[id,request.user.id])
+            return Response({"success":"room created"}, status=201)

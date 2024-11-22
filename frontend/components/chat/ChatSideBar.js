@@ -85,6 +85,7 @@ export default class ChatSideBar extends HTMLElement {
 	connectedCallback() {}
 
 	disconnectedCallback() {}
+
 	async attributeChangedCallback(name, oldValue, newValue) {
 
 		let data = []

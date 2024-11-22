@@ -175,16 +175,18 @@ export default class ChatBody extends HTMLElement {
 					if (data != null)
 					{
 						this.render_page(data);
-				 		this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
+						if (this.messagecontainer)
+				 			this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
 					}
 			})
 		}
 		socket.onmessage = (event)=>{
 			this.append_message(JSON.parse(event.data))
-
 			let sidechat = document.querySelector("chat-side-bar")
+			console.log(`change hada ${localStorage.getItem('id')}`)
 			sidechat.setAttribute('type', sidechat.getAttribute('type'))
-			this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
+			if (this.messagecontainer)
+				this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
 		}
 	})
 	})
@@ -195,14 +197,15 @@ export default class ChatBody extends HTMLElement {
 	textAreaAdjust() {
 		this.inputbr.style.height = "44px";
 		this.inputbr.style.height = (this.inputbr.scrollHeight)+"px";
-		this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
+		if (this.messagecontainer)
+			this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
 	}
 
 	render_page(data) {
 		data.map((data) => {
 			this.render_messageblock(data)
 		})
-		this.textAreaAdjust();	
+		this.textAreaAdjust();
 	}
 	append_message(data) {
 		this.render_messageblock(data)
@@ -347,7 +350,8 @@ export default class ChatBody extends HTMLElement {
 			delete_msg.style.display = "none"
 		else
 		delete_msg.style.display = "flex"
-	this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight;
+	if (this.messagecontainer)
+		this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight;
 })
 
 divmessage_body.querySelector(".message_cnt").addEventListener('mouseleave', ()=>{

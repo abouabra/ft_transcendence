@@ -29,7 +29,6 @@ export default class Friends_Bar extends HTMLElement {
 		this.innerHTML = /*html*/ `
 			${data
 				.map((item) => {
-					console.log("friends bar", item);
 					return /*html*/ `
 						<div class="friends_bar_item" data-link="/profile/${item.id}">
 							<div>

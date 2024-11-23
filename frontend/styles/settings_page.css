@@ -218,9 +218,25 @@ input[type="file"] {
     border: 0px;
 }
 
+.button{
+
+    display:flex;
+    gap: 55px;
+    flex-direction: column;
+    align-items: center;
+}
+
 .save_button{
     max-width: none !important;
     width: 30vw !important;
+}
+
+.delete_account{
+    cursor: pointer;
+}
+
+.delete_account:hover{
+    color: var(--platinum_40_percent);
 }
 
 .card{
@@ -312,4 +328,8 @@ form input:focus-visible {
 .input_2fa{
     gap: 5px!important;
     caret-color: transparent;
+}
+
+.delete_account{
+    text-decoration: underline;
 }

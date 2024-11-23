@@ -11,8 +11,6 @@ export default class AboutUs_Page extends HTMLElement {
 		head.appendChild(createLink('/styles/about_us.css'));
 		makeRequest("/api/auth/is_authenticated/", "GET")
 		.then(response => {
-			console.log(response)
-
 			if(response.response_code == 200)
 				this.render_data("Back To Home");
 			else

@@ -35,6 +35,7 @@ urlpatterns = [
     path('callback/', views.intra_42_callback, name='callback'),
     path('user_info/', views.user_info.as_view(), name='user_info'),
     path('unblock_and_block/', views.UnblockAndBlock.as_view(), name='unblock_and_block'),
+    path('send_report/', views.send_report.as_view(), name="send_report"),
     
     
     

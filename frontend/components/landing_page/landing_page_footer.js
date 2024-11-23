@@ -5,7 +5,6 @@ export default class Landing_Page_Footer extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/landing_page.css"));
 		let text_span = this.getAttribute("text_span");
-		console.log(text_span);
 		if(!text_span)
 			text_span = "GET STARTED";
 		this.innerHTML = /*html*/ `

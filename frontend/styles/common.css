@@ -630,7 +630,7 @@ user-bar {
 
     
     width: 150px;
-    
+    overflow: hidden;
     
     position: absolute;
     top: 60px;
@@ -639,6 +639,10 @@ user-bar {
 
 .show {
     display: flex !important;
+}
+
+.show_1{
+    background-color: var(--primary_color);
 }
 
 .hide {

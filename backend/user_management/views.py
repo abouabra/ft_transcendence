@@ -25,6 +25,7 @@ import requests
 import secrets
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from social_django.models import UserSocialAuth
 
 
 logger = logging.getLogger(__name__)
@@ -146,6 +147,8 @@ class MeView(generics.GenericAPIView):
     def delete(self, request):
         try:
             user = User.objects.get(id=request.user.id)
+            
+            UserSocialAuth.objects.filter(user=user, provider='google-oauth2').delete()
 
             delete_user_stats(request, user.id)
             avatar_disk_path = str(settings.BASE_DIR) + user.avatar
@@ -1047,8 +1050,6 @@ class ProfileView(generics.GenericAPIView):
             response_data.update(stats)
             return Response(response_data, status=status.HTTP_200_OK)
         
-        
-        
         except User.DoesNotExist:
             return Response(
                 {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
@@ -1098,6 +1099,7 @@ class UnblockAndBlock(APIView):
     
     def post(self, request):
         is_blocked = request.data.get("isBlocked")
+        print("\n\n",is_blocked, "\n\n")
         friend_id = request.data.get("id")
         friend = User.objects.get(id=friend_id)
         if(is_blocked):
@@ -1115,6 +1117,27 @@ class UnblockAndBlock(APIView):
                 )
             request.user.blocked.add(friend)
             friend.blocked.add(request.user)
-        return Response({"detail": "nothing change"}, status=status.HTTP_200_OK)
+            print(request.user.blocked.all())
+        return Response({"detail": "change"}, status=status.HTTP_200_OK)
         
+
+class send_report(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self, request):
+        email = settings.EMAIL_HOST_USER
+        subject = request.data.get("subject")
+        description = request.data.get("description")
+        id = request.data.get("id")
+        user_reported = User.objects.get(id = id)
+        message = "**"+request.user.username+"**"+" report "+"**"+user_reported.username+"**"+"\n"+ description
+        send_mail(
+            subject,
+            message,
+            None,
+            [email],
+            fail_silently=False,
+            # html_message=html_message,
+        )
+        return Response({"success": "report sent"}, status=status.HTTP_200_OK)
         

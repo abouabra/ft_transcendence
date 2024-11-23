@@ -28,11 +28,13 @@ def find_emty_room(matchs):
     return None
 
 def Start_Playing(request, tournament):
-    if (tournament.status != "Waiting for players"):
-        time.sleep(3)
+    if (tournament.status == "Waiting for players"):
+        tournament.status = "In progress"
+        tournament.save()
+
     access_token = {"access_token":request.COOKIES.get("access_token")}
     matches = tournament.bracket_data[tournament.bracket_data["current_round"]]
-    print(f"bada {tournament.bracket_data[tournament.bracket_data["current_round"]]} round = {tournament.bracket_data["current_round"]}")
+    print(f"round = {tournament.bracket_data["current_round"]}")
 
     for match in matches:
         print(f"starting {match[0]} vs {match[1]}")
@@ -45,19 +47,11 @@ def Start_Playing(request, tournament):
             "tournament_id": tournament.id,
             "tournament": ShortTournamentHistorySerializer(tournament).data}
         responce = requests.post("http://127.0.0.1:8000/api/game/construct_tournament_game/", cookies=access_token,json=data)
-        # if (tournament.bracket_data["current_round"] == "finals"):
-        #     request.data["game_id"] = responce.json()["game_room_id"]
-        #     gameresult = getmatchdata(request)
 
-        #     tournament.tournament_winner = gameresult["winner"]
-        #     tournament.status = "Ended"
-        #     tournament.save()
-        #     break
-        print(responce.json())
-        if (responce.status_code > 300):
-            return 0
-        game_id = responce.json()["game_room_id"]
-    return game_id
+        if (responce.status_code >= 400):
+            return 1
+    return 0
+
 
 def getmatchdata(request, game_id):
     access_token = {"access_token":request.COOKIES.get("access_token")}

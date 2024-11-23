@@ -5,7 +5,7 @@ from .models import Tournament_History, TournamentStats
 from .models import Tournament_History, TournamentStats
 from rest_framework.pagination import PageNumberPagination
 from .serializers import TournamentHistorySerializer, ShortTournamentHistorySerializer
-
+from channels.layers import get_channel_layer
 from .serializers import TournamentHistorySerializer, TournamentStatsSerializer, ProfileTournamentHistorySerializer
 from django.contrib.auth.hashers import make_password, check_password
 import base64
@@ -14,6 +14,7 @@ from django.conf import settings
 from .utils import find_emty_room, getUserData, Start_Playing, getmatchdata
 import json
 from math import floor
+from asgiref.sync import async_to_sync
 
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -158,9 +159,11 @@ class GetTournamentroomData(generics.GenericAPIView):
             return Response(data, status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+
+
     def post(self, request):
         try:
-            tournamentjoined = Tournament_History.objects.filter(members__contains=[request.user.id])
+            tournamentjoined = Tournament_History.objects.filter(members__contains=[request.user.id]).exclude(status="Ended")
             if (tournamentjoined):
                 return Response({"error":"user already joined a tournament"}, status.HTTP_400_BAD_REQUEST)
             tournament = Tournament_History.objects.get(name=request.data['tournament_name'])
@@ -193,7 +196,7 @@ def create_bracket(room_size):
         room_size = floor(room_size/2)
         bracket = []
         for _ in range(room_size):
-            bracket.append([0,0])
+            bracket.append([0,0,0,0])
         brackets[round[str(room_size*2)]] = bracket
     print(brackets)
     return brackets
@@ -298,12 +301,10 @@ class testplaying(generics.GenericAPIView):
                 return Response({"error":"Tournament already started"}, status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"error":"you are not the tournament host"}, status.HTTP_400_BAD_REQUEST)
-        
-        game_id = Start_Playing(request, tournament)
-        if (game_id == 0):
+
+        if Start_Playing(request, tournament):
             return Response({"error":"Failed to start tournament"}, status.HTTP_400_BAD_REQUEST)
-        tournament.status = "In progress"
-        tournament.save()
+
         return Response({"success": "Tournament History Created Successfully"}, status=status.HTTP_201_CREATED)
 
 class advanceTournamentmatch(generics.GenericAPIView):
@@ -312,37 +313,54 @@ class advanceTournamentmatch(generics.GenericAPIView):
     def post(self, request):
         try:
             data = getmatchdata(request, request.data["game_id"])
+            channel_layer = get_channel_layer()
 
             print(f"\n\n\n+++++advanceTournamentmatch {data}+++++\n\n\n")
 
             tournament = Tournament_History.objects.get(id=data["tournament_id"])
-            if (tournament.status == "final_round" or tournament.status == "Ended"):
-                if (tournament.status == "final_round"):
-                    request.data["game_id"] = tournament.last_game
-                    data = getmatchdata(request, request.data["game_id"])
-                    tournament.tournament_winner = data["winner"]
-                    tournament.status = "Ended"
-                    tournament.save()
-                    print(f" gamee winner  = {tournament.tournament_winner}")
-                return Response({"success":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if (tournament.status == "Ended"):
+                return Response({"error":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
             current_round = tournament.bracket_data["current_round"]
 
-            next_round = "finals"
             if (current_round == "quarterfinals"):
                 next_round = "semifinals"
             elif current_round == "round_of_16":
                 next_round = "quarterfinals"
+            else:
+                next_round = "finals"
+            if (next_round == current_round):
+                print(f"inside next_round == current_round {next_round} {current_round}")
+                tournament.status = "Ended"
+                tournament.tournament_winner = data["winner"]
+                tournament.bracket_data[current_round][0][2] = data["player_1_score"]
+                tournament.bracket_data[current_round][0][3] = data["player_2_score"]
+                tournament.save()
+                async_to_sync(channel_layer.group_send)(
+                    f"tournament_{tournament.name}",
+                    {
+                        "type": "tournament_message",
+                        "message": "this is a garbage value in advanceTournamentmatch views",
+                    },
+                )
+
+                return Response({"success":"Tournament Ended"}, status=status.HTTP_200_OK)
             datalist = tournament.bracket_data[current_round]
             bracket_tofill = 0
-            turn = 0
-            for element in datalist:
-                if turn == 2:
+            place = 0
+            print(f"current = {current_round} next = {next_round}")
+            for index, element in enumerate(datalist,start=0):
+                if  place == 2:
                     bracket_tofill += 1
-                    turn = 0
+                    place = 0
                 if (data["player1"]["id"] in element and data["player2"]["id"] in element):
-                    tournament.bracket_data[next_round][bracket_tofill][turn] = data["winner"]
+                    print(tournament.bracket_data[current_round][bracket_tofill])
+                    tournament.bracket_data[current_round][index][2] = data["player_1_score"]
+                    tournament.bracket_data[current_round][index][3] = data["player_2_score"]
+                    tournament.bracket_data[next_round][bracket_tofill][place] = data["winner"]
                     tournament.save()
-                turn += 1
+                place += 1
+            print(f"current = {current_round} next = {next_round}")
             matchlen = 0
             for element in tournament.bracket_data[next_round]:
                 if (element[0] ==0 or element[1] == 0):
@@ -350,16 +368,19 @@ class advanceTournamentmatch(generics.GenericAPIView):
                 matchlen += 1
             if matchlen == len(tournament.bracket_data[next_round]):
                 tournament.bracket_data["current_round"] = next_round
-                if (next_round == "finals"):
-                    tournament.status = "final_round"
-                    tournament.last_game = Start_Playing(request, tournament)
-                    tournament.save()
-                    return Response({"success":"Tournament final"}, status=status.HTTP_200_OK)
                 tournament.save()
                 Start_Playing(request, tournament)
+                async_to_sync(channel_layer.group_send)(
+                    f"tournament_{tournament.name}",
+                    {
+                        "type": "tournament_message",
+                        "message": "this is a garbage value in advanceTournamentmatch views",
+                    },
+                )
+
+            return Response({"success": "Tournament game ended"}, status=status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
             return Response({"error":"Tournament not found"}, status=status.HTTP_404_NOT_FOUND)
-        return Response({"success": "Tournament game ended"}, status=status.HTTP_200_OK)
 
 
 class ProfileStatsView(generics.GenericAPIView):

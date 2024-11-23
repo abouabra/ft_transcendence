@@ -5,18 +5,20 @@ export function Tournament_leftBracket(matchs, users, avatar) {
         {
             let first = users[matchs[i][0]]
             let second = users[matchs[i][1]]
+            let score = [matchs[i][2], matchs[i][3]]
             if (first == undefined)
                 first = {"username": "empty", "avatar": avatar}
             if (second == undefined)
                 second = {"username": "empty", "avatar": avatar}
-                result += /*html*/`<div class="bracket_main_container">
+
+            result += /*html*/`<div class="bracket_main_container">
                     <div class="bracket_container" data-id=${matchs[i][0]}>
                         <div class="data_bracket">
                             <img src="${first.avatar}" class="bracket_player_img">
                             <span class="bracket_username">${first.username}</span>
                         </div>
                         <div class="point_bracket d-flex justify-content-center align-items-center">
-                            <span class="p1_regular number_points">5</span>
+                            <span class="p1_regular number_points">${score[0]}</span>
                         </div>
                     </div>
                     <div class="bracket_container" data-id="${matchs[i][1]}">
@@ -25,7 +27,7 @@ export function Tournament_leftBracket(matchs, users, avatar) {
                             <span class="bracket_username">${second.username}</span>
                         </div>
                         <div class="point_bracket d-flex justify-content-center align-items-center">
-                            <span class="p1_regular number_points">5</span>
+                            <span class="p1_regular number_points">${score[1]}</span>
                         </div>
                     </div>
                 </div>`
@@ -37,17 +39,21 @@ export function Tournament_rightBracket(matchs, users, avatar) {
 
     for (let i=0; i < matchs.length; i++)
     {
+        console.log()
         let first = users[matchs[i][0]]
         let second = users[matchs[i][1]]
+        let score = [matchs[i][2], matchs[i][3]]
+
         if (first == undefined)
             first = {"username": "empty", "avatar": avatar}
+
         if (second == undefined)
             second = {"username": "empty", "avatar": avatar}
 
-            result += /*html*/`<div class="bracket_main_container">
+        result += /*html*/`<div class="bracket_main_container">
                 <div class="bracket_container" data-id="${matchs[i][0]}">
                     <div class="point_bracket d-flex justify-content-center align-items-center">
-                        <span class="p1_regular number_points">5</span>
+                        <span class="p1_regular number_points">${score[0]}</span>
                     </div>
                     <div class="data_bracket">
                         <img src="${first.avatar}" class="bracket_player_img">
@@ -56,7 +62,7 @@ export function Tournament_rightBracket(matchs, users, avatar) {
                 </div>
                 <div class="bracket_container" data-id="${matchs[i][1]}">
                     <div class="point_bracket d-flex justify-content-center align-items-center">
-                        <span class="p1_regular number_points">5</span>
+                        <span class="p1_regular number_points">${score[1]}</span>
                     </div>
                     <div class="data_bracket">
                         <img src="${second.avatar}" class="bracket_player_img">

@@ -69,12 +69,13 @@ function isAllowedWithoutLogin(path) {
 
 
 async function handleLocationChange() {
+    update_active_sidebar();
+
     let path = window.location.pathname;
     const component = matchRoute(path);
     const root_div = document.getElementById("root_div");
-    
+
     try {
-        
         await makeRequest("/api/auth/is_authenticated/");
 
         if (isAllowedWithoutLogin(path)) {

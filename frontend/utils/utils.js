@@ -266,11 +266,10 @@ function Delete_Small_Card() {
 function update_active_sidebar() {
   const elements = document.querySelectorAll("side-bar-item");
   const current_path = window.location.pathname;
-  const active_element = document.querySelector(".active_side_bar_item");
-
-  if (active_element) active_element.classList.remove("active_side_bar_item");
-
+  
   elements.forEach((element) => {
+    element.classList.remove("active_side_bar_item");
+
     if (current_path.includes(element.getAttribute("data-link")))
       element.classList.add("active_side_bar_item");
   });

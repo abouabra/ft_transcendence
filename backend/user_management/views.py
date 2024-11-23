@@ -25,6 +25,7 @@ import requests
 import secrets
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from social_django.models import UserSocialAuth
 
 
 logger = logging.getLogger(__name__)
@@ -146,6 +147,8 @@ class MeView(generics.GenericAPIView):
     def delete(self, request):
         try:
             user = User.objects.get(id=request.user.id)
+            
+            UserSocialAuth.objects.filter(user=user, provider='google-oauth2').delete()
 
             delete_user_stats(request, user.id)
             avatar_disk_path = str(settings.BASE_DIR) + user.avatar
@@ -1046,8 +1049,6 @@ class ProfileView(generics.GenericAPIView):
           
             response_data.update(stats)
             return Response(response_data, status=status.HTTP_200_OK)
-        
-        
         
         except User.DoesNotExist:
             return Response(

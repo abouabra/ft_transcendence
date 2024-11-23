@@ -7,11 +7,10 @@ export default class UserSideBar extends HTMLElement
     constructor()
     {
         super();
-
         this.server_name = location.pathname.split('/').pop()
         _data  = JSON.parse(this.getAttribute('data-text'))
         
-        this.socket = new WebSocket(`ws://${window.location.hostname}:8000/chat/userpermition/${this.server_name}`)
+        this.socket = window.userpermition_socket
 
         const chatbody = document.querySelector(".chatbodymain")
 
@@ -116,7 +115,6 @@ export default class UserSideBar extends HTMLElement
     connectedCallback() {}
 
     disconnectedCallback() {
-       this.socket.close()
     }
 
     SetSideBar_button(type)

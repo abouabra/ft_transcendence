@@ -9,13 +9,15 @@ export default class Chat_Page extends HTMLElement {
 
 		
 		const pathname = window.location.pathname;
-
+		const servername = pathname.substring(6)
+		if (servername)
+			window.chat_socket = new WebSocket(`ws://${window.location.hostname}:8000/ws/chat/${servername}`);
+			window.userpermition_socket = new WebSocket(`ws://${window.location.hostname}:8000/ws/chat/userpermition/${servername}`)
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_page.css'));
 		let ChatType= ''
 		if (pathname == "/chat/")
 			ChatType = 'Direct'
-		let servername = pathname.substring(6)
 
 		let path = '/api/chat/server_info/'
 
@@ -118,6 +120,12 @@ export default class Chat_Page extends HTMLElement {
 	disconnectedCallback() {
 		// this.removeEventListener('click',()=>{})
 		// this.removeEventListener('change',()=>{})
+		if (window.chat_socket && window.chat_socket.readyState !== Window.CLOSED)
+			window.chat_socket.close()
+		if (window.userpermition_socket && window.userpermition_socket.readyState !== Window.CLOSED)
+			window.userpermition_socket.close()
+		window.userpermition_socket = 0
+		window.chat_socket = 0
 	}
 
 	attributeChangedCallback(name, oldValue, newValue) {}

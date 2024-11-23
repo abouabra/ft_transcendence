@@ -4,9 +4,11 @@
 	--raisin_black: rgba(39, 41, 46, 1);
 	--primary_color: #d64b3a;
 	--platinum: #e6e7e7;
-
+	--chart-underlay: rgba(214, 76, 58, 0.2);
+	
 	--platinum_40_percent: rgba(230, 231, 231, 0.4);
 	--raisin_black_20_percent: rgba(39, 41, 46, 0.2);
+
 
 	--red: #c03c3c;
 	--green: #88bd6f;

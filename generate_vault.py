@@ -4,7 +4,7 @@ import os
 import subprocess
 import secrets
 
-def generate_random_password(length=16):
+def generate_random_password(length=32):
     return secrets.token_urlsafe(length)
 
 VAULT_DIR = os.path.join(os.getenv("COMPOSE_PROJECT_PATH"), "vault")
@@ -42,25 +42,27 @@ REDIS_PASSWORD={generate_random_password()}
         env_content = f"""# This file contains the environment variables for User Management service
 
 # INTRA API settings
-INTRA_UID=
-INTRA_SECRET=
-INTRA_CALLBACK_URI=
-INTRA_TOKEN_URL=
-INTRA_AUTH_URL=
+INTRA_UID=<uid> # Change this
+INTRA_SECRET=<secret> # Change
+
+
+# GOOGLE API settings
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=<key> # Change this
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=<secret> # Change
 
 # Email settings
 EMAIL_HOST=smtp.example.com
 EMAIL_PORT=587
-EMAIL_HOST_USER=user@example.com
-EMAIL_HOST_PASSWORD={generate_random_password()}
+EMAIL_HOST_USER=<email> # Change this
+EMAIL_HOST_PASSWORD=<password> # Change this
 
 # Django settings
 SECRET_KEY="{generate_random_password(50)}"
-DEBUG=True
+DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD=adminpass
+DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
@@ -76,11 +78,11 @@ USER_MANAGEMENT_POSTGRES_DB=user_management_database
 
 # Django settings
 SECRET_KEY="{generate_random_password(50)}"
-DEBUG=True
+DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD=adminpass
+DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
@@ -96,11 +98,11 @@ CHAT_POSTGRES_DB=chat_database
 
 # Django settings
 SECRET_KEY="{generate_random_password(50)}"
-DEBUG=True
+DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD=adminpass
+DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
@@ -116,11 +118,11 @@ GAME_POSTGRES_DB=game_database
 
 # Django settings
 SECRET_KEY="{generate_random_password(50)}"
-DEBUG=True
+DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD=adminpass
+DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}

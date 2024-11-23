@@ -1,14 +1,9 @@
 FROM node:22-alpine
 
-WORKDIR /tmp
-
-COPY package.json .
-
-RUN npm install
+COPY package.json /tmp/package.json
 
 WORKDIR /app
 
 EXPOSE 3000
 
-ENTRYPOINT ["node"]
-CMD [ "server.js" ]
+CMD ["sh", "-c", "npm install && exec node server.js"]

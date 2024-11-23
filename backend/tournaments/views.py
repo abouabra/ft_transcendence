@@ -193,7 +193,7 @@ def create_bracket(room_size):
         room_size = floor(room_size/2)
         bracket = []
         for _ in range(room_size):
-            bracket.append([0,0])
+            bracket.append([0,0,0,0])
         brackets[round[str(room_size*2)]] = bracket
     print(brackets)
     return brackets
@@ -299,8 +299,7 @@ class testplaying(generics.GenericAPIView):
         else:
             return Response({"error":"you are not the tournament host"}, status.HTTP_400_BAD_REQUEST)
         
-        game_id = Start_Playing(request, tournament)
-        if (game_id == 0):
+        if Start_Playing(request, tournament):
             return Response({"error":"Failed to start tournament"}, status.HTTP_400_BAD_REQUEST)
         tournament.status = "In progress"
         tournament.save()
@@ -316,15 +315,7 @@ class advanceTournamentmatch(generics.GenericAPIView):
             print(f"\n\n\n+++++advanceTournamentmatch {data}+++++\n\n\n")
 
             tournament = Tournament_History.objects.get(id=data["tournament_id"])
-            # if (tournament.status == "final_round" or tournament.status == "Ended"):
-            #     if (tournament.status == "final_round"):
-            #         request.data["game_id"] = tournament.last_game
-            #         data = getmatchdata(request, request.data["game_id"])
-            #         tournament.tournament_winner = data["winner"]
-            #         tournament.status = "Ended"
-            #         tournament.save()
-            #         print(f" gamee winner  = {tournament.tournament_winner}")
-            #     return Response({"success":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
+
             if (tournament.status == "Ended"):
                 return Response({"error":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
             current_round = tournament.bracket_data["current_round"]
@@ -338,20 +329,26 @@ class advanceTournamentmatch(generics.GenericAPIView):
             if (next_round == current_round):
                 tournament.status = "Ended"
                 tournament.tournament_winner = data["winner"]
+                tournament.bracket_data[current_round][0][2] = data["player_1_score"]
+                tournament.bracket_data[current_round][0][3] = data["player_2_score"]
                 tournament.save()
                 return Response({"success":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
             datalist = tournament.bracket_data[current_round]
             bracket_tofill = 0
             place = 0
             print(f"current = {current_round} next = {next_round}")
-            for element in datalist:
+            for index, element in enumerate(datalist,start=0):
                 if  place == 2:
                     bracket_tofill += 1
                     place = 0
                 if (data["player1"]["id"] in element and data["player2"]["id"] in element):
+                    print(tournament.bracket_data[current_round][bracket_tofill])
+                    tournament.bracket_data[current_round][index][2] = data["player_1_score"]
+                    tournament.bracket_data[current_round][index][3] = data["player_2_score"]
                     tournament.bracket_data[next_round][bracket_tofill][place] = data["winner"]
                     tournament.save()
                 place += 1
+            print(f"current = {current_round} next = {next_round}")
             matchlen = 0
             for element in tournament.bracket_data[next_round]:
                 if (element[0] ==0 or element[1] == 0):
@@ -359,11 +356,6 @@ class advanceTournamentmatch(generics.GenericAPIView):
                 matchlen += 1
             if matchlen == len(tournament.bracket_data[next_round]):
                 tournament.bracket_data["current_round"] = next_round
-                if (next_round == "finals"):
-                    tournament.status = "final_round"
-                    tournament.last_game = Start_Playing(request, tournament)
-                    tournament.save()
-                    return Response({"success":"Tournament final"}, status=status.HTTP_200_OK)
                 tournament.save()
                 Start_Playing(request, tournament)
         except Tournament_History.DoesNotExist:

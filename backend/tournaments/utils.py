@@ -45,18 +45,9 @@ def Start_Playing(request, tournament):
             "tournament_id": tournament.id,
             "tournament": ShortTournamentHistorySerializer(tournament).data}
         responce = requests.post("http://127.0.0.1:8000/api/game/construct_tournament_game/", cookies=access_token,json=data)
-        # if (tournament.bracket_data["current_round"] == "finals"):
-        #     request.data["game_id"] = responce.json()["game_room_id"]
-        #     gameresult = getmatchdata(request)
 
-        #     tournament.tournament_winner = gameresult["winner"]
-        #     tournament.status = "Ended"
-        #     tournament.save()
-        #     break
-        print(responce.json())
         if (responce.status_code > 300):
             return 0
-        return responce.json()["game_room_id"]
 
 def getmatchdata(request, game_id):
     access_token = {"access_token":request.COOKIES.get("access_token")}

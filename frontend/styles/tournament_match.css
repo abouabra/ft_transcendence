@@ -124,6 +124,7 @@
 }
 .playing2
 {
+    cursor: pointer;
     text-align: center;
     border: 1px solid var(--platinum_40_percent);
     border-radius: 15px;
@@ -142,6 +143,14 @@
     width: 210px;
     height: 42px;
     font-size: 13px;
+}
+.playing2:active
+{
+    color: black;
+    background-color: var(--platinum);
+    width: 180px;
+    height: 35px;
+    font-size: 10px;
 }
 .winner_styling
 {

@@ -37,7 +37,7 @@ export default class Tournament_Match extends HTMLElement {
                             </div>
                         </div>
                         <div class="Middle_part d-flex flex-column align-items-center">
-                            <span class="header_h1 final_text">SEMI-FINALS</span>
+                            <span class="header_h1 final_text">FINALS</span>
                             <div class="winner_content">
                                 <span class="header_h2">WINNER</span>
                                 <div class="d-flex flex-column winner_block">

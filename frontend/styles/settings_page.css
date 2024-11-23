@@ -1,0 +1,335 @@
+settings-page{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+}
+.main_settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 70%;
+    padding: 5px;
+    border-radius: 17px;
+    backdrop-filter: blur(20px);
+	background-color: var(--raisin_black_20_percent);
+    border: 1px solid var(--platinum_40_percent);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.settings_content{
+    height: 100%;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.change_profile_banner{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    height: 20%;
+    border-radius: 17px;
+    backdrop-filter: blur(20px);
+	background-color: var(--raisin_black_20_percent);
+    border: 1px solid var(--platinum_40_percent);
+    cursor: pointer;
+    margin-bottom: 20px;
+
+}
+.change_profile_banner p{
+    text-align: center;
+    position: absolute;
+}
+
+.change_profile_banner img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(3px);
+    border-radius: 17px;
+    
+}
+
+.upload_pdp_and_2fa_and_inputs{
+    width:90%;
+    margin-bottom: 20px;
+
+}
+
+.upload_pdp_and_2fa{
+    display: flex;
+    width: 48%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    float: left;
+    margin-bottom: 20px;
+
+}
+
+
+.upload_pdp {
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 150px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    backdrop-filter: blur(20px);
+    background-color: var(--raisin_black_20_percent);
+    border: 1px solid var(--platinum_40_percent);
+    margin-bottom: 18px;
+}
+
+.upload_pdp img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    filter: blur(3px);
+    z-index: 0;
+}
+
+.upload_pdp p {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    color: var(--platinum_60_percent);
+    pointer-events: none; 
+    z-index: 1;
+}
+
+input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 2;
+    cursor: pointer;
+}
+
+
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 70px;
+    min-width: 70px;
+    height: 30px;
+    min-height: 30px;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(039, 41, 46, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--platinum);
+    border-radius: 24px;
+    transition: 0.4s;
+  }
+
+  .slider:before {
+    content: "";
+    position: absolute;
+    height: 24px;
+    width: 24px;
+    left: 3px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+  }
+  
+
+  input:checked + .slider {
+    background-color: var(--primary_color);
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(38px);
+  }
+
+  .paragraph_active_2fa{
+    margin-left: 10px;
+  }
+
+.inputs{
+    width: 48%;
+    float:right;
+}
+
+.pass{
+    position: relative;
+}
+.pass a{
+    position: absolute;
+    top: 30%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+.settings_input {
+    color: var(--platinum);
+    width: 100%;
+    height: 48px;
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+	background-color: var(--raisin_black_20_percent);
+    font-family: "Poppins", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 14px;
+    padding: 20px;
+    padding-right: 50px;
+    border: 1px var(--platinum_40_percent) solid;
+    margin-bottom: 30px;
+
+}
+
+.settings_input:focus-visible {
+    outline-color: var(--primary_color);
+    border: 0px;
+}
+
+.button{
+
+    display:flex;
+    gap: 55px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.save_button{
+    max-width: none !important;
+    width: 30vw !important;
+}
+
+.delete_account{
+    cursor: pointer;
+}
+
+.delete_account:hover{
+    color: var(--platinum_40_percent);
+}
+
+.card{
+    text-align: center;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 20px;
+    gap: 4;
+    outline: none;
+}
+
+/* .card1, .card2{
+    text-align: center;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 20px;
+    gap: 4;
+} */
+
+.small_card{
+    width: 400px!important;
+    gap: 40px!important;
+
+}
+
+.card .small_card img{
+    width: 100%;
+    border-radius: 20px;
+}
+
+form input {
+    color: var(--platinum);
+    width: 100%;
+    height: 48px;
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+	background-color: var(--raisin_black_20_percent);
+    font-family: "Poppins", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 14px;
+    padding: 20px;
+    padding-right: 50px;
+    border: 1px var(--platinum_40_percent) solid;
+    margin-bottom: 20px;
+
+}
+
+form .input_2fa {
+    width: 60px!important;
+    border-radius: 4px!important;
+    height: 80px!important;
+    padding: 0px;
+    font-size: 30px!important;
+    text-align: center!important;
+
+}
+
+form .inputs_2fa{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 5px !important;
+}
+
+form input:focus-visible {
+    outline-color: var(--primary_color);
+    border: 0px;
+}
+
+.input_2fa{
+    gap: 5px!important;
+    caret-color: transparent;
+}
+
+.delete_account{
+    text-decoration: underline;
+}

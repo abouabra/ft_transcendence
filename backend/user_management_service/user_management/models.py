@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class User(AbstractUser):
     class Meta:
@@ -8,7 +11,11 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     avatar = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/avatars/default.jpg")
+    profile_banner = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/banners/default_banner.png")
     status = models.CharField(max_length=255, blank=False, null=False, default="offline")
+
+    two_factor_auth = models.BooleanField(default=False)
+    otp_secret = models.CharField(max_length=128 , blank=True, null=True)
 
     PLAYING_CHOICES = (
         (None, None),
@@ -19,7 +26,9 @@ class User(AbstractUser):
 
     is_playing = models.CharField(choices=PLAYING_CHOICES, max_length=255, blank=True, null=True)
 
-    friends = models.ManyToManyField("self", blank=True, symmetrical=False)
+    friends = models.ManyToManyField("self", blank=True, symmetrical=False, related_name="user_friends")
+    blocked = models.ManyToManyField("self", blank=True, symmetrical=False, related_name="user_blocked")
+
 
     def __str__(self):
         return f"{self.username}"
@@ -33,7 +42,6 @@ class Notification(models.Model):
     NOTIFICATION_CHOICES = (
         ("game_invitation", "Game Invitation"),
         ("friend_request", "Friend Request"),
-        # ("congrats", "Congratulations"),
         ("strike", "Strike"),
     )
 

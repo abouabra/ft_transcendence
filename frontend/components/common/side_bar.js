@@ -7,7 +7,6 @@ export default class Side_Bar extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/common.css'));
 
-
 		this.innerHTML = /*html*/`
 				<side-bar-item
 					class="active_side_bar_item"
@@ -36,28 +35,31 @@ export default class Side_Bar extends HTMLElement {
 					data-link="/leaderboard/" >
 				</side-bar-item>
 				<side-bar-item
-					data-icon="Light/Bag 3.svg"
-					data-text="Shop"
-					data-link="/shop/" >
+					data-icon="Light/Category.svg"
+					data-text="About Us"
+					data-link="/about_us/" >
 				</side-bar-item>
 		`;
 
 		const elements = this.querySelectorAll("side-bar-item");
 		const current_path = window.location.pathname;
+		
+		const active_element = document.querySelector(".active_side_bar_item");
+	
+		if(active_element) 
+			active_element.classList.remove("active_side_bar_item");
 
+			
 		elements.forEach((element) => {
-			if (element.getAttribute("data-link") === current_path) {
-				elements.forEach((element) => {
-					element.classList.remove("active_side_bar_item");
-				});
+			if (current_path.includes(element.getAttribute("data-link")))
 				element.classList.add("active_side_bar_item");
-			}
 
 
 			element.addEventListener("click", () => {
-				elements.forEach((element) => {
-					element.classList.remove("active_side_bar_item");
-				});
+				const active_element = document.querySelector(".active_side_bar_item");			
+				if(active_element) 
+					active_element.classList.remove("active_side_bar_item");
+
 				element.classList.add("active_side_bar_item");
 				GoTo(element.getAttribute("data-link"));
 			});
@@ -73,6 +75,7 @@ export default class Side_Bar extends HTMLElement {
 				element.classList.remove("hover_side_bar_item");
 			});
 		});
+
 	}
 
 	connectedCallback() {}
@@ -85,6 +88,9 @@ export default class Side_Bar extends HTMLElement {
 	static get observedAttributes() {
 		return [""];
 	}
+
+
+	
 }
 
 customElements.define("side-bar", Side_Bar);

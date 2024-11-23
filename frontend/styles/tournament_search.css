@@ -1,0 +1,131 @@
+.browse-container
+{
+    width: 1150px;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+.server_description
+{
+    height: 90%;
+    width: 100%;
+    display: flex;
+    gap:20px;
+    flex-direction: column;
+}
+.server_content
+{
+    width: 100%;
+    height: 150px;
+    border-radius: 15px;
+    border: 1px solid var(--platinum_40_percent);
+
+}
+.infoblock
+{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 40px;
+    padding-right: 50px;
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+
+.searchserver
+{
+    border: 1px solid var(--platinum_40_percent);
+    border-radius: 15px;
+    height: 50px;
+    width: 350px;
+    position: relative;
+}
+.searchinput
+{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    color: var(--platinum);
+    width: 90%;
+    height: 100%;
+    padding: 13px;
+}
+.searchinput:focus-visible
+{
+    outline: none!important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+}
+.search_logo
+{
+    position: absolute;
+    right: 3%;
+    top:20%
+}
+
+.serverimage
+{
+    height: 150px;
+    width: 300px;
+}
+
+.serverimage img
+{
+    height: 150px;
+    width: 300px;
+    object-fit: cover;
+}
+
+.specific_info
+{
+    display: flex;
+    gap: 20px;
+    height: 50px;
+    width: 516px;
+}
+
+.block1
+{
+    flex-grow: 1;
+}
+
+.join_server button-component
+{
+    width: 260px;
+    height: 48px;
+}
+.join_lists
+{
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.hides
+{
+    display: none;
+}
+.server_visibility_lock
+{
+    width: 260px;
+    height: 48px;
+    position: relative;
+}
+.icon_lock{
+    position: absolute;
+    top:25%;
+    right: 57%;
+    z-index: 5
+}

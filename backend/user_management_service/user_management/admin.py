@@ -10,10 +10,12 @@ class CustomUserAdmin(UserAdmin):
     change_password_form = AdminPasswordChangeForm
     change_user_password_template = None
 
+    list_display = ('username', 'id', 'status')
+
     # Define the fields to display in the admin panel for each section
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Personal Info', {'fields': ('email', 'avatar', 'status')}),
+        ('Personal Info', {'fields': ('email', 'avatar', 'status', 'profile_banner' , 'two_factor_auth' , 'otp_secret')}),
         ('Game Info', {'fields': ('is_playing', 'friends')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
         ('Permissions', {'fields': ('is_staff', 'is_superuser', 'groups', 'user_permissions')}),

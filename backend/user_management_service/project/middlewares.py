@@ -57,3 +57,34 @@ class UserCacheMiddleware(MiddlewareMixin):
             # Cache the response data
             cache.set(request._cache_key, force_str(response.content), timeout=900)  # Cache for 15 minutes
         return response
+
+
+class JWTFromCookieMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        access_token = request.COOKIES.get('access_token')
+        if access_token:
+            request.META['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
+        response = self.get_response(request)
+        return response
+    
+# middleware.py
+from social_core.exceptions import AuthCanceled
+from django.http import  HttpResponseRedirect
+
+class SocialAuthExceptionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+    def process_exception(self, request, exception):
+        if isinstance(exception, AuthCanceled):
+            print("Authorization was canceled from middleware")
+            redirect_url = 'https://127.0.0.1/login/'
+            response = HttpResponseRedirect(redirect_url)
+            return response
+        return None

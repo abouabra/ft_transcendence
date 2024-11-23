@@ -5,14 +5,6 @@ export default class Search_Bar extends HTMLElement {
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink("/styles/common.css"));
 
-		const data = [
-			{"user_id": 1, "user_name": "user 1", "user_status": "online", "user_avatar":  "/assets/images/about_us/abouabra.png"},
-			{"user_id": 2, "user_name": "user 2", "user_status": "offline", "user_avatar":  "/assets/images/about_us/abouabra.png"},
-			{"user_id": 3, "user_name": "user 3", "user_status": "online", "user_avatar":  "/assets/images/about_us/abouabra.png"},
-			{"user_id": 4, "user_name": "user 4", "user_status": "offline", "user_avatar":  "/assets/images/about_us/abouabra.png"},
-			{"user_id": 5, "user_name": "user 5", "user_status": "offline", "user_avatar":  "/assets/images/about_us/abouabra.png"},
-		]
-
 		this.innerHTML = /*html*/ `
 			<div class="d-flex justify-content-center">
 				<input type="text" class="search_bar_input" placeholder="Search ...">

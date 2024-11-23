@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now
 
 class GameStats(models.Model):
 
@@ -11,9 +12,7 @@ class GameStats(models.Model):
     user_id = models.IntegerField()
     game_name = models.CharField(choices=GAMES_CHOICES, max_length=20)
 
-    current_elo = models.FloatField(default=25)
-    peak_elo = models.FloatField(default=25)
-
+    current_elo = models.IntegerField(default=25)
 
     total_games_played = models.IntegerField(default=0)
     games_won = models.IntegerField(default=0)
@@ -22,6 +21,7 @@ class GameStats(models.Model):
 
     total_time_spent = models.IntegerField(default=0)
     total_score = models.IntegerField(default=0)
+    created_at = models.DateTimeField(default=now)
 
     def __str__(self):
         return f"User: {self.user_id} => {self.game_name} Stats"
@@ -53,8 +53,13 @@ class Game_History(models.Model):
 
     player1_elo_change = models.IntegerField(default=0)
     player2_elo_change = models.IntegerField(default=0)
+
+    isTournemantMatch = models.BooleanField(default=False)
+    tournament_id = models.IntegerField(default=0)
+
+    winner = models.IntegerField(default=0)
     
-    winner = models.IntegerField()
+    has_ended = models.BooleanField(default=False)
     
     game_date = models.DateTimeField(auto_now_add=True)
     game_duration = models.IntegerField(default=0)

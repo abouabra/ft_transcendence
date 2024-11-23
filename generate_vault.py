@@ -4,7 +4,7 @@ import os
 import subprocess
 import secrets
 
-def generate_random_password(length=32):
+def generate_random_password(length=16):
     return secrets.token_urlsafe(length)
 
 VAULT_DIR = os.path.join(os.getenv("COMPOSE_PROJECT_PATH"), "vault")
@@ -42,19 +42,22 @@ REDIS_PASSWORD={generate_random_password()}
         env_content = f"""# This file contains the environment variables for User Management service
 
 # INTRA API settings
-INTRA_UID=<uid> # Change this
-INTRA_SECRET=<secret> # Change
+INTRA_UID="INTRA_UID"
+INTRA_SECRET="INTRA_SECRET"
 
 
 # GOOGLE API settings
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=<key> # Change this
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=<secret> # Change
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY="SOCIAL_AUTH_GOOGLE_OAUTH2_KEY"
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET="SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET"
 
 # Email settings
-EMAIL_HOST=smtp.example.com
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
-EMAIL_HOST_USER=<email> # Change this
-EMAIL_HOST_PASSWORD=<password> # Change this
+EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
+EMAIL_HOST_USER=fesablanca111@gmail.com
+EMAIL_HOST_PASSWORD=ptzojrgtqnabmacx
 
 # Django settings
 SECRET_KEY="{generate_random_password(50)}"
@@ -62,14 +65,14 @@ DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
+DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
 
 # Postgres user management
 USER_MANAGEMENT_POSTGRES_USER=user_management_user
-USER_MANAGEMENT_POSTGRES_PASSWORD={generate_random_password()}
+USER_MANAGEMENT_POSTGRES_PASSWORD=admin #generate_random_password()
 USER_MANAGEMENT_POSTGRES_DB=user_management_database
 """
 
@@ -82,7 +85,7 @@ DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
+DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
@@ -102,7 +105,7 @@ DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
+DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
@@ -122,7 +125,7 @@ DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
+DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}

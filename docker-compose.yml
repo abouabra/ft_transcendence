@@ -12,10 +12,12 @@ services:
     networks:
       - transcendence_net
     depends_on:
+      - frontend
       - user_management
       - chat
       - game
       - tournaments
+      - redis
     restart: always
 
   frontend:
@@ -41,6 +43,7 @@ services:
       - 8000:8000
     volumes:
       - user_management_data:/app
+      - assets:/app/assets
       - vault_data:/vault
     networks:
       - transcendence_net
@@ -76,6 +79,7 @@ services:
       - 8001:8001
     volumes:
       - chat_data:/app
+      - assets:/app/assets
     networks:
       - transcendence_net
     depends_on:
@@ -110,6 +114,7 @@ services:
       - 8002:8002
     volumes:
       - game_data:/app
+      - assets:/app/assets
     networks:
       - transcendence_net
     depends_on:
@@ -144,6 +149,7 @@ services:
       - 8003:8003
     volumes:
       - tournaments_data:/app
+      - assets:/app/assets
     networks:
       - transcendence_net
     depends_on:

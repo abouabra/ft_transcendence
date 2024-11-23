@@ -8,7 +8,6 @@ export default class User_Bar extends HTMLElement {
 
 		const user_id = this.getAttribute("data-userid");
 		const avatar = this.getAttribute("data-avatar");
-
 		this.innerHTML = /*html*/ `
 			<img src=${avatar} alt="user" class="user-bar-icon">
 

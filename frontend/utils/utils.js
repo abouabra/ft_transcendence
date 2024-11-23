@@ -189,9 +189,9 @@ function navbar_check_only_one_active(item_to_show) {
 function sendNotification(type, receiver_id, extra_data = null)
 {
 	let notification = {
-		type: type,
-		receiver_id: parseInt(receiver_id),
-		sender_id: parseInt(localStorage.getItem("id")),
+		'type': type,
+		'receiver_id': parseInt(receiver_id),
+		'sender_id': parseInt(localStorage.getItem("id")),
 	};
 	if (extra_data)
 		notification = {...notification, ...extra_data};

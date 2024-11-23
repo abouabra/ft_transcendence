@@ -2,14 +2,12 @@ import UserSideBar from "./User_sidebar.js";
 export default class ChatBody extends HTMLElement {
 	constructor() {
 		super();
+		this.socket = window.chat_socket
 		this.blocked = false;
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_server.css'));
 
 		this.server_name = location.pathname.split('/').pop()
-		const socket = new WebSocket(`ws://${window.location.hostname}:8000/chat/${this.server_name}`);
-		this.socket = socket
-
 		let result_data = ''
 		
 		makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET')
@@ -180,7 +178,7 @@ export default class ChatBody extends HTMLElement {
 					}
 			})
 		}
-		socket.onmessage = (event)=>{
+		this.socket.onmessage = (event)=>{
 			this.append_message(JSON.parse(event.data))
 			let sidechat = document.querySelector("chat-side-bar")
 			console.log(`change hada ${localStorage.getItem('id')}`)
@@ -364,7 +362,6 @@ divmessage_body.querySelector(".message_cnt").addEventListener('mouseleave', ()=
 connectedCallback() {}
 
 disconnectedCallback() {
-	this.socket.close()
 }
 
 attributeChangedCallback(name, oldValue, newValue) { }

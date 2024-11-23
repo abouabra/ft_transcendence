@@ -50,7 +50,7 @@ export default class Tournament_Match extends HTMLElement {
                             </div>
                             <div class="winner_description d-flex flex-column align-items-center justify-content-center">
                                 <span class="p1_bold">WIN THE TOURNAMENT</span>
-                                <span class="p1_bold">TO GET THIS ACHIEVEMENT</span>
+                                <span class="p1_bold">CHAMPION</span>
                                 <img src="/assets/images/winner_icon.jpg" class="winner_img" alt="winner_icone">
                             </div>
                             ${(localStorage.getItem('id') == data.owner && data.status == "Waiting for players") ? '<div class="playing2 p3_bold">Start Tournament</div>': ''}
@@ -116,7 +116,7 @@ export default class Tournament_Match extends HTMLElement {
             if (play)
             {
                 play.addEventListener("click", () => {
-                    makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
+                    makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`).then(data =>{
                     }).catch(error =>{
                         showToast("error", error.message)
                     })
@@ -132,11 +132,10 @@ export default class Tournament_Match extends HTMLElement {
     }
 
     connectedCallback() {
-        // this.socket.close()
 	}
 
 	disconnectedCallback() {
-
+        this.socket.close()
 	}
 
 	attributeChangedCallback(name, oldValue, newValue) {}

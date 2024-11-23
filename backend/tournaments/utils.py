@@ -28,8 +28,10 @@ def find_emty_room(matchs):
     return None
 
 def Start_Playing(request, tournament):
-    if (tournament.status != "Waiting for players"):
-        time.sleep(3)
+    if (tournament.status == "Waiting for players"):
+        tournament.status = "In progress"
+        tournament.save()
+
     access_token = {"access_token":request.COOKIES.get("access_token")}
     matches = tournament.bracket_data[tournament.bracket_data["current_round"]]
     print(f"round = {tournament.bracket_data["current_round"]}")
@@ -46,8 +48,10 @@ def Start_Playing(request, tournament):
             "tournament": ShortTournamentHistorySerializer(tournament).data}
         responce = requests.post("http://127.0.0.1:8000/api/game/construct_tournament_game/", cookies=access_token,json=data)
 
-        if (responce.status_code > 300):
-            return 0
+        if (responce.status_code >= 400):
+            return 1
+    return 0
+
 
 def getmatchdata(request, game_id):
     access_token = {"access_token":request.COOKIES.get("access_token")}

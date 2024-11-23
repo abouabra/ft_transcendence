@@ -243,10 +243,9 @@ class PongEndGame(generics.GenericAPIView):
             
             if score1 > score2:
                 winner = game.player1
-            elif score2 > score1:
-                winner = game.player2
             else:
-                winner = 0
+                winner = game.player2
+
             game.winner = winner
             game.player_1_score = score1
             game.player_2_score = score2
@@ -323,12 +322,14 @@ class ConstructTournamentGame(generics.GenericAPIView):
 
         user1_data = getUserData(request, data["player1_id"])
         user2_data = getUserData(request, data["player2_id"])
-        if user1_data["status"] == "offline" or user2_data["status"] == "offline" and user1_data["status"] != user2_data["status"]:
+        if (user1_data["status"] == "offline" or user2_data["status"] == "offline") and user1_data["status"] != user2_data["status"]:
             shouldSendNotification = False
             game_obj.has_ended = True
             game_obj.winner = user1_data["id"] if user2_data["status"] == "offline" else user2_data["id"]
+            
             game_obj.player_1_score = 11 if user2_data["status"] == "offline" else 0
             game_obj.player_2_score = 11 if user1_data["status"] == "offline" else 0
+            
             game_obj.save()
             update_stats_after_game(data["player1_id"], data["player2_id"], data["game_name"], game_obj)
 

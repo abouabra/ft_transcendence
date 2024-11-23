@@ -13,6 +13,7 @@ export default class Game_Page extends HTMLElement {
 			
 
 		const game_id = window.location.pathname.split("/")[3];
+		console.log("GAME PAGE: game_id = ", game_id);
 		localStorage.setItem("game_id", game_id);
 
 		// pong game
@@ -229,11 +230,11 @@ export default class Game_Page extends HTMLElement {
 					if(data.isTournemantMatch == true)
 					{
 						this.display_game_results(response);
-						setTimeout(()=>{
+						// setTimeout(()=>{
 							makeRequest(`/api/tournaments/get_tournament_info/${data.tournament_id}`).then(data=>{
 								GoTo(`/tournament/match/?tournament_name=${data.name}`);
 							})
-						}, 2000)
+						// }, 2000)
 					}
 					else
 						this.display_game_results(response);

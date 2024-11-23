@@ -5,7 +5,7 @@ from .models import Tournament_History, TournamentStats
 from .models import Tournament_History, TournamentStats
 from rest_framework.pagination import PageNumberPagination
 from .serializers import TournamentHistorySerializer, ShortTournamentHistorySerializer
-
+from channels.layers import get_channel_layer
 from .serializers import TournamentHistorySerializer, TournamentStatsSerializer, ProfileTournamentHistorySerializer
 from django.contrib.auth.hashers import make_password, check_password
 import base64
@@ -14,6 +14,7 @@ from django.conf import settings
 from .utils import find_emty_room, getUserData, Start_Playing, getmatchdata
 import json
 from math import floor
+from asgiref.sync import async_to_sync
 
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -158,9 +159,11 @@ class GetTournamentroomData(generics.GenericAPIView):
             return Response(data, status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
             return Response({"error":"tournament not found"}, status.HTTP_404_NOT_FOUND)
+
+
     def post(self, request):
         try:
-            tournamentjoined = Tournament_History.objects.filter(members__contains=[request.user.id])
+            tournamentjoined = Tournament_History.objects.filter(members__contains=[request.user.id]).exclude(status="Ended")
             if (tournamentjoined):
                 return Response({"error":"user already joined a tournament"}, status.HTTP_400_BAD_REQUEST)
             tournament = Tournament_History.objects.get(name=request.data['tournament_name'])
@@ -298,11 +301,10 @@ class testplaying(generics.GenericAPIView):
                 return Response({"error":"Tournament already started"}, status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"error":"you are not the tournament host"}, status.HTTP_400_BAD_REQUEST)
-        
+
         if Start_Playing(request, tournament):
             return Response({"error":"Failed to start tournament"}, status.HTTP_400_BAD_REQUEST)
-        tournament.status = "In progress"
-        tournament.save()
+
         return Response({"success": "Tournament History Created Successfully"}, status=status.HTTP_201_CREATED)
 
 class advanceTournamentmatch(generics.GenericAPIView):
@@ -311,6 +313,7 @@ class advanceTournamentmatch(generics.GenericAPIView):
     def post(self, request):
         try:
             data = getmatchdata(request, request.data["game_id"])
+            channel_layer = get_channel_layer()
 
             print(f"\n\n\n+++++advanceTournamentmatch {data}+++++\n\n\n")
 
@@ -327,12 +330,21 @@ class advanceTournamentmatch(generics.GenericAPIView):
             else:
                 next_round = "finals"
             if (next_round == current_round):
+                print(f"inside next_round == current_round {next_round} {current_round}")
                 tournament.status = "Ended"
                 tournament.tournament_winner = data["winner"]
                 tournament.bracket_data[current_round][0][2] = data["player_1_score"]
                 tournament.bracket_data[current_round][0][3] = data["player_2_score"]
                 tournament.save()
-                return Response({"success":"Tournament Ended"}, status=status.HTTP_400_BAD_REQUEST)
+                async_to_sync(channel_layer.group_send)(
+                    f"tournament_{tournament.name}",
+                    {
+                        "type": "tournament_message",
+                        "message": "this is a garbage value in advanceTournamentmatch views",
+                    },
+                )
+
+                return Response({"success":"Tournament Ended"}, status=status.HTTP_200_OK)
             datalist = tournament.bracket_data[current_round]
             bracket_tofill = 0
             place = 0
@@ -358,9 +370,17 @@ class advanceTournamentmatch(generics.GenericAPIView):
                 tournament.bracket_data["current_round"] = next_round
                 tournament.save()
                 Start_Playing(request, tournament)
+                async_to_sync(channel_layer.group_send)(
+                    f"tournament_{tournament.name}",
+                    {
+                        "type": "tournament_message",
+                        "message": "this is a garbage value in advanceTournamentmatch views",
+                    },
+                )
+
+            return Response({"success": "Tournament game ended"}, status=status.HTTP_200_OK)
         except Tournament_History.DoesNotExist:
             return Response({"error":"Tournament not found"}, status=status.HTTP_404_NOT_FOUND)
-        return Response({"success": "Tournament game ended"}, status=status.HTTP_200_OK)
 
 
 class ProfileStatsView(generics.GenericAPIView):

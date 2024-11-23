@@ -27,8 +27,6 @@ class Tournament_History(models.Model):
     qr_code = models.CharField(max_length=255, blank=False, null=False, default="/assets/images/servers_qr_codes/default.jpg")
 
     tournament_winner = models.IntegerField(default=0)
-    last_game = models.IntegerField(default=0)
-
     VISISBILITY_CHOICES = (
         ("public", "Public"),
         ("private", "Private"),
@@ -50,7 +48,14 @@ class Tournament_History(models.Model):
 
     total_number_of_players = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=255, default="Waiting for players")
+    
+    STATUS_CHOICES = (
+        ("Waiting for players", "Waiting for players"),
+        ("Ended", "Ended"),
+        ("In progress", "In progress"),
+    )
+    
+    status = models.CharField(max_length=25, choices=STATUS_CHOICES, default="Waiting for players")
 
     def __str__(self):
         return f"{self.name} - {self.game_name} - {self.visibility} - {self.total_number_of_players} players"

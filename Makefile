@@ -10,7 +10,7 @@ RESET = \033[0m
 
 all: make_vault
 
-make_vault:
+make_vault: ascci
 	@rm -rf $(CURDIR)/vault/
 	@mkdir -p $(CURDIR)/vault/ $(CURDIR)/volumes/db_data/redis_data/ $(CURDIR)/volumes/db_data/user_management_db_data/ $(CURDIR)/volumes/db_data/chat_db_data/ $(CURDIR)/volumes/db_data/game_db_data/ $(CURDIR)/volumes/db_data/tournaments_db_data/
 	@python3 generate_vault.py
@@ -28,7 +28,7 @@ stop: ascci
 
 clean: ascci
 	@docker compose -f docker-compose.yml down -v
-	@rm -rf $(CURDIR)/volumes/db_data/
+#	@rm -rf $(CURDIR)/volumes/db_data/
 
 fclean: ascci
 	@docker compose -f docker-compose.yml down -v

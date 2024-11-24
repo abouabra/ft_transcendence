@@ -452,3 +452,10 @@ function send_report(id) {
     }
   });
 }
+
+
+function from_sec_to_min(sec){
+  let min = parseInt(`${sec / 60}`);
+  let sec_ = sec % 60;
+  return `${min}:${sec_}`
+}

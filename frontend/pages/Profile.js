@@ -33,12 +33,16 @@ export default class Profile_Page extends HTMLElement {
     }
   }
 
+  win_loss_doughnut = null;
   eloChart = null;
   dataPoints = [];
+  data_data = null;
+  win_loss = [];
   selectedBtn = null;
   selectedDaty = null;
 
   render_data(data, user_id) {
+    this.data_data = data.pong;
     console.log(data);
     if (data.user.is_blocked) {
       this.innerHTML = /*html*/ `
@@ -210,9 +214,13 @@ export default class Profile_Page extends HTMLElement {
       });
     }
 
+
+
+
+  this.win_loss = [data.pong.match_numbers.won, data.pong.match_numbers.lost];
 	this.create_chart();
 
-    this.handle_click_button(data);
+  this.handle_click_button(data);
 	
 	this.createCustomLegend(this.eloChart);
 	document.querySelector(".buttonContainer button").click();
@@ -246,30 +254,24 @@ export default class Profile_Page extends HTMLElement {
     });
   }
   
-  test_func(element, index)
-  {
-	  console.log("inside test_func", element, index);
-  }
 
   handle_click_button(data) {
     const value_of_active_part = this.querySelector(".leaderboard_page_active_filter span").innerText;
-
-    if (value_of_active_part == "Pong") {
-      this.dataPoints = data.pong.elo_graph;
-	  this.eloChart.data.datasets[0].label = "Pong Elo Rating";
-		this.updateChart(this.selectedDaty, this.selectedBtn);
-	//   this.eloChart.update();
-    } else if (value_of_active_part == "Space Invaders") {
-      this.dataPoints = data.space_invaders.elo_graph;
-	  this.eloChart.data.datasets[0].label = "Space Invaders Elo Rating";
-		this.updateChart(this.selectedDaty, this.selectedBtn);
-	//   this.eloChart.update();
-    } else if (value_of_active_part == "Road Fighter") {
-      this.dataPoints = data.road_fighter.elo_graph;
-	  this.eloChart.data.datasets[0].label = "Road Fighter Elo Rating";
-		this.updateChart(this.selectedDaty, this.selectedBtn);
-	//   this.eloChart.update();
-    }
+    if (value_of_active_part == "Pong")
+      this.data_data = data.pong;
+    else if (value_of_active_part == "Space Invaders")
+      this.data_data = data.space_invaders;
+    else if (value_of_active_part == "Road Fighter")
+      this.data_data = data.road_fighter;
+    this.dataPoints = this.data_data.elo_graph;
+    this.eloChart.data.datasets[0].label = `${value_of_active_part} Elo Rating`;
+    this.updateChart(this.selectedDaty, this.selectedBtn);
+    this.win_loss = [this.data_data.match_numbers.won, this.data_data.match_numbers.lost]
+    this.updateDoughnut(value_of_active_part)
+    document.querySelector(".win_los_ratio_matches").innerHTML=this.data_data.win_los_ratio.matches+"%";
+    document.querySelector(".win_los_ratio_tournaments").innerHTML=this.data_data.win_los_ratio.tournaments+"%";
+    document.querySelector(".average_avg_duration").innerHTML=from_sec_to_min(this.data_data.average.avg_duration);
+    document.querySelector(".average_avg_score").innerHTML=this.data_data.average.avg_score.toFixed(2);
   }
 
   create_chart() {
@@ -292,10 +294,51 @@ export default class Profile_Page extends HTMLElement {
 			</div>
 		</div>
 		<div class="match_numbers">
+      <div>
+        <span class="header_h3">Match Numbers</span>
+      </div>
+      <canvas class="doughnut"></canvas>
 		</div>
 		<div class="win_loss_ratio">
+      <div>
+          <span class="header_h4">Win Loss Ratio</span>
+      </div>
+      <div>
+          <span class="header_h1 primary_color_color win_los_ratio_matches">${this.data_data.win_los_ratio.matches} %</span>
+      </div>
+      <div>
+          <span class="header_h5">matches win ratio</span>
+      </div>
+      <div>
+          <span class="header_h1 primary_color_color win_los_ratio_tournaments">${this.data_data.win_los_ratio.tournaments} %</span>
+      </div>
+      <div>
+          <span class="header_h5">tournament win ratio</span>
+      </div>
+      <div>
+        <img src="/assets/images/profile/statistique_decoration.png">
+      </div>
+
 		</div>
 		<div class="average">
+      <div>
+          <span class="header_h4">Average</span>
+      </div>
+      <div>
+          <span class="header_h1 primary_color_color average_avg_duration">${this.data_data.average.avg_duration}</span>
+      </div>
+      <div>
+          <span class="header_h5">Average match duration</span>
+      </div>
+      <div>
+          <span class="header_h1 primary_color_color average_avg_score">${this.data_data.average.avg_score}</span>
+      </div>
+      <div>
+          <span class="header_h5">Average scrore per game</span>
+      </div>
+      <div>
+        <img src="/assets/images/profile/statistique_decoration.png">
+      </div>
 		</div>
 	`;
 
@@ -335,6 +378,36 @@ export default class Profile_Page extends HTMLElement {
 		);
 	}
 
+
+  const ctx_doughnut = document.querySelector(".doughnut");
+
+  this.win_loss_doughnut = new Chart(ctx_doughnut, {
+    type: 'doughnut',
+    data: {
+      labels:[
+        'win',
+        'loss',
+      ],
+      datasets:[{
+        label: 'Pong',
+        data: this.win_loss,
+        backgroundColor: [
+          '#88BD6F',
+          '#C03C3C',
+        ],
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {
+          labels: {
+            color: '#e6e7e7'
+          }
+        }
+      }
+    }
+  })
 
 	const ctx = document.getElementById("eloChart").getContext("2d");
     this.eloChart = new Chart(ctx, {
@@ -443,21 +516,24 @@ export default class Profile_Page extends HTMLElement {
     const legendContainer = document.getElementById("customLegend");
     const dataset = Chart.data.datasets[0]; // Access the first dataset
     legendContainer.innerHTML = /*html*/ `
-		<div style="display: flex; align-items: center; margin-left: 40px; gap: 20px;">
+		<div style="display: flex; align-items: center; margin-left: 20px; gap: 20px;">
 			<div style="width: 0.7vw; height: 0.7vw; background-color: ${dataset.borderColor};"></div>
 			<span style="font-size: 0.7vw;">${dataset.label}</span>
 		</div>`;
   }
 
 
+  updateDoughnut(label)
+  {
+    this.win_loss_doughnut.data.datasets[0].label = label;
+    this.win_loss_doughnut.data.datasets[0].data = this.win_loss;
+    this.win_loss_doughnut.update();
+  }
 	updateChart(days, button_node) {
 		this.selectedBtn = button_node;
 		this.selectedDaty = days;
 
 		const filteredData = this.filterData(days, this.dataPoints);
-		console.log("days", days);
-		console.log("this.dataPoints", this.dataPoints);
-		console.log("filteredData", filteredData);
 
 		const labels = filteredData.map((point) =>
 			point.match_id === "account_creation"
@@ -465,11 +541,7 @@ export default class Profile_Page extends HTMLElement {
 			: `Match ${point.match_id}`
 		);
 
-		console.log("labels", labels);
-
-
 		const data = filteredData.map((point) => point.elo);
-		console.log("data", data);
 		
 		this.eloChart.filteredData = filteredData;
 		this.eloChart.data.labels = labels;

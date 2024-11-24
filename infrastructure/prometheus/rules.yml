@@ -1,11 +1,62 @@
 groups:
-    - name: instance_down_alerts
-      rules:
-          - alert: InstanceDown
-            expr: up{job="chat_service"} == 0
-            for: 10s
-            labels:
-                severity: critical
-            annotations:
-                summary: "Instance {{ $labels.instance }} is down"
-                description: "The instance {{ $labels.instance }} has been unreachable for more than 10 seconds."
+  - name: instance_down_alerts
+    rules:
+      # Instance Down Alert
+      - alert: DjangoInstanceDown
+        expr: up == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} is down"
+          description: "The instance {{ $labels.instance }} has been unreachable for more than 10 seconds."
+
+  - name: application_alerts
+    rules:
+      # High Error Rate Alert
+      - alert: HighErrorRate
+        expr: (rate(django_http_responses_total_by_status_total{status=~"5.."}[5m]) / rate(django_http_responses_total_by_status_total[5m])) or vector(0) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate on the application"
+          description: |
+            Error rate exceeds 10% over the last 5 minutes.
+            Total errors: {{ $value }}.
+            Total requests: {{ $value }}.
+
+      - alert: SlowResponses
+        expr: rate(django_http_requests_latency_including_middlewares_seconds_sum[5m]) / rate(django_http_requests_latency_including_middlewares_seconds_count[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow response times detected"
+          description: |
+            Average response time exceeds 1 second over the last 5 minutes.
+            Total latency: {{ $value }}.
+            Total requests: {{ $value }}.
+
+  - name: resource_usage_alerts
+    rules:
+      # High Load Alert
+      - alert: HighLoad
+        expr: rate(django_http_requests_total_by_method_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request load detected"
+          description: The application is handling more than 100 requests per second over the last 5 minutes.
+
+     
+      # No Requests Alert
+      - alert: NoRequests
+        expr: rate(django_http_requests_total_by_method_total[5m]) == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No HTTP requests processed"
+          description: "The application is not processing any HTTP requests for more than 5 minutes."

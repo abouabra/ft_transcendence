@@ -7,7 +7,6 @@ global:
 
 route:
   receiver: 'email-alerts'
-  group_by: ['severity', 'job', 'instance']
 
 receivers:
   - name: 'email-alerts'

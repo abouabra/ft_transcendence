@@ -15,7 +15,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user_id = jsondata["user_id"]
 
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        print(f"room = {self.room_name} connecting")
         self.room_group_name = f"chat_{self.room_name}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
@@ -82,7 +81,6 @@ class ChatConsumerUserPermition(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         changed = text_data_json["permition_to_change"]
-        server_name = text_data_json["server_name"]
         event = {
             "type" : "permition_message",
             "message": f"{changed}",
@@ -100,4 +98,36 @@ class ChatConsumerUserPermition(AsyncWebsocketConsumer):
 
     async def permition_message(self, event):
         text_data_json = {"message":event["message"], "user_id":event["user_id"], "action":event["action"]}
+        await self.send(text_data=json.dumps(text_data_json))
+
+class ChateditConsumer(AsyncWebsocketConsumer):
+
+    async def connect(self):
+        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        self.room_group_name = f"chat_{self.room_name}_edit"
+        jsondata = str(self.scope["cookies"]["access_token"].split('.')[1])
+        jsondata += '='
+        jsondata = b64decode(jsondata)
+        jsondata = json.loads(jsondata.decode('utf-8'))
+        self.user_id = jsondata["user_id"]
+
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        changed = text_data_json["new_server_name"]
+        event = {
+            "type" : "edits_message",
+            "message": f"{changed}",
+            "new_server_name": text_data_json["new_server_name"],
+            "current": text_data_json["current"]
+        }
+        await self.channel_layer.group_send(self.room_group_name, event)
+
+    async def edits_message(self, event):
+        text_data_json = {"message":event["message"], "new_server_name":event["new_server_name"], "current":event["current"]}
         await self.send(text_data=json.dumps(text_data_json))

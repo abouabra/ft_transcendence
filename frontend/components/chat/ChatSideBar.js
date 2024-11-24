@@ -87,48 +87,43 @@ export default class ChatSideBar extends HTMLElement {
 	disconnectedCallback() {}
 
 	async attributeChangedCallback(name, oldValue, newValue) {
-
 		let data = []
-		makeRequest('/api/chat/get_server_data/').then((body)=>{
-			
-			
-			if (name === 'type')
+		if (name === 'type')
+		{
+			if (newValue === "Direct")
 			{
-				if (newValue === "Direct")
-				{
+				makeRequest(`/api/chat/get_server_chat/${newValue}`).then((body)=>{
+					console.log(body)
 					for(let i = 0; i < body.length; i++)
 					{
-						if (body[i].visibility === "protected")
+						if (body[i].latest_timestamp)
 						{
-							if (body[i].latest_timestamp)
-							{
-								let time_now = new Date(body[i].latest_timestamp)
-								body[i].latest_timestamp = `${time_now.getHours()}:${time_now.getMinutes()}${time_now.getHours() > 12 ? ' PM' : ' AM'}`
-							}
-							data.push(body[i])
+							let time_now = new Date(body[i].latest_timestamp)
+							body[i].latest_timestamp = `${time_now.getHours()}:${time_now.getMinutes()}${time_now.getHours() > 12 ? ' PM' : ' AM'}`
 						}
+						data.push(body[i])
 					}
 					this.render_page(data);
-				}
-				else if (newValue === "Server")
-				{
-					for(let i = 0; i < body.length; i++)
-					{
-						if (body[i].visibility !== "protected")
-						{
-							body[i].status = "none"
-							if (body[i].latest_timestamp)
-							{
-								let time_now = new Date(body[i].latest_timestamp)
-								body[i].latest_timestamp = `${time_now.getHours()}:${time_now.getMinutes()}${time_now.getHours() > 12 ? ' PM' : ' AM'}`
-							}
-							data.push(body[i])
-						}
-					}
-					this.render_page(data);
-				}
+				})
 			}
-		})
+			else if (newValue === "Server")
+			{
+				makeRequest(`/api/chat/get_server_chat/${newValue}`).then((body)=>{
+					for(let i = 0; i < body.length; i++)
+					{
+						body[i].status = "none"
+						if (body[i].latest_timestamp)
+						{
+							let time_now = new Date(body[i].latest_timestamp)
+							body[i].latest_timestamp = `${time_now.getHours()}:${time_now.getMinutes()}${time_now.getHours() > 12 ? ' PM' : ' AM'}`
+						}
+						data.push(body[i])
+					}
+					this.render_page(data);
+				})
+			}
+		}
+
 	}
 	static get observedAttributes() {
 		return ["type"];

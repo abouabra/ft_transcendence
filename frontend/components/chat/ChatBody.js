@@ -10,6 +10,23 @@ export default class ChatBody extends HTMLElement {
 		this.server_name = location.pathname.split('/').pop()
 		let result_data = ''
 		
+
+
+		if (window.editchat_socket)
+		{
+			console.log(window.editchat_socket)
+			if (!window.editchat_socket.onmessage)
+			{
+				window.editchat_socket.onmessage = (event)=>{
+				console.log("tara jaaaaaaaaa")
+
+				event = JSON.parse(event.data)
+					if (this.server_name === event.current)
+						GoTo(`/chat/${event.new_server_name}`)
+				}
+			}
+		}
+
 		makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET')
 		.then((data) => {
 		makeRequest(`/api/auth/full_user/${data[0].user_id}/`)
@@ -69,37 +86,40 @@ export default class ChatBody extends HTMLElement {
 			more_dot.addEventListener('click', () => {
 				
 				makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then((data) => {
-				makeRequest(`/api/auth/full_user/${data[0].user_id}/`)
-				.then((response) => {
-					data[0].friends_list = response.friends
-
-					result_data = data[0]
-					result_stringify = JSON.stringify(result_data)
-					if (result_data.banned.includes(parseInt(localStorage.getItem("id"))))
-						this.blocked = true
-					else
-						this.blocked = false
-					let typeserver = "groupsettings"
-					if (this.blocked == false)
+					if (data)
 					{
-						if (result_data.visibility === "protected")
-							typeserver = "protectedsettings"
-						UserPannel.setAttribute("data-text",result_stringify)
-						UserPannel.setAttribute("type",typeserver)
-						this.querySelector(".More_bar").style.width = "50%"
-						this.querySelector(".sliding_elementimg").classList.remove("hidden")
-						this.querySelector(".sliding_elementtext").classList.remove("hidden")
-						UserPannel.style.whiteSpace = "nowrap"
-						more_dot.style.display = "none";
-						chatbod.style.opacity = 1;
-
+						makeRequest(`/api/auth/full_user/${data[0].user_id}/`)
+						.then((response) => {
+							data[0].friends_list = response.friends
+						
+							result_data = data[0]
+							result_stringify = JSON.stringify(result_data)
+							if (result_data.banned.includes(parseInt(localStorage.getItem("id"))))
+								this.blocked = true
+							else
+								this.blocked = false
+							let typeserver = "groupsettings"
+							if (this.blocked == false)
+							{
+								if (result_data.visibility === "protected")
+									typeserver = "protectedsettings"
+								UserPannel.setAttribute("data-text",result_stringify)
+								UserPannel.setAttribute("type",typeserver)
+								this.querySelector(".More_bar").style.width = "50%"
+								this.querySelector(".sliding_elementimg").classList.remove("hidden")
+								this.querySelector(".sliding_elementtext").classList.remove("hidden")
+								UserPannel.style.whiteSpace = "nowrap"
+								more_dot.style.display = "none";
+								chatbod.style.opacity = 1;
+							
+							}
+							else
+							{
+								chatbod.style.opacity = 0.5;
+                				showToast("error", "You are banned from this server")
+							}
+						})
 					}
-					else
-					{
-						chatbod.style.opacity = 0.5;
-                		showToast("error", "You are banned from this server")
-					}
-				})
 				})
 			})
 
@@ -114,6 +134,7 @@ export default class ChatBody extends HTMLElement {
 						"username": localStorage.getItem('username'),
 						"user_id": localStorage.getItem("id"),
 						"server_name":result_data.server_name
+						
 					}))
 				}
 			}
@@ -181,7 +202,6 @@ export default class ChatBody extends HTMLElement {
 		this.socket.onmessage = (event)=>{
 			this.append_message(JSON.parse(event.data))
 			let sidechat = document.querySelector("chat-side-bar")
-			console.log(`change hada ${localStorage.getItem('id')}`)
 			sidechat.setAttribute('type', sidechat.getAttribute('type'))
 			if (this.messagecontainer)
 				this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
@@ -268,7 +288,6 @@ export default class ChatBody extends HTMLElement {
 					.then((response) => {
 						data.friends_list = response.friends
 						makeRequest(`/api/chat/get_server_data/?server=${this.server_name}`, 'GET').then(svdata => {
-							console.log("calledddddddd")
 							data.staffs = svdata[0].staffs
 							data.banned = svdata[0].banned
 							if (data.banned.includes(parseInt(localStorage.getItem("id"))))
@@ -356,6 +375,9 @@ divmessage_body.querySelector(".message_cnt").addEventListener('mouseleave', ()=
 
 	delete_msg.style.display = "none"
 })
+
+
+
 }
 
 

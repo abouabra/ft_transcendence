@@ -11,7 +11,8 @@ from .utils import getUserData
 import base64
 from .request_api import create_qr_code
 import os
-import io
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from django.conf import settings
 
 
@@ -51,6 +52,7 @@ class CreateServerView(generics.GenericAPIView):
     def put(self, request):
 
         try:
+            channel_layer = get_channel_layer()
             server = Server.objects.get(name=request.data['old_name'])
         except Server.DoesNotExist:
             return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
@@ -69,13 +71,21 @@ class CreateServerView(generics.GenericAPIView):
         server.visibility = data['visibility']
         server.avatar = data['avatar']
         server.qr_code = data['qr_code']
-        print(f"nmade password = {server.password}")
         server.password = make_password(data['password'])
-        print(f"made password = {server.password}")
         server.save()
+
+        async_to_sync(channel_layer.group_send)(
+            f"chat_{data['old_name']}_edit",
+            {
+                "type" : "edits_message",
+                "message":  data['name'],
+                "new_server_name": data['name'],
+                "current": data['old_name']
+            }
+        )
         return Response({
-                "success": "Server Created Successfully"
-            }, status=status.HTTP_201_CREATED)
+                "success": "Server edited Successfully"
+            }, status=200)
 
 class GetServerListView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -135,7 +145,68 @@ class GetServerjoinedDataView(generics.GenericAPIView):
             return Response({"success":"user joined the server", "server_name":server.name}, status.HTTP_200_OK)
         except Server.DoesNotExist:
             return Response({"error":"server not found"}, status.HTTP_404_NOT_FOUND)
+class GetServerchatDataView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
+    def get(self, request, type):
+        final_data = []
+        if (type == "Direct"):
+            servers = Server.objects.filter(members__contains=[request.user.id]).filter(visibility="protected")
+        else:
+            servers = Server.objects.filter(members__contains=[request.user.id]).exclude(visibility="protected")
+        if (not servers):
+            return Response({}, status=200)
+        servers_data = ServerSerializer(servers, many=True).data
+        for index, server in enumerate(servers_data):
+            visibility = server['visibility']
+            member = server['members']
+            if (request.user.id in member):
+                member.remove(request.user.id)
+            server_name = server['name']
+            user_id = request.user.id
+            online = 'offline'
+            latest_message = ''
+            avatar = server['avatar']
+            username = server_name
+            try:
+                latest_msg_obj = Message.objects.filter(server=servers[index]).exclude(blocked__contains=[request.user.id]).order_by("timestamp")
+                if(latest_msg_obj.count() > 0): 
+                    latest_msg_obj = latest_msg_obj.last()
+                    latest_message_data = MessageSerializer(latest_msg_obj).data
+                    latest_message = latest_message_data["content"]
+                    latest_timestamp = latest_message_data["timestamp"]
+                else:
+                    raise Message.DoesNotExist
+
+            except (Message.DoesNotExist):
+                    latest_message = ''
+                    latest_timestamp = ''
+
+            if (visibility == 'protected'):
+                userdata =  getUserData(request,member[0])
+                avatar = userdata['avatar']
+                user_id = userdata['id']
+                username = userdata['username']
+                online = userdata['status']
+
+
+            data = {
+                'visibility':visibility,
+                'server_name':server_name,
+                'user_id':user_id,
+                'name':username,
+                'username':username,
+                'status':online,
+                'member':member,
+                'staffs':server['staffs'],
+                'banned':server['banned'],
+                'avatar':avatar,
+                'latest_message':latest_message,
+                'latest_timestamp':latest_timestamp,
+                'qr_code':server['qr_code']
+            }
+            final_data.append(data)
+        return Response(final_data, status.HTTP_200_OK)
 
 class GetServerDataView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -307,17 +378,17 @@ class Serverusermanager(generics.GenericAPIView):
 
         try:
             server = Server.objects.get(name=request.data['server_name'])
-            if (request.user.id not in server.staffs):
+            if (request.user.id not in server.staffs and request.user.id not in server.banned):
                 return Response({'error':'You dont have permission'}, status=status.HTTP_403_FORBIDDEN)
             if (request.user.id in server.banned):
                 return Response({'error':'You are banned from this server'}, status=status.HTTP_403_FORBIDDEN)
             if request.data['action'] == "ban":
                 server.banned.append(request.data['user_id'])
-            elif request.data['action'] == "unban":
+            elif request.data['action'] == "unban" and request.data['user_id'] in server.banned:
                 server.banned.remove(request.data['user_id'])
             elif request.data['action'] == "add_staff":
                 server.staffs.append(request.data['user_id'])
-            elif request.data['action'] == "remove_staff":
+            elif request.data['action'] == "remove_staff" and request.data['user_id'] in server.staffs:
                 server.staffs.remove(request.data['user_id'])
             server.save()
         except Server.DoesNotExist:

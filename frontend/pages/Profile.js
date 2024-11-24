@@ -561,7 +561,8 @@ export default class Profile_Page extends HTMLElement {
         ${
           this.data_data.recent_games.map((game) => {
             if (game.player1.id != localStorage.getItem("id")){
-              [game.player1, game.player2] = [game.player2, game.player1];}
+              [game.player1, game.player2, game.player_1_score, game.player_2_score] = [game.player2, game.player1, game.player_2_score, game.player_1_score];
+            }
             return /*html*/ `
               <div class="recent_game_1">
                   <img src="${game.player1.avatar}">

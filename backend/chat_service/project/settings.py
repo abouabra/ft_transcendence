@@ -175,4 +175,5 @@ STATIC_URL = '/assets/'
 
 CSRF_TRUSTED_ORIGINS = [
     "https://127.0.0.1",
+    "https://10.12.4.4",
 ]

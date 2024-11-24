@@ -364,7 +364,7 @@ form textarea:focus-visible
 .sec_part .win_loss_ratio img,
 .sec_part .average img
 {
-    width: -webkit-fill-available;
+    width: 100%;
 }
 
 .sec_part .win_loss_ratio div span,

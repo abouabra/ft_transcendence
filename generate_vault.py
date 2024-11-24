@@ -10,6 +10,28 @@ def generate_random_password(length=16):
 VAULT_DIR = os.path.join(os.getenv("COMPOSE_PROJECT_PATH"), "vault")
 assert os.path.exists(VAULT_DIR), f"Vault directory not found: {VAULT_DIR}"
 
+ENV_DATA = {
+    "user_management": {
+        "POSTGRES_USER": "user_management_user",
+        "POSTGRES_DB": "user_management_database",
+        "POSTGRES_PASSWORD": generate_random_password(),
+    },
+    "chat": {
+        "POSTGRES_USER": "chat_user",
+        "POSTGRES_DB": "chat_database",
+        "POSTGRES_PASSWORD": generate_random_password(),
+    },
+    "game": {
+        "POSTGRES_USER": "game_user",
+        "POSTGRES_DB": "game_database",
+        "POSTGRES_PASSWORD": generate_random_password(),
+    },
+    "tournaments": {
+        "POSTGRES_USER": "tournaments_user",
+        "POSTGRES_DB": "tournaments_database",
+        "POSTGRES_PASSWORD": generate_random_password(),
+    },
+}
 
 def generate_env(type):
     file_names = {
@@ -18,6 +40,7 @@ def generate_env(type):
         "chat_env": ".chat_env",
         "game_env": ".game_env",
         "tournaments_env": ".tournaments_env",
+        "postgres_exporter_env": ".postgres_exporter_env",
     }
 
     if type not in file_names:
@@ -36,7 +59,13 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_DB=0
 REDIS_PASSWORD={generate_random_password()}
+
 """
+    elif type == "postgres_exporter_env":
+        env_content = f"""# This file contains the environment variables for Postgres Exporter service
+# Postgres exporter
+DATA_SOURCE_NAME=postgresql://{ENV_DATA["user_management"]["POSTGRES_USER"]}:{ENV_DATA["user_management"]["POSTGRES_PASSWORD"]}@user-management-db-container:5432/user_management_database?sslmode=disable,postgresql://{ENV_DATA["chat"]["POSTGRES_USER"]}:{ENV_DATA["chat"]["POSTGRES_PASSWORD"]}@chat-db-container:5434/chat_database?sslmode=disable,postgresql://{ENV_DATA["game"]["POSTGRES_USER"]}:{ENV_DATA["game"]["POSTGRES_PASSWORD"]}@game-db-container:5435/game_database?sslmode=disable,postgresql://{ENV_DATA["tournaments"]["POSTGRES_USER"]}:{ENV_DATA["tournaments"]["POSTGRES_PASSWORD"]}@tournaments-db-container:5436/tournaments_database?sslmode=disable        
+        """
     
     elif type == "user_management_env":
         env_content = f"""# This file contains the environment variables for User Management service
@@ -75,9 +104,9 @@ DJANGO_LOCAL_USER_PASSWORD=local_user #generate_random_password()
 POSTGRES_PASSWORD={generate_random_password()}
 
 # Postgres user management
-USER_MANAGEMENT_POSTGRES_USER=user_management_user
-USER_MANAGEMENT_POSTGRES_PASSWORD=admin #generate_random_password()
-USER_MANAGEMENT_POSTGRES_DB=user_management_database
+USER_MANAGEMENT_POSTGRES_USER={ENV_DATA["user_management"]["POSTGRES_USER"]}
+USER_MANAGEMENT_POSTGRES_PASSWORD={ENV_DATA["user_management"]["POSTGRES_PASSWORD"]}
+USER_MANAGEMENT_POSTGRES_DB={ENV_DATA["user_management"]["POSTGRES_DB"]}
 """
 
     elif type == "chat_env":
@@ -95,9 +124,9 @@ DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
 POSTGRES_PASSWORD={generate_random_password()}
 
 # Postgres chat service
-CHAT_POSTGRES_USER=chat_user
-CHAT_POSTGRES_PASSWORD={generate_random_password()}
-CHAT_POSTGRES_DB=chat_database
+CHAT_POSTGRES_USER={ENV_DATA["chat"]["POSTGRES_USER"]}
+CHAT_POSTGRES_PASSWORD={ENV_DATA["chat"]["POSTGRES_PASSWORD"]}
+CHAT_POSTGRES_DB={ENV_DATA["chat"]["POSTGRES_DB"]}
 """
 
     elif type == "game_env":
@@ -115,9 +144,9 @@ DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
 POSTGRES_PASSWORD={generate_random_password()}
 
 # Postgres game service
-GAME_POSTGRES_USER=game_user
-GAME_POSTGRES_PASSWORD={generate_random_password()}
-GAME_POSTGRES_DB=game_database
+GAME_POSTGRES_USER={ENV_DATA["game"]["POSTGRES_USER"]}
+GAME_POSTGRES_PASSWORD={ENV_DATA["game"]["POSTGRES_PASSWORD"]}
+GAME_POSTGRES_DB={ENV_DATA["game"]["POSTGRES_DB"]}
 """
 
     elif type == "tournaments_env":
@@ -135,9 +164,9 @@ DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
 POSTGRES_PASSWORD={generate_random_password()}
 
 # Postgres tournaments service
-TOURNAMENTS_POSTGRES_USER=tournaments_user
-TOURNAMENTS_POSTGRES_PASSWORD={generate_random_password()}
-TOURNAMENTS_POSTGRES_DB=tournaments_database
+TOURNAMENTS_POSTGRES_USER={ENV_DATA["tournaments"]["POSTGRES_USER"]}
+TOURNAMENTS_POSTGRES_PASSWORD={ENV_DATA["tournaments"]["POSTGRES_PASSWORD"]}
+TOURNAMENTS_POSTGRES_DB={ENV_DATA["tournaments"]["POSTGRES_DB"]}
 """
 
 
@@ -155,6 +184,7 @@ def generate_vault():
 
     # Generate .env files
     generate_env(type="env")
+    generate_env(type="postgres_exporter_env")
     generate_env(type="user_management_env")
     generate_env(type="chat_env")
     generate_env(type="game_env")

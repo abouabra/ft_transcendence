@@ -80,8 +80,8 @@ init_user_stats(dummy_request, local_user.id)
                 echo "User stats initialization completed."
                 break
             else
-                echo "Game service not ready (status: $status_code). Retrying in 3 seconds..."
-                sleep 3
+                echo "Game service not ready (status: $status_code). Retrying in 2 seconds..."
+                sleep 2
             fi
         done
     ) &

@@ -60,9 +60,11 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "user_management",
     "social_django",
+    "django_prometheus",
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -76,6 +78,7 @@ MIDDLEWARE = [
     "project.middlewares.JsonResponseMiddleware",
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'project.middlewares.SocialAuthExceptionMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 
@@ -236,17 +239,11 @@ SIMPLE_JWT = {
 # CORS settings
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://0.0.0.0:3000",
-    "http://127.0.0.1:3000",
-
-    "http://0.0.0.0:8000",
-    "http://127.0.0.1:8000",
+    "https://127.0.0.1",
       
     "http://chat_container:8001",
     "http://user_management_container:8000"
 ]
-
-
 
 # Redis settings
 CACHES = {
@@ -287,3 +284,9 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['picture', 'name']
 
 LOGIN_REDIRECT_URL = 'https://127.0.0.1:8000/api/auth/after_google/'
 LOGOUT_REDIRECT_URL = 'https://127.0.0.1/'
+
+STATIC_URL = '/assets/'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://127.0.0.1",
+]

@@ -1,0 +1,15 @@
+global:
+  smtp_smarthost: 'smtp.gmail.com:587'  # Gmail SMTP server
+  smtp_from: 'esablanca111@gmail.com'     # Your Gmail address
+  smtp_auth_username: 'esablanca111@gmail.com'  # Your Gmail address
+  smtp_auth_password: 'ptzojrgtqnabmacx'     # Your Gmail app password (generated via Gmail account)
+  smtp_require_tls: true
+
+route:
+  receiver: 'email-alerts'
+
+receivers:
+  - name: 'email-alerts'
+    email_configs:
+      - to: 'esablanca111@gmail.com'  # The email to which the alerts will be sent
+        send_resolved: true  # Send notifications when the alert resolves

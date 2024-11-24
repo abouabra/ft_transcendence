@@ -33,9 +33,11 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "tournaments",
+    "django_prometheus",
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -49,6 +51,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
 
     "project.middlewares.JsonResponseMiddleware",
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = "project.urls"
@@ -167,4 +170,10 @@ CHANNEL_LAYERS = {
     },
 }
 
+
+STATIC_URL = '/assets/'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://127.0.0.1",
+]
 

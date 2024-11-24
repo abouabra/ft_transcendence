@@ -22,7 +22,6 @@ init_db_and_users() {
         echo "No migrations to apply."
     fi
 
-    # Create users if they don't exist, but don't initialize stats yet
     if [ "$(python manage.py shell -c 'from user_management.models import User; print(User.objects.filter(is_superuser=True).exists())')" = "False" ]; then
         echo "Creating users without initializing stats..."
         python manage.py shell -c "
@@ -32,6 +31,7 @@ local_user = User.objects.create_user('${DJANGO_LOCAL_USER_USERNAME}', '${DJANGO
 local_user.is_staff = True
 local_user.save()
         "
+        init_user_stats_delayed
     else
         echo "Users already exist. Skipping creation."
     fi
@@ -91,8 +91,6 @@ init_user_stats(dummy_request, local_user.id)
 wait_for_db "user-management-db-container" "5432"
 init_db_and_users
 
-# Start background process that will wait for services and initialize stats
-init_user_stats_delayed
 
 # Start the Django development server
 exec python manage.py runserver 0.0.0.0:8000

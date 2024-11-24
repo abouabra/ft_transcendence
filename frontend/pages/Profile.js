@@ -300,48 +300,24 @@ export default class Profile_Page extends HTMLElement {
       <canvas class="doughnut"></canvas>
 		</div>
 		<div class="win_loss_ratio">
-      <div>
-          <span class="header_h4">Win Loss Ratio</span>
-      </div>
-      <div>
-          <span class="header_h1 primary_color_color win_los_ratio_matches">${this.data_data.win_los_ratio.matches} %</span>
-      </div>
-      <div>
-          <span class="header_h5">matches win ratio</span>
-      </div>
-      <div>
-          <span class="header_h1 primary_color_color win_los_ratio_tournaments">${this.data_data.win_los_ratio.tournaments} %</span>
-      </div>
-      <div>
-          <span class="header_h5">tournament win ratio</span>
-      </div>
-      <div>
-        <img src="/assets/images/profile/statistique_decoration.png">
-      </div>
-
+      <div><span class="header_h4">Win Loss Ratio</span></div>
+      <div><span class="header_h1 primary_color_color win_los_ratio_matches">${this.data_data.win_los_ratio.matches} %</span></div>
+      <div><span class="header_h5">matches win ratio</span></div>
+      <div><span class="header_h1 primary_color_color win_los_ratio_tournaments">${this.data_data.win_los_ratio.tournaments} %</span></div>
+      <div><span class="header_h5">tournament win ratio</span></div>
+      <div><img src="/assets/images/profile/statistique_decoration.png"></div>
 		</div>
 		<div class="average">
-      <div>
-          <span class="header_h4">Average</span>
-      </div>
-      <div>
-          <span class="header_h1 primary_color_color average_avg_duration">${this.data_data.average.avg_duration}</span>
-      </div>
-      <div>
-          <span class="header_h5">Average match duration</span>
-      </div>
-      <div>
-          <span class="header_h1 primary_color_color average_avg_score">${this.data_data.average.avg_score}</span>
-      </div>
-      <div>
-          <span class="header_h5">Average scrore per game</span>
-      </div>
-      <div>
-        <img src="/assets/images/profile/statistique_decoration.png">
-      </div>
+      <div><span class="header_h4">Average</span></div>
+      <div><span class="header_h1 primary_color_color average_avg_duration">${this.data_data.average.avg_duration}</span></div>
+      <div><span class="header_h5">Average match duration</span></div>
+      <div><span class="header_h1 primary_color_color average_avg_score">${this.data_data.average.avg_score}</span></div>
+      <div><span class="header_h5">Average scrore per game</span></div>
+      <div><img src="/assets/images/profile/statistique_decoration.png"></div>
 		</div>
 	`;
-
+  this.third_part();
+  
 	const one_day = document.getElementById("btn-1d");
 	if(one_day)
 	{
@@ -574,6 +550,52 @@ export default class Profile_Page extends HTMLElement {
 		return dataPoints.filter((point) => now - point.date <= rangeInSeconds);
 	}
 
+
+  third_part()
+  {
+    const third_part = document.querySelector(".third_part");
+    third_part.innerHTML = /*html*/ `
+      <div class="recent_games">
+        <span class="header_h4">Recent Games</span>
+        <div class="all_recent_games">
+        ${
+          this.data_data.recent_games.map((game) => {
+            if (game.player1.id != localStorage.getItem("id")){
+              [game.player1, game.player2, game.player_1_score, game.player_2_score] = [game.player2, game.player1, game.player_2_score, game.player_1_score];
+            }
+            return /*html*/ `
+              <div class="recent_game_1">
+                  <img src="${game.player1.avatar}">
+                  <span>${game.player1.username}</span>
+                  <div class="scores">
+                    <span>${game.player_1_score}</span>
+                    <span> - </span>
+                    <span>${game.player_2_score}</span>
+                  </div>
+                  <span>${game.player2.username}</span>
+                  <img src="${game.player2.avatar}">
+                  <div class="win_or_loss">
+                    <img src="${parseInt(localStorage.getItem('id')) == game.winner ? '/assets/images/profile/win_vector.png' : '/assets/images/profile/loss_vector.png'}">
+                  </div>
+                </div>   
+             `
+          }).join('')
+        }
+
+          
+        </div>
+      </div>
+      <div class="recent_tournaments">
+        <span class="header_h4">Recent Tournaments</span>
+        <div class="all_recent_tournaments">
+          <div class="recent_tournament_1">
+          
+          </div>
+        </div>
+      </div>
+
+    `;
+  }
 
   connectedCallback() {}
 

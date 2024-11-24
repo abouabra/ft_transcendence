@@ -66,10 +66,11 @@ class HomeLeaderboardView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        # i want to get the top 3 players with the highest elo from each game and return thier user_id
-        top_3_pong = GameStats.objects.filter(game_name="pong").order_by('-current_elo')[:3]
-        top_3_space_invaders = GameStats.objects.filter(game_name="space_invaders").order_by('-current_elo')[:3]
-        top_3_road_fighter = GameStats.objects.filter(game_name="road_fighter").order_by('-current_elo')[:3]
+        excluded_user_ids = [1, 2]
+        
+        top_3_pong = GameStats.objects.filter(game_name="pong").exclude(user_id__in=excluded_user_ids).order_by('-current_elo')[:3]
+        top_3_space_invaders = GameStats.objects.filter(game_name="space_invaders").exclude(user_id__in=excluded_user_ids).order_by('-current_elo')[:3]
+        top_3_road_fighter = GameStats.objects.filter(game_name="road_fighter").exclude(user_id__in=excluded_user_ids).order_by('-current_elo')[:3]
 
         top_3_pong_user_ids = [getUserData(request, player.user_id) for player in top_3_pong]
         top_3_space_invaders_user_ids = [getUserData(request, player.user_id) for player in top_3_space_invaders]
@@ -282,12 +283,13 @@ class LeaderboardView(generics.GenericAPIView):
     serializer_class = LeaderboardSerializer
 
     def get(self, request):
+        excluded_user_ids = [1, 2]
         query_params = request.query_params
         if "game_name" in query_params and query_params["game_name"] != "":
             game_name = query_params["game_name"]
-            leaderboard = GameStats.objects.filter(game_name=game_name).order_by('-current_elo')
+            leaderboard = GameStats.objects.filter(game_name=game_name).exclude(user_id__in=excluded_user_ids).order_by('-current_elo')
         else:
-            leaderboard = GameStats.objects.filter(game_name="pong").order_by('-current_elo')
+            leaderboard = GameStats.objects.filter(game_name="pong").exclude(user_id__in=excluded_user_ids).order_by('-current_elo')
 
         serializer = self.serializer_class(leaderboard, many=True)
         for player in serializer.data:

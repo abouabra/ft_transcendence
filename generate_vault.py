@@ -67,6 +67,10 @@ DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
 DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
 
+DJANGO_LOCAL_USER_USERNAME=local_user
+DJANGO_LOCAL_USER_EMAIL=local_user@example.com
+DJANGO_LOCAL_USER_PASSWORD=local_user #generate_random_password()
+
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
 

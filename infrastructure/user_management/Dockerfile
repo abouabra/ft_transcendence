@@ -1,6 +1,6 @@
 FROM python:3.12.6-alpine3.20
 
-RUN apk update && apk add --no-cache postgresql-client
+RUN apk update && apk add --no-cache postgresql-client curl
 
 WORKDIR /app
 

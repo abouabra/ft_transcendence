@@ -83,7 +83,7 @@ export default class Leaderboard_Page extends HTMLElement {
 				</div>
 				` : ''}
 
-
+				${response[0] != null ? /* html */`
 				<div class="leaderboard_page_rank_1_container blur platinum_40_color_border">
 					<div class="leaderboard_page_top_3_rank_container" >
 						<img src="/assets/images/leaderboard_page/crown.svg" alt="crown" class="leaderboard_page_crown">
@@ -97,6 +97,7 @@ export default class Leaderboard_Page extends HTMLElement {
 						<span class="p1_bold primary_color_color">${response[0].current_elo}</span>
 					</div>
 				</div>
+				` : ''}
 
 				${response[1] != null ? /* html */`
 					<div class="leaderboard_page_rank_2_container blur platinum_40_color_border">

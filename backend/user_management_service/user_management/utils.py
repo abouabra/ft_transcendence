@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 def init_user_stats(request, userID):
     access_token = request.COOKIES.get("access_token")
-    logger.error(f"\n\n\ninit_user_stats Access token: {access_token}\n\n\n")
 
     request_headers = {
         "Content-Type": "application/json",

@@ -242,10 +242,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://user_management_container:8000"
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://127.0.0.1",
-]
-
 # Redis settings
 CACHES = {
     'default': {
@@ -286,5 +282,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['picture', 'name']
 LOGIN_REDIRECT_URL = 'https://127.0.0.1:8000/api/auth/after_google/'
 LOGOUT_REDIRECT_URL = 'https://127.0.0.1/'
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = '/assets/'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://127.0.0.1",
+]

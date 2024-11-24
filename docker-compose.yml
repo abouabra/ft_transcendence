@@ -192,17 +192,33 @@ services:
     restart: always
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v3.0.0
     container_name: prometheus_container
     volumes:
       - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/rules.yml:/etc/prometheus/rules.yml
       - prometheus_data:/prometheus
-      # - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
     ports:
       - "9090:9090"
     networks:
       - transcendence_net
     restart: always
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: alertmanager_container
+    volumes:
+      - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/entrypoint.sh:/entrypoint.sh
+      - alertmanager_data:/alertmanager
+    env_file:
+      - vault/.user_management_env
+    ports:
+      - "9099:9093"
+    networks:
+      - transcendence_net
+    restart: always
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
 
   cadvisor:
       image: gcr.io/cadvisor/cadvisor:v0.49.1
@@ -227,7 +243,7 @@ services:
       restart: always
 
   redis-exporter:
-    image: oliver006/redis_exporter
+    image: oliver006/redis_exporter:v1.66.0-alpine
     container_name: redis-exporter
     ports:
       - "9121:9121"
@@ -361,6 +377,13 @@ volumes:
     driver_opts:
       type: none
       device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/prometheus_data
+      o: bind
+
+  alertmanager_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/alertmanager_data
       o: bind
 
 networks:

@@ -1,0 +1,11 @@
+groups:
+    - name: instance_down_alerts
+      rules:
+          - alert: InstanceDown
+            expr: up{job="chat_service"} == 0
+            for: 10s
+            labels:
+                severity: critical
+            annotations:
+                summary: "Instance {{ $labels.instance }} is down"
+                description: "The instance {{ $labels.instance }} has been unreachable for more than 10 seconds."

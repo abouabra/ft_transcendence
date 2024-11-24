@@ -75,7 +75,7 @@ export default class Chat_Browse extends HTMLElement {
             `
             let joinbtn = this.querySelectorAll(".join_server")
             joinbtn = Array.from(joinbtn).filter((element) => element.querySelector("button-component").getAttribute('data-text') === "join")
-            console.log(joinbtn)
+
             joinbtn.forEach((element, i) => {
                 element.addEventListener('click', ()=>{
                     GoTo(`/chat/join_server/?server_name=${element.getAttribute('data-id')}`)

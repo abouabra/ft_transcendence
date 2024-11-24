@@ -11,8 +11,12 @@ export default class Chat_Page extends HTMLElement {
 		const pathname = window.location.pathname;
 		const servername = pathname.substring(6)
 		if (servername)
+		{
+			console.log(servername)
 			window.chat_socket = new WebSocket(`wss://${window.location.hostname}/ws/chat/${servername}`);
 			window.userpermition_socket = new WebSocket(`wss://${window.location.hostname}/ws/chat/userpermition/${servername}`)
+			window.editchat_socket = new WebSocket(`wss://${window.location.hostname}/ws/chat/edit/${servername}`);
+		}
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_page.css'));
 		let ChatType= ''
@@ -124,6 +128,9 @@ export default class Chat_Page extends HTMLElement {
 			window.chat_socket.close()
 		if (window.userpermition_socket && window.userpermition_socket.readyState !== Window.CLOSED)
 			window.userpermition_socket.close()
+		if (window.editchat_socket && window.editchat_socket.readyState !== Window.CLOSED)
+			window.editchat_socket.close()
+		window.editchat_socket = 0
 		window.userpermition_socket = 0
 		window.chat_socket = 0
 	}

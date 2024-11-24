@@ -130,7 +130,6 @@ export default class UserSideBar extends HTMLElement
                 {"pannel": "pannel_leave" ,"icon": "/assets/images/common/Iconly/Bold/Logout.svg", "text": "Leave Server", "red": true, "onclick": LeavePanel, 'args': _data.server_name}]
             if (_data.staffs.includes(my_id))
             {
-                server_item.push({"pannel": "pannel_delete" ,"icon": "/assets/images/common/Iconly/Bold/Delete.svg", "text": "Delete Server", "red": true, "onclick": DeletePanel, 'args': _data})
                 server_item.unshift({"pannel": "pannel_edit" ,"icon": "/assets/images/common/Iconly/Bold/Edit.svg", "text": "Edit", "red": false, "onclick": EditPanel, 'args': _data})
             }
         }
@@ -239,7 +238,7 @@ function EditPanel(data)
 {
     const server_name = data.server_name
 
-    if (data.staffs.includes(parseInt(localStorage.getItem("id"))))
+    if (data.staffs.includes(parseInt(localStorage.getItem("id"))) && !data.banned.includes(parseInt(localStorage.getItem("id"))) )
         GoTo(`/chat/edit_server/${server_name}`)
     else
         showToast("error", "You are not an administrator")

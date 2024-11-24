@@ -5,9 +5,7 @@ export default class Tournament_Browse extends HTMLElement {
 		head.appendChild(createLink('/styles/tournament_search.css'));
 
 
-
         let user_data = ''
-        console.log("soooo")
         makeRequest(`/api/tournaments/TournamentsData/`, 'GET')
         .then(data =>{
             data.forEach(element =>

@@ -7,9 +7,8 @@ export default class Join_Tournament extends HTMLElement {
 
         let queryparam = new URLSearchParams(location.search)
         const tournament_name = queryparam.get("room_name")
-        this.socket = new WebSocket(`wss://${window.location.hostname}/tournament/${tournament_name}`);
+        this.socket = new WebSocket(`wss://${window.location.hostname}/ws/tournaments/${tournament_name}`);
 
-        console.log(tournament_name)
 
         makeRequest(`/api/tournaments/tournament_rooms/?tournament_name=${tournament_name}`).then(data=> {
             let name_dot = tournament_name
@@ -83,7 +82,7 @@ export default class Join_Tournament extends HTMLElement {
     connectedCallback() {}
 
     disconnectedCallback() {
-        // this.socket.close()
+        this.socket.close()
     }
 
     attributeChangedCallback(name, oldValue, newValue) {}

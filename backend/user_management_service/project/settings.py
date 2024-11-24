@@ -60,9 +60,11 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "user_management",
     "social_django",
+    "django_prometheus",
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -76,6 +78,7 @@ MIDDLEWARE = [
     "project.middlewares.JsonResponseMiddleware",
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'project.middlewares.SocialAuthExceptionMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 

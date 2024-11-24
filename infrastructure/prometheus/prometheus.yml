@@ -1,0 +1,57 @@
+global:
+  scrape_interval: 15s 
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "user_management_service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: 
+        - "user-management-container:8000"
+  
+  - job_name: "chat_service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: 
+        - "chat-container:8001"
+  
+  - job_name: "game_service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: 
+        - "game-container:8002"
+  
+  - job_name: "tournaments_service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: 
+        - "tournaments-container:8003"
+
+  - job_name: "cadvisor"
+    static_configs:
+      - targets:
+        - "cadvisor_container:8080"
+  
+  - job_name: 'redis'
+    static_configs:
+      - targets:
+        - 'redis-exporter:9121'
+
+  - job_name: "postgres"
+    static_configs:
+      - targets:
+        - "postgres-exporter:9187"
+
+
+
+
+
+
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - 'localhost:9093'  # Assuming Alertmanager is running on the same host
+
+# rule_files:
+#   - '/etc/prometheus/rules/alert.rules'

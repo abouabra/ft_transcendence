@@ -14,7 +14,7 @@ const GAME_CONSTANTS = {
 	BASE_SPEED: 10,
 	BALL_SPEED_CAP: 20,
 
-	SCORE_TO_WIN: 5,
+	SCORE_TO_WIN: 11,
 	INC_SPEED: 1,
 
 	TIMOUT_DURATION: 200,
@@ -420,6 +420,8 @@ class PongGame {
 	gameLoop = () => {
 
 		if (this.gameState === "game_over") return;
+
+		console.log("Game Loop");
 
 		this.update();
 		this.draw();

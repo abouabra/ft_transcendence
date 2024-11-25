@@ -41,6 +41,7 @@ def generate_env(type):
         "game_env": ".game_env",
         "tournaments_env": ".tournaments_env",
         "postgres_exporter_env": ".postgres_exporter_env",
+        "grafana_env": ".grafana_env",
     }
 
     if type not in file_names:
@@ -65,8 +66,14 @@ REDIS_PASSWORD={generate_random_password()}
         env_content = f"""# This file contains the environment variables for Postgres Exporter service
 # Postgres exporter
 DATA_SOURCE_NAME=postgresql://{ENV_DATA["user_management"]["POSTGRES_USER"]}:{ENV_DATA["user_management"]["POSTGRES_PASSWORD"]}@user-management-db-container:5432/user_management_database?sslmode=disable,postgresql://{ENV_DATA["chat"]["POSTGRES_USER"]}:{ENV_DATA["chat"]["POSTGRES_PASSWORD"]}@chat-db-container:5432/chat_database?sslmode=disable,postgresql://{ENV_DATA["game"]["POSTGRES_USER"]}:{ENV_DATA["game"]["POSTGRES_PASSWORD"]}@game-db-container:5432/game_database?sslmode=disable,postgresql://{ENV_DATA["tournaments"]["POSTGRES_USER"]}:{ENV_DATA["tournaments"]["POSTGRES_PASSWORD"]}@tournaments-db-container:5432/tournaments_database?sslmode=disable        
-        """
-    
+"""
+    elif type == "grafana_env":
+        env_content = f"""# This file contains the environment variables for Grafana service
+# Postgres exporter
+GF_SECURITY_ADMIN_USER=admin
+GF_SECURITY_ADMIN_PASSWORD=123qwerty
+GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/default-dashboard.json
+"""
     elif type == "user_management_env":
         env_content = f"""# This file contains the environment variables for User Management service
 
@@ -189,6 +196,7 @@ def generate_vault():
     generate_env(type="chat_env")
     generate_env(type="game_env")
     generate_env(type="tournaments_env")
+    generate_env(type="grafana_env")
 
 if __name__ == "__main__":
     generate_vault()

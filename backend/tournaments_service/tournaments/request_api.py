@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+from django.conf import settings
 
 
 def create_qr_code(image="./assets/images/tournament_avatars/default_tournament.jpg", qr_data="empty", name="default.jpg"):
@@ -9,7 +10,7 @@ def create_qr_code(image="./assets/images/tournament_avatars/default_tournament.
     url_qr = "https://api.qrcode-monkey.com/qr/custom"
     image_name = name
     image_extention = name.split('.')[-1]
-    with open(f".{image}", "rb") as img:
+    with open(f"{settings.BASE_DIR}{image}", "rb") as img:
         files = {'file': img}
         response_img = requests.post(image_url, files=files)
     response_string = response_img.content

@@ -588,16 +588,13 @@ export default class Profile_Page extends HTMLElement {
         <div class="all_recent_tournaments">
         ${
           this.data_data.recent_tournaments.map((tournament) => {
-            if (tournament.player1.id != localStorage.getItem("id")){
-              [tournament.player1, tournament.player2, tournament.player_1_score, tournament.player_2_score] = [tournament.player2, tournament.player1, tournament.player_2_score, tournament.player_1_score];
-            }
             return /*html*/ `
               <div class="recent_tournament_1">
-                  <img src="${tournament.player1.avatar}">
-                  <span>${tournament.player1.username}</span>
-                  <span>${tournament.player2.username}</span>
+                  <img src="${tournament.avatar}">
+                  <span>${tournament.name}</span>
+                  <span>${tournament.tournament_position}</span>
                   <div class="win_or_loss">
-                    <img src="/assets/images/profile/loss_vector.png">
+                    <img src="/assets/images/profile/tournament_vector.png">
                   </div>
                 </div>   
              `

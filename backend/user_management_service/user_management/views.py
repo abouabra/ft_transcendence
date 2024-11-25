@@ -568,7 +568,7 @@ def intra_42_callback(request):
         response = requests.post(token_url, data=data)
         token_data = response.json()
         access_token = token_data.get("access_token")
-        logger.error(f"\n\n\nintra_42_callback code: {code}   | access_token: {access_token}\n\n\n")
+        logger.error(f"\n\n\nintra_42_callback code: {code}   | access_token: {access_token} | client_id: {settings.INTRA_UID} | client_secret: {settings.INTRA_SECRET}\n\n\n")
         if access_token:
             user_info_url = "https://api.intra.42.fr/v2/me"
             headers = {

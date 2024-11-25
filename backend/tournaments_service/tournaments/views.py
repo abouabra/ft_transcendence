@@ -205,10 +205,9 @@ class CreateTournamentroom(generics.GenericAPIView):
 
     permission_classes = (permissions.IsAuthenticated,)
     def post(self, request):
-
         tournament_joind = Tournament_History.objects.filter(members__contains=[request.user.id]).exclude(status="Ended")
         if tournament_joind:
-            return Response({"error": "Can't create a tournament if you are participated in one"}, status=401)
+            return Response({"error": "Can't create a tournament if you are participated in one"}, status=status.HTTP_401_UNAUTHORIZED)
 
         if check_reserver_uri(request.data["name"]):
             return Response({"error": "tournament name contains reserved uri character"}, status=status.HTTP_201_CREATED)

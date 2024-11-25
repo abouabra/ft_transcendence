@@ -49,7 +49,7 @@ async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
         return await makeRequest(url, method, data, retryCount - 1);
       } catch (error) {
         let response_data = await response.json();
-        throw new Error(response_data.error);
+        throw new Error(response_data.error || error.message || response_data.detail);
       }
     } else {
       throw new Error("Failed to refresh token after retrying.");
@@ -69,24 +69,6 @@ async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
   return jsonResponse;
 }
 
-// Function to handle toast notifications based on response
-function handleToastNotifications(response) {
-  const toastType = "error";
-  const toastData = JSON_TO_DATA(response);
-
-  toastData.forEach((data) => showToast(toastType, data));
-}
-
-// Function to convert JSON to data for toast notifications
-function JSON_TO_DATA(json) {
-  if (typeof json !== "object" || json === null) {
-    return [json];
-  }
-
-  return Object.keys(json)
-    .filter((key) => key !== "response_code")
-    .map((key) => json[key]);
-}
 
 function GoTo(url) {
   const current_url = window.location.pathname;

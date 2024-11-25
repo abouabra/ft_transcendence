@@ -4,12 +4,12 @@ groups:
       # Instance Down Alert
       - alert: InstanceDown
         expr: up == 0
-        for: 1m
+        for: 10s
         labels:
           severity: critical
         annotations:
           summary: "Instance {{ $labels.instance }} is down"
-          description: "The instance {{ $labels.instance }} has been unreachable for more than 1 minute."
+          description: "The instance {{ $labels.instance }} has been unreachable for more than 10 seconds."
 
   - name: application_alerts
     rules:
@@ -51,12 +51,12 @@ groups:
           description: The application is handling more than 100 requests per second over the last 5 minutes.
 
      
-      # No Requests Alert
-      - alert: NoRequests
-        expr: rate(django_http_requests_total_by_method_total[5m]) == 0
-        for: 5m
-        labels:
-          severity: critical
-        annotations:
-          summary: "No HTTP requests processed"
-          description: "The application is not processing any HTTP requests for more than 5 minutes."
+      # # No Requests Alert
+      # - alert: NoRequests
+      #   expr: rate(django_http_requests_total_by_method_total[5m]) == 0
+      #   for: 5m
+      #   labels:
+      #     severity: critical
+      #   annotations:
+      #     summary: "No HTTP requests processed"
+      #     description: "The application is not processing any HTTP requests for more than 5 minutes."

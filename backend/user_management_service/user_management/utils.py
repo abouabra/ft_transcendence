@@ -48,7 +48,7 @@ def delete_user_stats(request, userID):
         raise Exception("Error encountered while deleting tournament stats")
 
 
-def set_refresh_and_access_token(response, tokens = None):
+def set_refresh_and_access_token(response, tokens = None, samesite_value = "Strict"):
     access_token_lifetime = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
     refresh_token_lifetime = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
     
@@ -62,14 +62,14 @@ def set_refresh_and_access_token(response, tokens = None):
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        samesite="Strict",
+        samesite=samesite_value,
         max_age=int(refresh_token_lifetime.total_seconds())
     )
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        samesite="Strict",
+        samesite=samesite_value,
         max_age=int(access_token_lifetime.total_seconds())
     )
 

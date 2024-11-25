@@ -607,10 +607,12 @@ def intra_42_callback(request):
 
             redirect_url = 'https://127.0.0.1/home/'
             response = HttpResponseRedirect(redirect_url)
-            response.set_cookie("access_token", jwt_access_token, samesite="Lax", secure=True)
-            response.set_cookie("refresh_token", jwt_refresh_token, samesite="Lax", secure=True)
+            # response.set_cookie("access_token", jwt_access_token, samesite="Lax", secure=True)
+            # response.set_cookie("refresh_token", jwt_refresh_token, samesite="Lax", secure=True)
+            
             response.delete_cookie('csrftoken')
             response.delete_cookie('sessionid')
+            set_refresh_and_access_token(response, (jwt_access_token, jwt_refresh_token))
             return response
         
     redirect_url = 'https://127.0.0.1/login/'

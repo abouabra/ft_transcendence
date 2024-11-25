@@ -193,12 +193,13 @@ services:
       - alertmanager_data:/alertmanager
     env_file:
       - vault/.user_management_env
-    ports:
-      - "9099:9093"
     networks:
       - transcendence_net
     restart: always
     entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    command: 
+      - '--web.external-url=http://127.0.0.1/admin/alertmanager'
+      - '--web.route-prefix=/admin/alertmanager'
 
   cadvisor:
       image: gcr.io/cadvisor/cadvisor:v0.49.1

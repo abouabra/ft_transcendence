@@ -66,11 +66,6 @@ class ChatConsumerUserPermition(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}_permition"
-        jsondata = str(self.scope["cookies"]["access_token"].split('.')[1])
-        jsondata += '='
-        jsondata = b64decode(jsondata)
-        jsondata = json.loads(jsondata.decode('utf-8'))
-        self.user_id = jsondata["user_id"]
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
@@ -84,8 +79,10 @@ class ChatConsumerUserPermition(AsyncWebsocketConsumer):
         event = {
             "type" : "permition_message",
             "message": f"{changed}",
-            "user_id":self.user_id,
-            "action":text_data_json["action"]
+            "user_id": text_data_json["user_id"],
+            "action":text_data_json["action"],
+            "sender_channel_name":self.channel_name
+
         }
         await self.channel_layer.group_send(self.room_group_name, event)
 
@@ -97,8 +94,9 @@ class ChatConsumerUserPermition(AsyncWebsocketConsumer):
             return None
 
     async def permition_message(self, event):
-        text_data_json = {"message":event["message"], "user_id":event["user_id"], "action":event["action"]}
-        await self.send(text_data=json.dumps(text_data_json))
+        if (event["sender_channel_name"] != self.channel_name):
+            text_data_json = {"message":event["message"], "user_id":event["user_id"], "action":event["action"]}
+            await self.send(text_data=json.dumps(text_data_json))
 
 class ChateditConsumer(AsyncWebsocketConsumer):
 

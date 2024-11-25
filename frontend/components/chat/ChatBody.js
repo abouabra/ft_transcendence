@@ -14,13 +14,10 @@ export default class ChatBody extends HTMLElement {
 
 		if (window.editchat_socket)
 		{
-			console.log(window.editchat_socket)
 			if (!window.editchat_socket.onmessage)
 			{
 				window.editchat_socket.onmessage = (event)=>{
-				console.log("tara jaaaaaaaaa")
-
-				event = JSON.parse(event.data)
+					event = JSON.parse(event.data)
 					if (this.server_name === event.current)
 						GoTo(`/chat/${event.new_server_name}`)
 				}

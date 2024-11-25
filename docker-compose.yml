@@ -242,6 +242,8 @@ services:
       - vault/.postgres_exporter_env
     networks:
       - transcendence_net
+    expose:
+      - 9187
     depends_on:
       - user_management_db
       - chat_db

@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+from django.conf import settings
 
 
 def create_qr_code(image="./assets/images/server_avatars/default.jpg", qr_data="empty", name="default.jpg"):
@@ -51,7 +52,7 @@ def create_qr_code(image="./assets/images/server_avatars/default.jpg", qr_data="
     json_string = json.dumps(data)
     response_qr = requests.post(url_qr, data=json_string)
     if response_qr.status_code == 200:
-        with open(f"./assets/images/servers_qr_codes/{image_name}", "wb") as file:
+        with open(f"{settings.BASE_DIR}/assets/images/servers_qr_codes/{image_name}", "wb") as file:
             file.write(response_qr.content)
 
 

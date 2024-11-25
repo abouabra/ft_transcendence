@@ -255,7 +255,6 @@ services:
     env_file:
       - vault/.grafana_env
     volumes:
-      - grafana_data:/var/lib/grafana
       - ${COMPOSE_PROJECT_PATH}/infrastructure/grafana/provisioning:/etc/grafana/provisioning
     restart: always
 
@@ -370,13 +369,6 @@ volumes:
     driver_opts:
       type: none
       device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/alertmanager_data
-      o: bind
-
-  grafana_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${COMPOSE_PROJECT_PATH}/volumes/db_data/grafana_data
       o: bind
 
 

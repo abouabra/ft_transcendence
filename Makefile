@@ -12,12 +12,12 @@ all: make_vault
 
 make_vault: ascci
 	@rm -rf $(CURDIR)/vault/
-	@mkdir -p $(CURDIR)/vault/ $(CURDIR)/volumes/db_data/redis_data/ $(CURDIR)/volumes/db_data/user_management_db_data/ $(CURDIR)/volumes/db_data/chat_db_data/ $(CURDIR)/volumes/db_data/game_db_data/ $(CURDIR)/volumes/db_data/tournaments_db_data/ $(CURDIR)/volumes/db_data/prometheus_data/ $(CURDIR)/volumes/db_data/alertmanager_data/ $(CURDIR)/volumes/db_data/grafana_data/
+	@mkdir -p $(CURDIR)/vault/ $(CURDIR)/volumes/db_data/redis_data/ $(CURDIR)/volumes/db_data/user_management_db_data/ $(CURDIR)/volumes/db_data/chat_db_data/ $(CURDIR)/volumes/db_data/game_db_data/ $(CURDIR)/volumes/db_data/tournaments_db_data/ $(CURDIR)/volumes/db_data/prometheus_data/ $(CURDIR)/volumes/db_data/alertmanager_data/
 	@python3 generate_vault.py
 	@printf "${GREEN}Vault generated please change the pre-filled values in the vault file then run '${RED}make build${GREEN}'${RESET}\n"
 
 build: ascci
-	@mkdir -p $(CURDIR)/vault/ $(CURDIR)/volumes/db_data/redis_data/ $(CURDIR)/volumes/db_data/user_management_db_data/ $(CURDIR)/volumes/db_data/chat_db_data/ $(CURDIR)/volumes/db_data/game_db_data/ $(CURDIR)/volumes/db_data/tournaments_db_data/ $(CURDIR)/volumes/db_data/prometheus_data/ $(CURDIR)/volumes/db_data/alertmanager_data/ $(CURDIR)/volumes/db_data/grafana_data/
+	@mkdir -p $(CURDIR)/vault/ $(CURDIR)/volumes/db_data/redis_data/ $(CURDIR)/volumes/db_data/user_management_db_data/ $(CURDIR)/volumes/db_data/chat_db_data/ $(CURDIR)/volumes/db_data/game_db_data/ $(CURDIR)/volumes/db_data/tournaments_db_data/ $(CURDIR)/volumes/db_data/prometheus_data/ $(CURDIR)/volumes/db_data/alertmanager_data/
 	@docker compose -f docker-compose.yml up -d --build
 
 start: ascci
@@ -38,7 +38,6 @@ fclean: ascci
 
 
 re: clean build
-rebuild: fclean build
 restart: stop start
 
 

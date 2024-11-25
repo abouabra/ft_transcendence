@@ -119,7 +119,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             response.data["user_is_auth"] = user.two_factor_auth
             return response
         except Exception as e:
-            print(f"Error occurred: {e}")
+            logger.error(f"Error occurred: {e}")
             return Response({"error": str(e)},status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -179,11 +179,11 @@ class MeView(generics.GenericAPIView):
             delete_user_stats(request, user.id)
             avatar_disk_path = str(settings.BASE_DIR) + user.avatar
             if os.path.exists(avatar_disk_path) and user.avatar.startswith("/assets/images/avatars/") and user.avatar != "/assets/images/avatars/default.jpg":
-                print(f"Deleting {user.id} avatar: {avatar_disk_path}")
+                logger.error(f"Deleting {user.id} avatar: {avatar_disk_path}")
                 os.remove(avatar_disk_path)
             profile_banner_disk_path = str(settings.BASE_DIR) + user.profile_banner
             if os.path.exists(profile_banner_disk_path) and user.profile_banner.startswith("/assets/images/banners/") and user.profile_banner != "/assets/images/banners/default_banner.png":
-                print(f"Deleting {user.id} profile banner: {profile_banner_disk_path}")
+                logger.error(f"Deleting {user.id} profile banner: {profile_banner_disk_path}")
                 os.remove(profile_banner_disk_path)
 
             user.friends.clear()
@@ -697,7 +697,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             response.data["user_is_auth"] = user.two_factor_auth
             return response
         except Exception as e:
-            print(f"Error occurred: {e}")
+            logger.error(f"Error occurred: {e}")
             return Response({"error": str(e)},status=status.HTTP_401_UNAUTHORIZED)
 
 class SendEmailView(APIView):
@@ -945,20 +945,20 @@ class VerifyTwoFactorAuthView(TokenObtainPairView):
 
 
 #     def post(self, request, *args, **kwargs):
-#         print(request.data)
+#         logger.error(request.data)
 #         username=request.data.get('username')
 #         user = User.objects.get(username = username)
 #         otp = request.data.get('otp')
-#         print(otp)
+#         logger.error(otp)
 #         totp = pyotp.TOTP(user.otp_secret)
 #         if totp.verify(otp):
 #             user.two_factor_auth = True
-#             print("success")  
+#             logger.error("success")  
 #             response = super().post(request, *args, **kwargs)
 #             utils.set_refresh_and_access_token(response)
 #             return response
 #         else:
-#             print("faild")
+#             logger.error("faild")
 #             return Response({"error": "code incorrect."}, status=400)
         
 from datetime import datetime
@@ -998,7 +998,7 @@ class user_info(APIView):
                 change = True
                 user.set_password(password)
         if username and user.username != username :
-            print(username, user.username)
+            logger.error(username, user.username)
             if User.objects.filter(username = username).exists():
                 return Response({"error":"Username already existe"}, status = 400)
             else:
@@ -1031,8 +1031,8 @@ class user_info(APIView):
                     os.remove(f".{user.avatar}")    
                 with open (file_path, "wb") as f:
                     f.write(image_data)
-                print(file_path)
-                print(file_path[1:])
+                logger.error(file_path)
+                logger.error(file_path[1:])
                 user.avatar = file_path[1:]
                 change = True
             except(IndexError, base64.binascii.Error) as e:
@@ -1107,7 +1107,7 @@ class SetUserPlayingGameView(APIView):
             )
 
         try:
-            print(f"\n\n\n\nuser_id: {user_id} game_name: {game_name}\n\n\n\n")
+            logger.error(f"\n\n\n\nuser_id: {user_id} game_name: {game_name}\n\n\n\n")
             user = User.objects.get(id=user_id)
             user.is_playing = game_name
             user.save()
@@ -1129,11 +1129,11 @@ class UnblockAndBlock(APIView):
     
     def post(self, request):
         is_blocked = request.data.get("isBlocked")
-        print("\n\n",is_blocked, "\n\n")
+        logger.error("\n\n",is_blocked, "\n\n")
         friend_id = request.data.get("id")
         friend = User.objects.get(id=friend_id)
         if(is_blocked):
-            print(request.user.blocked.all())
+            logger.error(request.user.blocked.all())
             if friend not in request.user.blocked.all():
                 return Response(
                     {"error": "User is not blocked"}, status=status.HTTP_400_BAD_REQUEST
@@ -1147,7 +1147,7 @@ class UnblockAndBlock(APIView):
                 )
             request.user.blocked.add(friend)
             friend.blocked.add(request.user)
-            print(request.user.blocked.all())
+            logger.error(request.user.blocked.all())
         return Response({"detail": "change"}, status=status.HTTP_200_OK)
         
 

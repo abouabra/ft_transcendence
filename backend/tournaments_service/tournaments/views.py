@@ -15,6 +15,9 @@ from .utils import find_emty_room, getUserData, Start_Playing, getmatchdata
 import json
 from math import floor
 from asgiref.sync import async_to_sync
+import logging
+
+logger = logging.getLogger(__name__)
 
 class CreateTournamentStatsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -198,7 +201,7 @@ def create_bracket(room_size):
         for _ in range(room_size):
             bracket.append([0,0,0,0])
         brackets[round[str(room_size*2)]] = bracket
-    print(brackets)
+    logger.error(brackets)
     return brackets
         
 class CreateTournamentroom(generics.GenericAPIView):
@@ -251,7 +254,7 @@ class TournamentjoinedUsers(generics.GenericAPIView):
             winner = 0
             if (tournament.status == "Ended"):
                 winner = tournament.tournament_winner
-            print(tournament.bracket_data)
+            logger.error(tournament.bracket_data)
             users = {}
             for user_id in tournament.members:
                 data = getUserData(request, user_id)
@@ -314,7 +317,7 @@ class advanceTournamentmatch(generics.GenericAPIView):
             data = getmatchdata(request, request.data["game_id"])
             channel_layer = get_channel_layer()
 
-            print(f"\n\n\n+++++advanceTournamentmatch {data}+++++\n\n\n")
+            logger.error(f"\n\n\n+++++advanceTournamentmatch {data}+++++\n\n\n")
 
             tournament = Tournament_History.objects.get(id=data["tournament_id"])
 
@@ -329,7 +332,7 @@ class advanceTournamentmatch(generics.GenericAPIView):
             else:
                 next_round = "finals"
             if (next_round == current_round):
-                print(f"inside next_round == current_round {next_round} {current_round}")
+                logger.error(f"inside next_round == current_round {next_round} {current_round}")
                 tournament.status = "Ended"
                 tournament.tournament_winner = data["winner"]
                 tournament.bracket_data[current_round][0][2] = data["player_1_score"]
@@ -347,19 +350,19 @@ class advanceTournamentmatch(generics.GenericAPIView):
             datalist = tournament.bracket_data[current_round]
             bracket_tofill = 0
             place = 0
-            print(f"current = {current_round} next = {next_round}")
+            logger.error(f"current = {current_round} next = {next_round}")
             for index, element in enumerate(datalist,start=0):
                 if  place == 2:
                     bracket_tofill += 1
                     place = 0
                 if (data["player1"]["id"] in element and data["player2"]["id"] in element):
-                    print(tournament.bracket_data[current_round][bracket_tofill])
+                    logger.error(tournament.bracket_data[current_round][bracket_tofill])
                     tournament.bracket_data[current_round][index][2] = data["player_1_score"]
                     tournament.bracket_data[current_round][index][3] = data["player_2_score"]
                     tournament.bracket_data[next_round][bracket_tofill][place] = data["winner"]
                     tournament.save()
                 place += 1
-            print(f"current = {current_round} next = {next_round}")
+            logger.error(f"current = {current_round} next = {next_round}")
             matchlen = 0
             for element in tournament.bracket_data[next_round]:
                 if (element[0] ==0 or element[1] == 0):

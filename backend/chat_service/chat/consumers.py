@@ -5,6 +5,10 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 import datetime
 from  base64 import b64decode
+import logging
+
+logger = logging.getLogger(__name__)
+
 class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
@@ -57,7 +61,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from room group
     async def chat_message(self, event):
         text_data_json = event["message"]
-        print(f"Message received by {self.room_name} channel: {text_data_json}")
+        logger.error(f"Message received by {self.room_name} channel: {text_data_json}")
         # Send message to WebSocket
         await self.send(text_data=json.dumps(text_data_json))
 

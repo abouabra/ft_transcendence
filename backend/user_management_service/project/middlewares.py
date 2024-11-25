@@ -73,6 +73,9 @@ class JWTFromCookieMiddleware:
 # middleware.py
 from social_core.exceptions import AuthCanceled
 from django.http import  HttpResponseRedirect
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SocialAuthExceptionMiddleware:
     def __init__(self, get_response):
@@ -83,7 +86,7 @@ class SocialAuthExceptionMiddleware:
 
     def process_exception(self, request, exception):
         if isinstance(exception, AuthCanceled):
-            print("Authorization was canceled from middleware")
+            logger.error("Authorization was canceled from middleware")
             redirect_url = 'https://127.0.0.1/login/'
             response = HttpResponseRedirect(redirect_url)
             return response

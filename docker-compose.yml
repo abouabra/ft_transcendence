@@ -7,6 +7,7 @@ services:
     build: ./infrastructure/nginx/
     ports:
       - 443:443
+      - 80:80
     volumes:
       - vault_data:/vault
     networks:

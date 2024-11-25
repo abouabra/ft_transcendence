@@ -130,7 +130,7 @@ def sendHTTPNotification(request, jsonData):
 
 
     response = requests.post(url, headers=request_headers, cookies={"access_token": access_token}, json=jsonData, verify=False)
-    print(f"\n\nsendHTTPNotification \n\njsonData: {jsonData} \n\n {response.json()}\n\n")
+    logger.error(f"\n\nsendHTTPNotification \n\njsonData: {jsonData} \n\n {response.json()}\n\n")
 
     if(response.status_code != 200):
         raise ValueError("Failed to send HTTP Notification")
@@ -142,7 +142,7 @@ def sendHTTPNotification(request, jsonData):
 
 def sendAdvanceMatchRequest(access_token, game_id):    
 
-    print(f"sendAdvanceMatchRequest: game_id = {game_id}")
+    logger.error(f"sendAdvanceMatchRequest: game_id = {game_id}")
     request_headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",

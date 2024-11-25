@@ -493,8 +493,8 @@ export default class Profile_Page extends HTMLElement {
     const dataset = Chart.data.datasets[0]; // Access the first dataset
     legendContainer.innerHTML = /*html*/ `
 		<div style="display: flex; align-items: center; margin-left: 20px; gap: 20px;">
-			<div style="width: 0.7vw; height: 0.7vw; background-color: ${dataset.borderColor};"></div>
-			<span style="font-size: 0.7vw;">${dataset.label}</span>
+			<div style="width: 0.6vw; height: 0.6vw; background-color: ${dataset.borderColor};"></div>
+			<span style="font-size: 0.6vw;">${dataset.label}</span>
 		</div>`;
   }
 
@@ -580,15 +580,29 @@ export default class Profile_Page extends HTMLElement {
                 </div>   
              `
           }).join('')
-        }
-
-          
+        }          
         </div>
       </div>
       <div class="recent_tournaments">
         <span class="header_h4">Recent Tournaments</span>
         <div class="all_recent_tournaments">
-          <div class="recent_tournament_1">
+        ${
+          this.data_data.recent_tournaments.map((tournament) => {
+            if (tournament.player1.id != localStorage.getItem("id")){
+              [tournament.player1, tournament.player2, tournament.player_1_score, tournament.player_2_score] = [tournament.player2, tournament.player1, tournament.player_2_score, tournament.player_1_score];
+            }
+            return /*html*/ `
+              <div class="recent_tournament_1">
+                  <img src="${tournament.player1.avatar}">
+                  <span>${tournament.player1.username}</span>
+                  <span>${tournament.player2.username}</span>
+                  <div class="win_or_loss">
+                    <img src="/assets/images/profile/loss_vector.png">
+                  </div>
+                </div>   
+             `
+          }).join('')
+        }
           
           </div>
         </div>

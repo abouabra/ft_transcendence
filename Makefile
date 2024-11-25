@@ -18,7 +18,7 @@ make_vault: ascci
 
 build: ascci
 	@mkdir -p $(CURDIR)/vault/ $(CURDIR)/volumes/db_data/redis_data/ $(CURDIR)/volumes/db_data/user_management_db_data/ $(CURDIR)/volumes/db_data/chat_db_data/ $(CURDIR)/volumes/db_data/game_db_data/ $(CURDIR)/volumes/db_data/tournaments_db_data/ $(CURDIR)/volumes/db_data/prometheus_data/
-#	@docker compose -f docker-compose.yml up -d --build
+	@docker compose -f docker-compose.yml up -d --build
 
 start: ascci
 	@docker compose -f docker-compose.yml up -d

@@ -421,7 +421,6 @@ class PongGame {
 
 		if (this.gameState === "game_over") return;
 
-		console.log("Game Loop");
 
 		this.update();
 		this.draw();

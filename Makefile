@@ -28,7 +28,7 @@ stop: ascci
 
 clean: ascci
 	@docker compose -f docker-compose.yml down -v
-	@rm -rf $(CURDIR)/volumes/db_data/
+#	@rm -rf $(CURDIR)/volumes/db_data/
 
 fclean: ascci
 	@docker compose -f docker-compose.yml down -v

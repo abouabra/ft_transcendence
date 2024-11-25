@@ -253,8 +253,6 @@ services:
     container_name: grafana_container
     networks:
       - transcendence_net
-    ports:
-      - "5000:3000"
     depends_on:
       - prometheus
     env_file:

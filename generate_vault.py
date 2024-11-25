@@ -73,6 +73,8 @@ DATA_SOURCE_NAME=postgresql://{ENV_DATA["user_management"]["POSTGRES_USER"]}:{EN
 GF_SECURITY_ADMIN_USER=admin
 GF_SECURITY_ADMIN_PASSWORD=123qwerty
 GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/default-dashboard.json
+GF_SERVER_ROOT_URL=/admin/grafana/
+GF_SERVER_SERVE_FROM_SUB_PATH=true
 """
     elif type == "user_management_env":
         env_content = f"""# This file contains the environment variables for User Management service

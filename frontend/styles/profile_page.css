@@ -413,7 +413,7 @@ form textarea:focus-visible
 }
 
 .all_recent_games .recent_game_1,
-.all_recent_tournaments .recent_tournaments
+.all_recent_tournaments .recent_tournament_1
 {
     overflow: hidden;
     width: 100%;
@@ -430,13 +430,23 @@ form textarea:focus-visible
 }
 
 .all_recent_games .recent_game_1 span,
+.all_recent_tournaments .recent_tournament_1 span,
 .scores
 {
     align-content: center;
 }
 
-.all_recent_games img:not(.win_or_loss img){
+.all_recent_games img:not(.win_or_loss img),
+.all_recent_tournaments img:not(.win_or_loss img)
+{
     border-radius: 50%;
+}
+
+.ranking{
+    position: absolute;
+    top: 28px;
+    right: 20px;
+    z-index: 2;
 }
 
 .win_or_loss 

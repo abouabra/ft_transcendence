@@ -240,32 +240,27 @@ class PongEndGame(generics.GenericAPIView):
             score2 = request.data["score2"]
             time = request.data["time"]
 
-            game = Game_History.objects.get(id=game_id)
-            
+            game_obj = Game_History.objects.get(id=game_id)
+            logger.error(f"==============\n\n {game_obj} \n\n==============")
             if score1 > score2:
-                winner = game.player1
+                winner_id = game_obj.player1
+                loser_id = game_obj.player2
             else:
-                winner = game.player2
+                winner_id = game_obj.player2
+                loser_id = game_obj.player1
 
-            game.winner = winner
-            game.player_1_score = score1
-            game.player_2_score = score2
-            game.game_duration = time
-            game.has_ended = True
-            game.save()
+            game_obj.winner = winner_id
+            game_obj.player_1_score = score1
+            game_obj.player_2_score = score2
+            game_obj.game_duration = time
+            game_obj.has_ended = True
+            game_obj.save()
 
-            update_stats_after_game(game.player1, game.player2, game.game_name, game_id)
-            loser = game.player1 if winner == game.player2 else game.player2
-            if winner == 0:
-                return Response({
-                    "draw": True,
-                    "player1": getUserData(request, game.player1),
-                    "player2": getUserData(request, game.player2),
-                }, status=status.HTTP_200_OK)
-
+            update_stats_after_game(game_obj.player1, game_obj.player2, game_obj.game_name, game_obj)
+            
             return Response({
-                "winner": getUserData(request, winner),
-                "loser": getUserData(request, loser),
+                "winner": getUserData(request, winner_id),
+                "loser": getUserData(request, loser_id),
             }, status=status.HTTP_200_OK)
 
         except Game_History.DoesNotExist:

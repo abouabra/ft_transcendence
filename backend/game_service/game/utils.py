@@ -3,6 +3,8 @@ import requests
 from .models import GameStats, Game_History
 
 
+logger = logging.getLogger(__name__)
+
 def getUserData(request, userID=None, username=None, noAccessToken=False):
     
     if not noAccessToken:
@@ -72,7 +74,7 @@ def ELO_System(RatingA, RatingB, ResultA, ResultB, K):
 
 
 def update_stats_after_game(player_1_id, player_2_id, game_name, match_obj):
-    print(f"update_stats_after_game: {player_1_id} vs {player_2_id} in {game_name}")
+    logger.error(f"update_stats_after_game: {player_1_id} vs {player_2_id} in {game_name}")
     player_1_stats = GameStats.objects.get(user_id=player_1_id, game_name=game_name)
     player_2_stats = GameStats.objects.get(user_id=player_2_id, game_name=game_name)
     
@@ -91,13 +93,13 @@ def update_stats_after_game(player_1_id, player_2_id, game_name, match_obj):
     player_1_stats.total_games_played += 1
     player_2_stats.total_games_played += 1
     
-    print("\n\n\n")
-    print(f"update_stats_after_game: {player_1_id} vs {player_2_id} on {game_name} result {match_obj.player_1_score} : {match_obj.player_2_score}")
+    logger.error("\n\n\n")
+    logger.error(f"update_stats_after_game: {player_1_id} vs {player_2_id} on {game_name} result {match_obj.player_1_score} : {match_obj.player_2_score}")
     player_1_new_elo, player_2_new_elo = ELO_System(player_1_stats.current_elo, player_2_stats.current_elo, match_obj.player_1_score, match_obj.player_2_score, 32)
-    print("\n\n\n")
-    print(f"update_stats_after_game: {player_1_id} current_elo: {player_1_stats.current_elo} new ELO: {player_1_new_elo}")
-    print(f"update_stats_after_game: {player_2_id} current_elo: {player_2_stats.current_elo} new ELO: {player_2_new_elo}")
-    print("\n\n\n")
+    logger.error("\n\n\n")
+    logger.error(f"update_stats_after_game: {player_1_id} current_elo: {player_1_stats.current_elo} new ELO: {player_1_new_elo}")
+    logger.error(f"update_stats_after_game: {player_2_id} current_elo: {player_2_stats.current_elo} new ELO: {player_2_new_elo}")
+    logger.error("\n\n\n")
 
     match_obj.player1_elo_change = player_1_new_elo - player_1_stats.current_elo
     match_obj.player2_elo_change = player_2_new_elo - player_2_stats.current_elo

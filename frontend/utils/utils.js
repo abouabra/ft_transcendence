@@ -312,14 +312,14 @@ const handle_first_one = (type, element) => async (event) => {
 
 const handleLoginGoogle = async (event) => {
   event.preventDefault();
-  window.location.href = "http://127.0.0.1:8000/oauth/login/google-oauth2/";
+  window.location.href = "https://127.0.0.1/oauth/login/google-oauth2/";
 };
 
 const handleLoginIntra = async (event) => {
   event.preventDefault();
 
   const clientId = "u-s4t2ud-b586afbf5e752427a0054088bc2d5356073ce239c3856370e319da8620f43d68";
-  const redirectUri = "http://127.0.0.1:8000/api/auth/callback/";
+  const redirectUri = "https://127.0.0.1/api/auth/callback/";
   const authorizationUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
     redirectUri
   )}&response_type=code`;

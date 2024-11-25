@@ -561,7 +561,7 @@ def intra_42_callback(request):
             "client_id": settings.INTRA_UID,
             "client_secret": settings.INTRA_SECRET,
             "code": code,
-            "redirect_uri": "http://127.0.0.1:8000/api/auth/callback/"
+            "redirect_uri": "https://127.0.0.1/api/auth/callback/"
         }
         
         
@@ -607,8 +607,8 @@ def intra_42_callback(request):
 
             redirect_url = 'https://127.0.0.1/home/'
             response = HttpResponseRedirect(redirect_url)
-            response.set_cookie("access_token", jwt_access_token, samesite="Lax", secure=True)
-            response.set_cookie("refresh_token", jwt_refresh_token, samesite="Lax", secure=True)
+            response.set_cookie("access_token", jwt_access_token, samesite="Lax")
+            response.set_cookie("refresh_token", jwt_refresh_token, samesite="Lax")
             response.delete_cookie('csrftoken')
             response.delete_cookie('sessionid')
             return response

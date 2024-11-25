@@ -173,7 +173,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v3.0.0
-    container_name: prometheus_container
+    container_name: prometheus-container
     volumes:
       - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/rules.yml:/etc/prometheus/rules.yml
@@ -181,14 +181,11 @@ services:
     networks:
       - transcendence_net
     restart: always
-    command: 
-      - '--web.external-url=http://127.0.0.1/admin/prometheus'
-      - '--web.route-prefix=/admin/prometheus'
-      - '--config.file=/etc/prometheus/prometheus.yml'
+
 
   alertmanager:
     image: prom/alertmanager:v0.27.0
-    container_name: alertmanager_container
+    container_name: alertmanager-container
     volumes:
       - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
       - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/entrypoint.sh:/entrypoint.sh
@@ -199,33 +196,30 @@ services:
       - transcendence_net
     restart: always
     entrypoint: ["/bin/sh", "/entrypoint.sh"]
-    command: 
-      - '--web.external-url=http://127.0.0.1/admin/alertmanager'
-      - '--web.route-prefix=/admin/alertmanager'
 
   cadvisor:
-      image: gcr.io/cadvisor/cadvisor:v0.49.1
-      container_name: cadvisor_container
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock:ro
-        - /:/rootfs:ro
-        - /var/run:/var/run:ro
-        - /sys:/sys:ro
-        - /tmp/:/tmp/:ro
-      privileged: true
-      devices:
-        - /dev/kmsg:/dev/kmsg
-      depends_on:
-        - prometheus
-        - nginx
-        - frontend
-      networks:
-        - transcendence_net
-      restart: always
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor-container
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /tmp/:/tmp/:ro
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    depends_on:
+      - prometheus
+      - nginx
+      - frontend
+    networks:
+      - transcendence_net
+    restart: always
 
   redis-exporter:
     image: oliver006/redis_exporter:v1.66.0-alpine
-    container_name: redis-exporter
+    container_name: redis-exporter-container
     environment:
       - REDIS_ADDR=redis_container:6379
     networks:
@@ -253,7 +247,7 @@ services:
 
   grafana:
     image: grafana/grafana:11.3.1
-    container_name: grafana_container
+    container_name: grafana-container
     networks:
       - transcendence_net
     depends_on:

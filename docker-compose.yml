@@ -178,11 +178,13 @@ services:
       - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ${COMPOSE_PROJECT_PATH}/infrastructure/prometheus/rules.yml:/etc/prometheus/rules.yml
       - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
     networks:
       - transcendence_net
     restart: always
+    command: 
+      - '--web.external-url=http://127.0.0.1/admin/prometheus'
+      - '--web.route-prefix=/admin/prometheus'
+      - '--config.file=/etc/prometheus/prometheus.yml'
 
   alertmanager:
     image: prom/alertmanager:v0.27.0

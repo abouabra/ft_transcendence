@@ -24,8 +24,6 @@ services:
     image: transcendence:frontend_image
     container_name: frontend-container
     build: ./infrastructure/frontend/
-    ports:
-      - 3000:3000
     volumes:
       - frontend:/app
       - vault_data:/vault
@@ -59,8 +57,6 @@ services:
     image: transcendence:user_management_db_image
     container_name: user-management-db-container
     build: ./infrastructure/user_management_db/
-    ports:
-      - 5432:5432
     volumes:
       - user_management_db_data:/var/lib/postgresql/data
     networks:
@@ -75,8 +71,6 @@ services:
     image: transcendence:chat_image
     container_name: chat-container
     build: ./infrastructure/chat/
-    ports:
-      - 8001:8001
     volumes:
       - chat_data:/app
       - assets:/app/assets
@@ -94,8 +88,6 @@ services:
     image: transcendence:chat_db_image
     container_name: chat-db-container
     build: ./infrastructure/chat_db/
-    ports:
-      - 5434:5434
     volumes:
       - chat_db_data:/var/lib/postgresql/data
     networks:
@@ -110,8 +102,6 @@ services:
     image: transcendence:game_image
     container_name: game-container
     build: ./infrastructure/game/
-    ports:
-      - 8002:8002
     volumes:
       - game_data:/app
       - assets:/app/assets
@@ -129,8 +119,6 @@ services:
     image: transcendence:game_db_image
     container_name: game-db-container
     build: ./infrastructure/game_db/
-    ports:
-      - 5435:5435
     volumes:
       - game_db_data:/var/lib/postgresql/data
     networks:
@@ -145,8 +133,6 @@ services:
     image: transcendence:tournaments_image
     container_name: tournaments-container
     build: ./infrastructure/tournaments/
-    ports:
-      - 8003:8003
     volumes:
       - tournaments_data:/app
       - assets:/app/assets
@@ -164,8 +150,6 @@ services:
     image: transcendence:tournaments_db_image
     container_name: tournaments-db-container
     build: ./infrastructure/tournaments_db/
-    ports:
-      - 5436:5436
     volumes:
       - tournaments_db_data:/var/lib/postgresql/data
     networks:
@@ -181,8 +165,6 @@ services:
     image: transcendence:redis_image
     container_name: redis-container
     build: ./infrastructure/redis/
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -245,8 +227,6 @@ services:
   redis-exporter:
     image: oliver006/redis_exporter:v1.66.0-alpine
     container_name: redis-exporter
-    ports:
-      - "9121:9121"
     environment:
       - REDIS_ADDR=redis_container:6379
     networks:
@@ -260,8 +240,6 @@ services:
     container_name: postgres-exporter
     env_file:
       - vault/.postgres_exporter_env
-    ports:
-      - "9187:9187"
     networks:
       - transcendence_net
     depends_on:

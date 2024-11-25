@@ -64,7 +64,7 @@ REDIS_PASSWORD={generate_random_password()}
     elif type == "postgres_exporter_env":
         env_content = f"""# This file contains the environment variables for Postgres Exporter service
 # Postgres exporter
-DATA_SOURCE_NAME=postgresql://{ENV_DATA["user_management"]["POSTGRES_USER"]}:{ENV_DATA["user_management"]["POSTGRES_PASSWORD"]}@user-management-db-container:5432/user_management_database?sslmode=disable,postgresql://{ENV_DATA["chat"]["POSTGRES_USER"]}:{ENV_DATA["chat"]["POSTGRES_PASSWORD"]}@chat-db-container:5434/chat_database?sslmode=disable,postgresql://{ENV_DATA["game"]["POSTGRES_USER"]}:{ENV_DATA["game"]["POSTGRES_PASSWORD"]}@game-db-container:5435/game_database?sslmode=disable,postgresql://{ENV_DATA["tournaments"]["POSTGRES_USER"]}:{ENV_DATA["tournaments"]["POSTGRES_PASSWORD"]}@tournaments-db-container:5436/tournaments_database?sslmode=disable        
+DATA_SOURCE_NAME=postgresql://{ENV_DATA["user_management"]["POSTGRES_USER"]}:{ENV_DATA["user_management"]["POSTGRES_PASSWORD"]}@user-management-db-container:5432/user_management_database?sslmode=disable,postgresql://{ENV_DATA["chat"]["POSTGRES_USER"]}:{ENV_DATA["chat"]["POSTGRES_PASSWORD"]}@chat-db-container:5432/chat_database?sslmode=disable,postgresql://{ENV_DATA["game"]["POSTGRES_USER"]}:{ENV_DATA["game"]["POSTGRES_PASSWORD"]}@game-db-container:5432/game_database?sslmode=disable,postgresql://{ENV_DATA["tournaments"]["POSTGRES_USER"]}:{ENV_DATA["tournaments"]["POSTGRES_PASSWORD"]}@tournaments-db-container:5432/tournaments_database?sslmode=disable        
         """
     
     elif type == "user_management_env":

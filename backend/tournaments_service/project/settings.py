@@ -87,7 +87,7 @@ DATABASES = {
         'USER': os.getenv("TOURNAMENTS_POSTGRES_USER"),
         'PASSWORD': os.getenv("TOURNAMENTS_POSTGRES_PASSWORD"),
         'HOST': 'tournaments-db-container',
-        'PORT': '5436', 
+        'PORT': '5432', 
     }
 }
 

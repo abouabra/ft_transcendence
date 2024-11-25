@@ -272,6 +272,7 @@ export default class Profile_Page extends HTMLElement {
     document.querySelector(".win_los_ratio_tournaments").innerHTML=this.data_data.win_los_ratio.tournaments+"%";
     document.querySelector(".average_avg_duration").innerHTML=from_sec_to_min(this.data_data.average.avg_duration);
     document.querySelector(".average_avg_score").innerHTML=this.data_data.average.avg_score.toFixed(2);
+    this.third_part();
   }
 
   create_chart() {
@@ -566,13 +567,13 @@ export default class Profile_Page extends HTMLElement {
             return /*html*/ `
               <div class="recent_game_1">
                   <img src="${game.player1.avatar}">
-                  <span>${game.player1.username}</span>
+                  <span class="p3_bold">${game.player1.username}</span>
                   <div class="scores">
-                    <span>${game.player_1_score}</span>
-                    <span> - </span>
-                    <span>${game.player_2_score}</span>
+                    <span class="p3_bold platinum_40_color">${game.player_1_score}</span>
+                    <span class="platinum_40_color"> - </span>
+                    <span class="p3_bold platinum_40_color">${game.player_2_score}</span>
                   </div>
-                  <span>${game.player2.username}</span>
+                  <span class="p3_bold">${game.player2.username}</span>
                   <img src="${game.player2.avatar}">
                   <div class="win_or_loss">
                     <img src="${parseInt(localStorage.getItem('id')) == game.winner ? '/assets/images/profile/win_vector.png' : '/assets/images/profile/loss_vector.png'}">
@@ -591,8 +592,8 @@ export default class Profile_Page extends HTMLElement {
             return /*html*/ `
               <div class="recent_tournament_1">
                   <img src="${tournament.avatar}">
-                  <span>${tournament.name}</span>
-                  <span>${tournament.tournament_position}</span>
+                  <span class="p3_bold">${tournament.name}</span>
+                  <span class="ranking p3_bold"># ${tournament.tournament_position}</span>
                   <div class="win_or_loss">
                     <img src="/assets/images/profile/tournament_vector.png">
                   </div>

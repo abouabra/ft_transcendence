@@ -37,8 +37,6 @@ services:
     image: transcendence:user_management_image
     container_name: user-management-container
     build: ./infrastructure/user_management/
-    ports:
-      - 8000:8000
     volumes:
       - user_management_data:/app
       - assets:/app/assets
@@ -205,8 +203,6 @@ services:
   cadvisor:
       image: gcr.io/cadvisor/cadvisor:v0.49.1
       container_name: cadvisor_container
-      ports:
-        - "8080:8080"
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock:ro
         - /:/rootfs:ro

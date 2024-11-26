@@ -345,8 +345,11 @@ export default class Game_Page extends HTMLElement {
 		if(this.game && this.game_type == "local")
 		{
 			console.log("disconnectedCallback local game");
-			this.game.rightPaddle.score = 11;
-			this.game.leftPaddle.score = 0;
+			if(this.game.gameState == "running")
+			{
+				this.game.rightPaddle.score = 11;
+				this.game.leftPaddle.score = 0;
+			}
 
 			this.game.endGame();
 			return;

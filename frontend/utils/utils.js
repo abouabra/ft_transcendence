@@ -407,8 +407,7 @@ function unblock_user(go_to) {
   })
     .then((response) => {
       showToast("success", "You unblocked this user successfully");
-      GoTo("/profile/");
-      GoTo("/profile/" + without_begin);
+      GoTo(`/profile/${without_begin}?reload=True`);
     })
     .catch((error) => showToast("error", error.message));
 }

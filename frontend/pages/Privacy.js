@@ -127,7 +127,7 @@ export default class Privacy_Page extends HTMLElement {
 						<li class="p2_regular"> Account data is kept while your account is active</li>
 						<li class="p2_regular"> Game statistics are maintained for historical accuracy</li>
 						<li class="p2_regular"> Chat logs may be retained for moderation purposes</li>
-						<li class="p2_regular"> You can request account deletion at any time</li>
+						<li class="p2_regular"> You can delete your account at any time by using the "Delete Account" button available in your account settings. Upon deletion, we will remove your account data and any associated personal information from our systems.</li>
 					</ul>
 				</div>
 		

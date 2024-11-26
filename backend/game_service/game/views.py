@@ -304,7 +304,7 @@ class ConstructTournamentGame(generics.GenericAPIView):
         } if "tournament_id" in request.data else {}
 
         if "tournament_id" in request.data:
-            logger.error("tournament_id", request.data["tournament_id"])
+            logger.error(f"tournament_id {request.data["tournament_id"]}")
         
         shouldSendNotification = True
 

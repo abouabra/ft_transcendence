@@ -18,7 +18,8 @@ export default class Tournament_Match extends HTMLElement {
     }
 
     renderpage() {
-        makeRequest(`/api/tournaments/joinedusertournament/?tournament_name=${this.tournament_name}`, 'GET').then(data =>{
+        makeRequest(`/api/tournaments/joinedusertournament/?tournament_name=${this.tournament_name}`, 'GET')
+        .then(data => {
             let usersdata = data.users
             let semi_finals = data.data[data.data.current_round]
             let middle = semi_finals.length/2
@@ -116,8 +117,16 @@ export default class Tournament_Match extends HTMLElement {
             if (play)
             {
                 play.addEventListener("click", () => {
-                    makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`).then(data =>{
-                    }).catch(error =>{
+                    for (const key in usersdata) {
+                        if (usersdata.hasOwnProperty(key)) {
+                            console.log(usersdata[key].id);
+                            sendNotification("tournament_system_notification", usersdata[key].id, data)
+                        }
+                    }
+
+                    makeRequest(`/api/tournaments/testplaying/?tournament_name=${this.tournament_name}`)
+                    .then(data =>{})
+                    .catch(error =>{
                         showToast("error", error.message)
                     })
                 })

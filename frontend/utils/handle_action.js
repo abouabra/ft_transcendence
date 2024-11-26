@@ -99,8 +99,6 @@ function handle_action(action, id, data = null) {
 				}
 			};
 		});
-
-
 	}
 	else if (action == "join_tournament_game") {
 		console.log("Joining game", id);
@@ -132,7 +130,7 @@ function handle_action(action, id, data = null) {
 
 			setTimeout(() => {
 				GoTo(`/play/game/${game_id}`);
-			}, 1000);
+			}, 10000);
 		};
 
 		window.game_socket.onclose = function (event) {

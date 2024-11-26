@@ -117,10 +117,14 @@ export default class Notifications_Bar extends HTMLElement {
 								message = /*html*/`<span class="p4_regular"><span class="p4_bold">${item.sender.username}</span> sent you a game invitation</span>`;
 							}
 							else if (item.type == "congrats") {
-							    message = /*html*/`<span class="p4_regular"><span class="p4_bold">Congratulations! You've advanced to 1000 Elo.</span>`;
+							    message = /*html*/`<span class="p4_regular">Congratulations! You've advanced to 1000 Elo.</span>`;
 							}
 							else if (item.type == "strike") {
 								message = /*html*/`<span class="p4_bold" style="color: var(--red)">Warning! You've received a strike.</span>`;
+							}
+							else if (item.type == "tournament_system_notification") {
+								console.log("inside tournament_system_notification", item)
+								message = /*html*/`<span class="p4_regular">You will play the next match in less than 10s or when the opponent is available</span>`;
 							}
 							else {
 								return "";

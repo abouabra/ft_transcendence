@@ -211,7 +211,7 @@ export default class Game_Page extends HTMLElement {
 				}
 				let game_id = parseInt(localStorage.getItem("game_id"));
 
-				localStorage.removeItem("game_id");
+				// localStorage.removeItem("game_id");
 				localStorage.removeItem("opponent_id");
 				localStorage.removeItem("player1_id");
 				localStorage.removeItem("player2_id");
@@ -230,18 +230,16 @@ export default class Game_Page extends HTMLElement {
 					if(data.isTournemantMatch == true)
 					{
 						this.display_game_results(response);
-						// setTimeout(()=>{
-							makeRequest(`/api/tournaments/get_tournament_info/${data.tournament_id}`).then(data=>{
-								GoTo(`/tournament/match/?tournament_name=${data.name}`);
-							})
-						// }, 2000)
+						makeRequest(`/api/tournaments/get_tournament_info/${data.tournament_id}`).then(data => {
+							// showToast("info", "You will play the next match in less than 10s or when the opponent is available")
+							sendNotification("tournament_system_notification" ,parseInt(localStorage.getItem('id')), data)
+							
+							GoTo(`/tournament/match/?tournament_name=${data.name}`);
+						})
 					}
 					else
 						this.display_game_results(response);
 				});
-
-				// this.display_game_results(response);
-
 			}
 		};
 	}
@@ -366,7 +364,7 @@ export default class Game_Page extends HTMLElement {
 
 		if(!window.game_socket)
 		{
-			localStorage.removeItem("game_id");
+			// localStorage.removeItem("game_id");
 			localStorage.removeItem("opponent_id");
 			localStorage.removeItem("player1_id");
 			localStorage.removeItem("player2_id");
@@ -392,7 +390,7 @@ export default class Game_Page extends HTMLElement {
 		}));
 
 		
-		localStorage.removeItem("game_id");
+		// localStorage.removeItem("game_id");
 		localStorage.removeItem("opponent_id");
 		localStorage.removeItem("player1_id");
 		localStorage.removeItem("player2_id");

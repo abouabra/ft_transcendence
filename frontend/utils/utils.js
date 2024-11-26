@@ -268,7 +268,7 @@ function change_display(first, second) {
 const handle_first_one = (type, element) => async (event) => {
   event.preventDefault();
 
-  const email = element.querySelector('input[name="email"]').value;
+  const email = element.querySelector('input[name="email"]').value.trim();
   if (!email) {
     showToast("error", "email is required");
     return;

@@ -39,25 +39,18 @@ export default class Forgot_Password_2 extends HTMLElement{
         const email = this.firstvalue;
         const password = this.querySelector('#Password-1').value;
         const password_confirm = this.querySelector('#Password-2').value;
+        const data = {
+            email,
+            password,
+            password_confirm
 
-        if (!password || !password_confirm) {
-            showToast("error", "Please fill up All Fields");
-            return;
-        }
-        else{
-            const data = {
-                email,
-                password,
-                password_confirm
-    
-            };
-            try {
-                const response1 = await makeRequest('/api/auth/forgot_password/', 'POST', data);
-                GoTo('/login/')
-                showToast("success", "Password changed! Your password has been changed successfully!");
-            } catch (error) {
-                showToast("error", error.message);
-            }
+        };
+        try {
+            const response1 = await makeRequest('/api/auth/forgot_password/', 'POST', data);
+            GoTo('/login/')
+            showToast("success", "Password changed! Your password has been changed successfully!");
+        } catch (error) {
+            showToast("error", error.message);
         }
     };
 

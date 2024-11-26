@@ -860,7 +860,10 @@ class Forgot_password(APIView):
         user = User.objects.get(email=email)
         password = request.data.get('password')
         password_confirm = request.data.get('password_confirm')
-
+        if(not password or not password_confirm):
+            return Response({"error": "fill all feild"}, status=400)
+        if len(password) < 8:
+            return Response({"error": "Password must be at least 8 characters long."}, status=400)
         if password != password_confirm:
             return Response({"error": "Passwords do not match."}, status=400)
 
@@ -876,13 +879,12 @@ class SetupTwoFactorAuthView(generics.GenericAPIView):
     def put(self, request):
         username = request.user.username
         userobj = User.objects.get(username = username)
-        
         if(not userobj.two_factor_auth):
             secret = pyotp.random_base32()
             userobj.otp_secret = secret
             # userobj.two_factor_auth=True
             userobj.save()
-            uri = f"otpauth://totp/MyApp:{userobj.email}?secret={userobj.otp_secret}&issuer=MyApp"
+            uri = f"otpauth://totp/fesablanca:{userobj.email}?secret={userobj.otp_secret}&issuer=fesablanca"
             create_qr_code(userobj.avatar, uri, "qrcode.png")
             return Response({"user_is_auth": True}, status=200)
         else:

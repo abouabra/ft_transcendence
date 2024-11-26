@@ -42,6 +42,7 @@ export default class Profile_Page extends HTMLElement {
   selectedDaty = null;
 
   render_data(data, user_id) {
+    this.dataGlobal=data;
     this.data_data = data.pong;
     console.log(data);
     if (data.user.is_blocked) {
@@ -561,7 +562,7 @@ export default class Profile_Page extends HTMLElement {
         <div class="all_recent_games">
         ${
           this.data_data.recent_games.map((game) => {
-            if (game.player1.id != localStorage.getItem("id")){
+            if (game.player1.id != this.dataGlobal.user.id){
               [game.player1, game.player2, game.player_1_score, game.player_2_score] = [game.player2, game.player1, game.player_2_score, game.player_1_score];
             }
             return /*html*/ `
@@ -576,7 +577,7 @@ export default class Profile_Page extends HTMLElement {
                   <span class="p3_bold">${game.player2.username}</span>
                   <img src="${game.player2.avatar}">
                   <div class="win_or_loss">
-                    <img src="${parseInt(localStorage.getItem('id')) == game.winner ? '/assets/images/profile/win_vector.png' : '/assets/images/profile/loss_vector.png'}">
+                    <img src="${this.dataGlobal.user.id == game.winner ? '/assets/images/profile/win_vector.png' : '/assets/images/profile/loss_vector.png'}">
                   </div>
                 </div>   
              `

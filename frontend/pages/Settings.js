@@ -209,7 +209,6 @@ export default class Settings_Page extends HTMLElement {
 
 	get2FACode = () => {
 		const inputs = document.querySelectorAll('.input_2fa');
-		console.log(inputs)
 		let code = '';
 	
 		inputs.forEach(input => {
@@ -233,9 +232,7 @@ export default class Settings_Page extends HTMLElement {
 			return;
 		}
 		try{
-			console.log("verify_2fa", data)
 			const response = await makeRequest('/api/auth/verify_2fa/', 'POST', data);
-			console.log(response);
 			Delete_Card('#card2');
 			showToast("success", "Two factor authetication is enabled")
 			const input_2fa = document.querySelector("#two_f_a_switch");

@@ -2,7 +2,6 @@ import UserSideBar from "./User_sidebar.js";
 export default class ChatBody extends HTMLElement {
 	constructor() {
 		super();
-		this.socket = window.chat_socket
 		this.blocked = false;
 		const head = document.head || document.getElementsByTagName("head")[0];
 		head.appendChild(createLink('/styles/chat_server.css'));
@@ -11,7 +10,7 @@ export default class ChatBody extends HTMLElement {
 		let result_data = ''
 		
 
-
+		console.log("hadakkkkk")
 		if (window.editchat_socket)
 		{
 			if (!window.editchat_socket.onmessage)
@@ -125,7 +124,7 @@ export default class ChatBody extends HTMLElement {
 			{
 				if (text)
 				{
-					socket.send(JSON.stringify({
+					window.chat_socket.send(JSON.stringify({
 						"content": text,
 						"avatar":localStorage.getItem('avatar'),
 						"username": localStorage.getItem('username'),
@@ -141,7 +140,7 @@ export default class ChatBody extends HTMLElement {
 				// this.blocked = chatbod.blocked
 				if (this.blocked === false)
 				{
-					send_message_event(this.inputbr.value.trim(), this.socket)
+					send_message_event(this.inputbr.value.trim(), window.chat_socket)
 					this.inputbr.value = ''
 					this.inputbr.style.height = "44px"
 				}
@@ -171,7 +170,7 @@ export default class ChatBody extends HTMLElement {
 				if (event.key === 'Enter' && !event.shiftKey && this.blocked === false)
 				{
 					event.preventDefault();
-					send_message_event(this.inputbr.value.trim(), this.socket)
+					send_message_event(this.inputbr.value.trim(), window.chat_socket)
 					this.inputbr.value = ""
 					this.textAreaAdjust();
 					chatbod.style.opacity = 1;
@@ -196,12 +195,15 @@ export default class ChatBody extends HTMLElement {
 					}
 			})
 		}
-		this.socket.onmessage = (event)=>{
-			this.append_message(JSON.parse(event.data))
-			let sidechat = document.querySelector("chat-side-bar")
-			sidechat.setAttribute('type', sidechat.getAttribute('type'))
-			if (this.messagecontainer)
-				this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
+		if (window.chat_socket)
+		{
+			window.chat_socket.onmessage = (event)=>{
+				this.append_message(JSON.parse(event.data))
+				let sidechat = document.querySelector("chat-side-bar")
+				sidechat.setAttribute('type', sidechat.getAttribute('type'))
+				if (this.messagecontainer)
+					this.messagecontainer.scrollTop = this.messagecontainer.scrollHeight
+			}
 		}
 	})
 	})

@@ -407,8 +407,16 @@ function unblock_user(go_to) {
   })
     .then((response) => {
       showToast("success", "You unblocked this user successfully");
-      GoTo("/profile/");
-      GoTo("/profile/" + without_begin);
+      GoTo(`/profile/${without_begin}?reload=true`);
+      let id11 = parseInt(localStorage.getItem('id'))
+      let id22 = without_begin
+      if (id11 && id22)
+      {
+        let server_name = `${id11}_${id22}`
+        if (id11 > id22)
+          server_name = `${id22}_${id11}`
+        makeRequest(`/api/chat/manage_userblockprotected/`, 'PUT', {"action":"unban","user_id": without_begin, "server_name":server_name})
+      }
     })
     .catch((error) => showToast("error", error.message));
 }

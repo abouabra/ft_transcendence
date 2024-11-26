@@ -178,6 +178,15 @@ export default class Profile_Page extends HTMLElement {
               center_part.innerHTML = /*html*/ `
 							<not-found-page text_span="You blocked this user" text_button="Tap to unblock" go_to="/unblock_${data.user.id}"></not-found-page>
 						`;
+              let id11 = parseInt(localStorage.getItem('id'))
+              let id22 = data.user.id
+              let server_name = `${id11}_${id22}`
+              if (id11 > id22)
+              {
+                server_name = `${id22}_${id11}`
+              }
+              makeRequest(`/api/chat/create_chat_room/${data.user.id}`)
+              makeRequest(`/api/chat/manage_userblockprotected/`, 'PUT', {"action":"ban","user_id":data.user.id, "server_name":server_name})
               return;
             });
           });

@@ -11,10 +11,10 @@ const GAME_CONSTANTS = {
 		PRIMARY: "#fff"
 	},
 	ITEM_SIZE: 16,
-	BASE_SPEED: 7,
-	BALL_SPEED_CAP: 23,
+	BASE_SPEED: 10,
+	BALL_SPEED_CAP: 20,
 
-	SCORE_TO_WIN: 5,
+	SCORE_TO_WIN: 11,
 	INC_SPEED: 1,
 
 	TIMOUT_DURATION: 200,
@@ -410,7 +410,7 @@ class PongGame {
 
 	isGameOver() {
 		if ((this.gameMode === GAME_CONSTANTS.MODES.RANKED && this.leftPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN)
-			|| (this.gameMode === GAME_CONSTANTS.MODES.LOCAL && this.rightPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN))
+			|| (this.gameMode === GAME_CONSTANTS.MODES.LOCAL && (this.rightPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN || this.leftPaddle.score >= GAME_CONSTANTS.SCORE_TO_WIN)))
 		{
 			console.log("Score reached");
 			return true;
@@ -421,7 +421,6 @@ class PongGame {
 
 		if (this.gameState === "game_over") return;
 
-		console.log("Game Loop");
 
 		this.update();
 		this.draw();

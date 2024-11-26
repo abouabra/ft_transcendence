@@ -1,4 +1,3 @@
-let send = false;
 let _data = ''
 
 export default class UserSideBar extends HTMLElement
@@ -13,33 +12,53 @@ export default class UserSideBar extends HTMLElement
         this.socket = window.userpermition_socket
 
         const chatbody = document.querySelector(".chatbodymain")
+        if (this.socket)
+        {
+            this.socket.onmessage = (event) => {
 
-        this.socket.onmessage = (event) => {
-
-            let data = JSON.parse(event.data)
-            if (data.message === "banning" && send === false)
-            {
-                if (_data)
+                let data = JSON.parse(event.data)
+                console.log(` ${data.user_id} == ${_data.user_id}`)
+                if (data.message === "banning" && data.user_id == _data.user_id)
                 {
-                    if (data.action === "ban" && data.user_id == localStorage.getItem("id"))
+                    if (_data)
                     {
-                        chatbody.style.opacity = 0.5;
-                        chatbody.blocked = true;
+                        if (data.action === "ban" && data.user_id == localStorage.getItem('id'))
+                        {
+                            chatbody.style.opacity = 0.5;
+                            chatbody.blocked = true;
+                        }
+                        else
+                        {
+                            chatbody.style.opacity = 1;
+                            chatbody.blocked = false;
+                        }
+                        let pannel = document.querySelector(".pannel_ban")
+                        if (pannel)
+                        {
+                            let text = pannel.querySelector("span").innerText
+                            if (text === "Unban from server")
+                                text = "Ban from server"
+                            else
+                                text = "Unban from server"
+                            if (pannel)
+                                pannel.querySelector("span").innerText = text;
+                        }
                     }
-                    else
+                }
+                if (data.message === "change_privilages" && data.user_id == _data.user_id)
+                {
+                    let pannel = document.querySelector(".pannel_admin")
+                    if (pannel)
                     {
-                        chatbody.style.opacity = 1;
-                        chatbody.blocked = false;
+                        let text  = pannel.querySelector("span").innerText;
+                        if (text === "Remove administrator privileges")
+                            text = "Give administrator privileges"
+                        else
+                            text = "Remove administrator privileges"
+                        pannel.querySelector("span").innerText = text;
                     }
-                    banning([_data,this.server_name, null])
                 }
             }
-            if (data.message === "change_privilages" && send === false)
-            {
-                if (_data)
-                    privileges_user([_data, this.server_name, null])
-            }
-            send = false
         }
         this.SetSideBar_button(this.getAttribute('type'))
 
@@ -107,7 +126,6 @@ export default class UserSideBar extends HTMLElement
         return _data;
     }
     set data(newVal) {
-        console.log("SETTER CALLED")    
         _data = newVal;
     }
 
@@ -152,21 +170,20 @@ export default class UserSideBar extends HTMLElement
             {
             
                 if (_data.staffs.includes(parseInt(_data.user_id)))
-                    server_item.push({"pannel": "pannel_admin" ,"icon": "/assets/images/common/Iconly/Bold/Tick Square.svg", "text": "Remove administrator privileges", "red": false, "onclick":privileges_user, 'args':[_data, this.server_name, this.socket]})
+                    server_item.push({"pannel": "pannel_admin" ,"icon": "/assets/images/common/Iconly/Bold/Tick Square.svg", "text": "Remove administrator privileges", "red": false, "onclick":privileges_user, 'args':[_data, this.server_name]})
                 else
-                    server_item.push({"pannel": "pannel_admin" ,"icon": "/assets/images/common/Iconly/Bold/Tick Square.svg", "text": "Give administrator privileges", "red": false, "onclick":privileges_user, 'args':[_data, this.server_name, this.socket]})
+                    server_item.push({"pannel": "pannel_admin" ,"icon": "/assets/images/common/Iconly/Bold/Tick Square.svg", "text": "Give administrator privileges", "red": false, "onclick":privileges_user, 'args':[_data, this.server_name]})
                 if (_data.banned.includes(_data.user_id))
-                    server_item.push({"pannel": "pannel_ban" ,"icon": "/assets/images/common/Iconly/Bold/Danger.svg", "text": "Unban from server", "red": true, "onclick":banning, 'args':[_data, this.server_name, this.socket]})
+                    server_item.push({"pannel": "pannel_ban" ,"icon": "/assets/images/common/Iconly/Bold/Danger.svg", "text": "Unban from server", "red": true, "onclick":banning, 'args':[_data, this.server_name]})
                 else
-                    server_item.push({"pannel": "pannel_ban" ,"icon": "/assets/images/common/Iconly/Bold/Danger.svg", "text": "Ban from server", "red": true, "onclick":banning, 'args':[_data, this.server_name, this.socket]})
+                    server_item.push({"pannel": "pannel_ban" ,"icon": "/assets/images/common/Iconly/Bold/Danger.svg", "text": "Ban from server", "red": true, "onclick":banning, 'args':[_data, this.server_name]})
             }
         }
         else if (type === 'protectedsettings')
         {
             title = "User info"
             server_item = [{"pannel": "pannel_view" ,"icon": "/assets/images/common/Iconly/Bold/Profile.svg", "text": "View profile", "red": false, "onclick":ViewProfile, 'args':_data.user_id}]
-            console.log(`data user = ${_data.user_id}`)
-            console.log(`my user = ${localStorage.getItem("id")}`)
+
             if(_data.user_id !== my_id)
             {
                 server_item.push({"pannel": "pannel_pong" ,"icon": "/assets/images/common/Iconly/Bold/Game.svg", "text": "Invite to Pong", "red": false, "onclick":invite_user_to_pong, 'args': _data})
@@ -271,7 +288,7 @@ function banning(data)
         _data.banned = svdata[0].banned
         _data.staffs = svdata[0].staffs
         const server_name = data[1];
-        const socket = data[2];
+        const socket = window.userpermition_socket;
         console.log(svdata)
         data[0].banned = svdata[0].banned
         data[0].staffs = svdata[0].staffs
@@ -285,29 +302,14 @@ function banning(data)
             action = "unban"
             text = "Ban from server"
         }
-        console.log(data.banned)
-
-        if (socket === null)
-        {
-            if (text === "Unban from server")
-                text = "Ban from server"
-            else
-                text = "Unban from server"
-            let pannel = document.querySelector(".pannel_ban")
-            if (pannel)
-                pannel.querySelector("span").innerText = text;
-        }
-        else
-        {
-            makeRequest(`/api/chat/manage_user/`, 'PUT', {"action":action,"user_id":id, "server_name":server_name}).then(data => {
-                showToast("success", `User ${action}ned from server`)
-                document.querySelector(".pannel_ban").querySelector("span").innerText = text;
-                send = true
-                socket.send(JSON.stringify({"user_id": id, "action":action, "permition_to_change": "banning", "server_name": server_name,"sender":localStorage.getItem("id")}))
+            
+        makeRequest(`/api/chat/manage_user/`, 'PUT', {"action":action,"user_id":id, "server_name":server_name}).then(data => {
+            showToast("success", `User ${action}ned from server`)
+            document.querySelector(".pannel_ban").querySelector("span").innerText = text;
+            socket.send(JSON.stringify({"user_id": id, "action":action, "permition_to_change": "banning", "server_name": server_name,"sender":localStorage.getItem("id")}))
             }).catch(error => {
                 showToast("error", error)
             })
-        }
     })
     
 
@@ -316,12 +318,11 @@ function banning(data)
 function privileges_user(data)
 {
 
-    console.log(`data1 = ${data[1]}`)
     makeRequest(`/api/chat/get_server_data/?server=${data[1]}`, 'GET').then(svdata => {
         _data.banned = svdata[0].banned
         _data.staffs = svdata[0].staffs
         const server_name = data[1];
-        const socket = data[2];
+        const socket = window.userpermition_socket;
 
         data[0].staffs = svdata[0].staffs
         data[0].banned = svdata[0].banned
@@ -336,28 +337,14 @@ function privileges_user(data)
             action = "remove_staff"
         }
 
-        if (socket === null)
-        {
-            if (text === "Remove administrator privileges")
-                text = "Give administrator privileges"
-            else
-                text = "Remove administrator privileges"   
-            let pannel = document.querySelector(".pannel_admin")
-            if (pannel)
-                pannel.querySelector("span").innerText = text;
-        }
-        else
-        {
-            makeRequest(`/api/chat/manage_user/`, 'PUT', {"action":action,"user_id":id, "server_name":server_name}).then(data => {
-                showToast("success", `Changed administrator privileges`)
-                document.querySelector(".pannel_admin").querySelector("span").innerText = text;
-                send = true
-                socket.send(JSON.stringify({"user_id": id, "permition_to_change": "change_privilages", "server_name": server_name, "sender":localStorage.getItem("id")}))
-
-            }).catch(error => {
-                showToast("error", error)
-           })
-    }})
+        makeRequest(`/api/chat/manage_user/`, 'PUT', {"action":action,"user_id":id, "server_name":server_name}).then(data => {
+            showToast("success", `Changed administrator privileges`)
+            document.querySelector(".pannel_admin").querySelector("span").innerText = text;
+            socket.send(JSON.stringify({"user_id": id, "action":action, "permition_to_change": "change_privilages", "server_name": server_name, "sender":localStorage.getItem("id")}))
+        }).catch(error => {
+            showToast("error", error)
+            })
+        })
 }
 
 

@@ -88,7 +88,7 @@ DATABASES = {
         'USER': os.getenv("GAME_POSTGRES_USER"),
         'PASSWORD': os.getenv("GAME_POSTGRES_PASSWORD"),
         'HOST': 'game-db-container',
-        'PORT': '5435',
+        'PORT': '5432',
     }
 }
 

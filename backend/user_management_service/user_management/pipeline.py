@@ -1,10 +1,13 @@
 from django.contrib.auth import get_user_model
 from social_core.exceptions import AuthAlreadyAssociated
+import logging
+
+logger = logging.getLogger(__name__)
 
 def link_to_existing_user(backend, uid, user=None, *args, **kwargs):
     User = get_user_model()
     if user:
-        print("here")
+        logger.error("here")
         return {'is_new': False}
     try:
         email = kwargs['details'].get('email')

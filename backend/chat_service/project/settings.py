@@ -86,7 +86,7 @@ DATABASES = {
         'USER': os.getenv("CHAT_POSTGRES_USER"),
         'PASSWORD': os.getenv("CHAT_POSTGRES_PASSWORD"),
         'HOST': 'chat-db-container',
-        'PORT': '5434', 
+        'PORT': '5432', 
     }
 }
 

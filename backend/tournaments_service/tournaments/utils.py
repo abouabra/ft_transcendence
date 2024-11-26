@@ -3,6 +3,10 @@ import requests
 from .models import Tournament_History
 from .serializers import ShortTournamentHistorySerializer
 import time
+import logging
+
+logger = logging.getLogger(__name__)
+
 def getUserData(request, userID):
     access_token = request.COOKIES.get("access_token")
 
@@ -34,10 +38,10 @@ def Start_Playing(request, tournament):
 
     access_token = {"access_token":request.COOKIES.get("access_token")}
     matches = tournament.bracket_data[tournament.bracket_data["current_round"]]
-    print(f"round = {tournament.bracket_data["current_round"]}")
+    logger.error(f"round = {tournament.bracket_data["current_round"]}")
 
     for match in matches:
-        print(f"starting {match[0]} vs {match[1]}")
+        logger.error(f"starting {match[0]} vs {match[1]}")
 
         # "isFakeMatch": True
         data = {

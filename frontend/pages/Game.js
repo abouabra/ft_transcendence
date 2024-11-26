@@ -231,8 +231,11 @@ export default class Game_Page extends HTMLElement {
 					{
 						this.display_game_results(response);
 						makeRequest(`/api/tournaments/get_tournament_info/${data.tournament_id}`).then(data => {
-							// showToast("info", "You will play the next match in less than 10s or when the opponent is available")
-							sendNotification("tournament_system_notification" ,parseInt(localStorage.getItem('id')), data)
+							if(response.winner.id == parseInt(localStorage.getItem('id')))
+							{
+								// showToast("info", "You will play the next match in less than 10s or when the opponent is available")
+								sendNotification("tournament_system_notification" ,parseInt(localStorage.getItem('id')), data)
+							}
 							
 							GoTo(`/tournament/match/?tournament_name=${data.name}`);
 						})

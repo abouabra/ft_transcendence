@@ -371,6 +371,30 @@ class LeaverServer(generics.GenericAPIView):
                 return Response({'error':'invalide query param'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({}, status.HTTP_200_OK)
 
+class Serverusermanagerprotected(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def put(self, request):
+
+        try:
+            server = Server.objects.get(name=request.data['server_name'])
+            if request.data['action'] == "ban":
+                if not int(request.data['user_id']) in server.banned:
+                    server.banned.append(int(request.data['user_id']))
+                if not request.user.id in server.banned:
+                    server.banned.append(request.user.id)
+            elif request.data['action'] == "unban":
+                if int(request.data['user_id']) in server.banned:
+                    server.banned.remove(int(request.data['user_id']))
+                if request.user.id in server.banned:
+                    server.banned.remove(request.user.id)
+            logger.error(f"{request.data['user_id']} {request.user.id} {server.banned}")
+            
+            server.save()
+        except Server.DoesNotExist:
+            return Response({"success":"user banned"}, status.HTTP_200_OK)
+        return Response({"success":"user banned"}, status.HTTP_200_OK)
+
 class Serverusermanager(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 

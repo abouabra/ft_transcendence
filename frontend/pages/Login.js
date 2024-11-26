@@ -110,6 +110,8 @@ export default class Login_Page extends HTMLElement {
         };
         try {
             const response = await makeRequest('/api/auth/login/', 'POST', data);
+            if(response.response_code == 404)
+                throw new Error("")
             if (response.user_is_auth){
                 change_display("#displaay", "#displaaay");
                 const submitButton = document.querySelector('#submit').addEventListener('click',async (e)=> {
@@ -132,8 +134,6 @@ export default class Login_Page extends HTMLElement {
                 GoTo("/home/")
             }
         } catch (error) {
-
-            console.error('Error logging in:', error);
             showToast("error", "username or password incorrect. Please try again.");
         }
     };

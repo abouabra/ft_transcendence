@@ -71,7 +71,7 @@ DATA_SOURCE_NAME=postgresql://{ENV_DATA["user_management"]["POSTGRES_USER"]}:{EN
         env_content = f"""# This file contains the environment variables for Grafana service
 # Postgres exporter
 GF_SECURITY_ADMIN_USER=admin
-GF_SECURITY_ADMIN_PASSWORD=123qwerty
+GF_SECURITY_ADMIN_PASSWORD={generate_random_password()}
 GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/default-dashboard.json
 GF_SERVER_ROOT_URL=/admin/grafana/
 GF_SERVER_SERVE_FROM_SUB_PATH=true
@@ -95,7 +95,7 @@ EMAIL_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_USE_SSL=False
 EMAIL_HOST_USER=fesablanca111@gmail.com
-EMAIL_HOST_PASSWORD=ptzojrgtqnabmacx
+EMAIL_HOST_PASSWORD="EMAIL_HOST_PASSWORD"
 
 # Django settings
 SECRET_KEY="{generate_random_password(50)}"
@@ -103,11 +103,11 @@ DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
+DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
 
 DJANGO_LOCAL_USER_USERNAME=local_user
 DJANGO_LOCAL_USER_EMAIL=local_user@example.com
-DJANGO_LOCAL_USER_PASSWORD=local_user #generate_random_password()
+DJANGO_LOCAL_USER_PASSWORD={generate_random_password()}
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
@@ -127,7 +127,7 @@ DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
+DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
@@ -147,7 +147,7 @@ DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
+DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}
@@ -167,7 +167,7 @@ DEBUG=False
 
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@example.com
-DJANGO_SUPERUSER_PASSWORD=admin #generate_random_password()
+DJANGO_SUPERUSER_PASSWORD={generate_random_password()}
 
 # Postgres root user
 POSTGRES_PASSWORD={generate_random_password()}

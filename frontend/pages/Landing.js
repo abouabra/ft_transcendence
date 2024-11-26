@@ -91,11 +91,16 @@ export default class Landing_Page extends HTMLElement {
 		`;
 
 		const cta_buttons = this.querySelector(".cta_buttons");
+		const arrow_navigation = this.querySelector(".landing_page_arrow_down")
 		cta_buttons.querySelectorAll("button-component").forEach((element) => {
 			element.addEventListener("click", () => {
 				GoTo(element.getAttribute("data-link"));
 			});
 		});
+		arrow_navigation.addEventListener("click",()=>{
+			this.querySelector(".features_section").scrollIntoView()
+		})
+
 	}
 
 	connectedCallback() {}

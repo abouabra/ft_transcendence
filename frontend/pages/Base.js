@@ -155,7 +155,13 @@ export default class Base_Page extends HTMLElement {
 
 	connectedCallback() {}
 
-	disconnectedCallback() {}
+	disconnectedCallback() {
+		if(window.notification_socket)
+		{
+			window.notification_socket.close();
+			window.notification_socket = null;
+		}
+	}
 
 	attributeChangedCallback(name, oldValue, newValue) {}
 }

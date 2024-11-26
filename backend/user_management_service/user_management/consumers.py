@@ -85,7 +85,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def set_status(self, user_id, status):
         try: 
-            print(f"set user online status => {user_id} {status}")
+            logger.error(f"set user online status => {user_id} {status}")
             user = User.objects.get(id=user_id)
             user.status = status
             user.save()

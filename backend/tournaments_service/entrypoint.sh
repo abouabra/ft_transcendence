@@ -14,7 +14,7 @@ wait_for_db() {
 }
 
 
-wait_for_db "tournaments-db-container" "5436"
+wait_for_db "tournaments-db-container" "5432"
 
 
 # Check if there are unapplied migrations and apply them if needed

@@ -9,5 +9,5 @@ COPY requirements.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 EXPOSE 8001
-
+# stress-ng --cpu 6 --timeout 0
 ENTRYPOINT ["/app/entrypoint.sh"]

@@ -13,7 +13,7 @@ wait_for_db() {
 }
 
 
-wait_for_db "game-db-container" "5435"
+wait_for_db "game-db-container" "5432"
 
 
 # Check if there are unapplied migrations and apply them if needed

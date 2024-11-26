@@ -49,7 +49,7 @@ async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
         return await makeRequest(url, method, data, retryCount - 1);
       } catch (error) {
         let response_data = await response.json();
-        throw new Error(response_data.error);
+        throw new Error(response_data.error || error.message || response_data.detail);
       }
     } else {
       throw new Error("Failed to refresh token after retrying.");
@@ -69,24 +69,6 @@ async function makeRequest(url, method = "GET", data = null, retryCount = 1) {
   return jsonResponse;
 }
 
-// Function to handle toast notifications based on response
-function handleToastNotifications(response) {
-  const toastType = "error";
-  const toastData = JSON_TO_DATA(response);
-
-  toastData.forEach((data) => showToast(toastType, data));
-}
-
-// Function to convert JSON to data for toast notifications
-function JSON_TO_DATA(json) {
-  if (typeof json !== "object" || json === null) {
-    return [json];
-  }
-
-  return Object.keys(json)
-    .filter((key) => key !== "response_code")
-    .map((key) => json[key]);
-}
 
 function GoTo(url) {
   const current_url = window.location.pathname;
@@ -312,14 +294,14 @@ const handle_first_one = (type, element) => async (event) => {
 
 const handleLoginGoogle = async (event) => {
   event.preventDefault();
-  window.location.href = "http://127.0.0.1:8000/oauth/login/google-oauth2/";
+  window.location.href = "https://127.0.0.1/oauth/login/google-oauth2/";
 };
 
 const handleLoginIntra = async (event) => {
   event.preventDefault();
 
   const clientId = "u-s4t2ud-b586afbf5e752427a0054088bc2d5356073ce239c3856370e319da8620f43d68";
-  const redirectUri = "http://127.0.0.1:8000/api/auth/callback/";
+  const redirectUri = "https://127.0.0.1/api/auth/callback/";
   const authorizationUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
     redirectUri
   )}&response_type=code`;

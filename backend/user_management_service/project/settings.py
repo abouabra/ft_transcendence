@@ -282,7 +282,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['picture', 'name']
 
 
 
-LOGIN_REDIRECT_URL = 'https://127.0.0.1:8000/api/auth/after_google/'
+LOGIN_REDIRECT_URL = 'https://127.0.0.1/api/auth/after_google/'
 LOGOUT_REDIRECT_URL = 'https://127.0.0.1/'
 
 STATIC_URL = '/assets/'

@@ -451,7 +451,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             match_obj.winner = game_obj.player2.user_id
 
         match_obj.save()
-        print(f"\n\n\nstats_wrapper {match_obj.player1} vs {match_obj.player2} => {match_obj.player_1_score} : {match_obj.player_2_score}\n\n\n")
+        logger.error(f"\n\n\nstats_wrapper {match_obj.player1} vs {match_obj.player2} => {match_obj.player_1_score} : {match_obj.player_2_score}\n\n\n")
         
         update_stats_after_game(match_obj.player1, match_obj.player2, match_obj.game_name, match_obj)
 

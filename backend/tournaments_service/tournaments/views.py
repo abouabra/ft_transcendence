@@ -418,3 +418,23 @@ def check_reserver_uri(name):
         if char in reserved_character:
             return True
     return False
+
+
+
+
+class GetTournamentUserNickname(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        try:
+            tournament_id = request.query_params.get("tournament_id")
+            user_id = request.query_params.get("user_id")
+            if not tournament_id or not user_id:
+                return Response({"message": "Tournament ID or User ID not provided"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            tournament = Tournament_History.objects.get(id=tournament_id)
+            logger.error(f"\n\n\nGetTournamentUserNickname: {tournament.Nicknames}\n\n\n")
+            user_nickname = tournament.Nicknames[user_id]
+            return Response({"nickname": user_nickname}, status=status.HTTP_200_OK)
+        except:
+            return Response({"message": "Tournament Not Found"}, status=status.HTTP_404_NOT_FOUND)

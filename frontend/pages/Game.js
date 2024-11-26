@@ -229,7 +229,7 @@ export default class Game_Page extends HTMLElement {
 					}
 					if(data.isTournemantMatch == true)
 					{
-						this.display_game_results(response);
+						// this.display_game_results(response);
 						makeRequest(`/api/tournaments/get_tournament_info/${data.tournament_id}`).then(data => {
 							if(response.winner.id == parseInt(localStorage.getItem('id')))
 							{

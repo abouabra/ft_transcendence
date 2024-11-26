@@ -7,7 +7,7 @@ import logging
 from .utils import getUserData
 from rest_framework import generics, permissions, status
 from .serializers import GameStatsSerializer, GameHistorySerializer, LeaderboardSerializer, ProfileGameHistorySerializer, GameInfoGameHistorySerializer
-from .utils import update_stats_after_game, sendHTTPNotification, getTournamentProfileStats, generate_elo_graph, sendAdvanceMatchRequest
+from .utils import update_stats_after_game, sendHTTPNotification, getTournamentProfileStats, generate_elo_graph, sendAdvanceMatchRequest, getTournamentUserNickname
 from django.db.models import Q
 
 logger = logging.getLogger(__name__)
@@ -211,8 +211,15 @@ class GetGameInfo(generics.GenericAPIView):
             game_obj = Game_History.objects.get(id=pk)
             game_info = self.serializer_class(game_obj).data
            
+            # isTournemantMatch
+            # tournament_id
+
             game_info["player1"] = getUserData(request, game_info["player1"])
             game_info["player2"] = getUserData(request, game_info["player2"])
+            if game_info["isTournemantMatch"]:
+                game_info["player1"]["username"] = getTournamentUserNickname(request, game_info["player1"]["id"], game_info["tournament_id"])["nickname"]
+                game_info["player2"]["username"] = getTournamentUserNickname(request, game_info["player2"]["id"], game_info["tournament_id"])["nickname"]
+
 
             logger.error(f" player1 {game_info["player1"]}    player2 {game_info["player2"]}")
 

@@ -216,3 +216,23 @@ def setUserToPlaying(access_token, userID, game_name):
         raise Exception(f"Error encountered while fetching profile stats {response.text}")
 
     return response.json()
+
+
+
+def getTournamentUserNickname(request, userID, TournamentID):
+    access_token = request.COOKIES.get("access_token")
+    request_headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    url = f"https://nginx-container/api/tournaments/get_user_nickname/?user_id={userID}&tournament_id={TournamentID}"
+
+    response = requests.get(url, headers=request_headers, cookies={"access_token": access_token}, verify=False)
+
+    if(response.status_code != 200):
+        raise Exception(f"Error encountered while fetching profile stats {response.text}")
+
+    return response.json()
+
+

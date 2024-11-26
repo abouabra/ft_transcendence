@@ -20,4 +20,6 @@ urlpatterns = [
     path("get_tournament_info/<int:pk>", views.GetTournamentInfo.as_view(), name="get_tournament_info"),
 
     path("profile_stats/<int:pk>/", views.ProfileStatsView.as_view(), name="profile_stats"),
+    
+    path("get_user_nickname/", views.GetTournamentUserNickname.as_view(), name="get_user_nickname"),
 ]

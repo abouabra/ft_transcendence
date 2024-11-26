@@ -74,3 +74,25 @@
     width: 320px;
     height: 48px;
 }
+.tournament_visibility
+{
+    height: 48px;
+    border-radius: 13px;
+    padding: 0 10px;
+    width: 100%;
+}
+.form-select
+{
+    border: none;
+    appearance: none;
+    background-color: transparent;
+    color: white;
+    width: 320px;
+    height: 48px;
+    border-radius: 13px;
+}
+select:focus
+{
+    border-color: red;
+    outline: none;
+}

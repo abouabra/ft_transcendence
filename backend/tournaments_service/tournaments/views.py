@@ -157,6 +157,7 @@ class GetTournamentroomData(generics.GenericAPIView):
                     "members":len(tournament.members),
                     "room_size":tournament.room_size,
                     "game_name":tournament.game_name,
+                    "Nicknames":json.dumps(tournament.Nicknames),
 
                 }
             return Response(data, status.HTTP_200_OK)
@@ -182,6 +183,8 @@ class GetTournamentroomData(generics.GenericAPIView):
             match_instance = find_emty_room(match_room)
             if match_instance is None:
                 return Response({"error":"room is full"}, status.HTTP_400_BAD_REQUEST)
+
+            tournament.Nicknames.update({request.user.id:request.data["nickname"]})
             tournament.members.append(request.user.id)
             tournament.total_number_of_players += 1
             tournament.bracket_data[tournament.bracket_data["current_round"]][match_instance[0]][match_instance[1]] = request.user.id
@@ -217,6 +220,7 @@ class CreateTournamentroom(generics.GenericAPIView):
         if (request.data['visibility'] == "private" and request.data['password'] == ''):
             return Response({"error": "must enter password for private room"}, status=status.HTTP_201_CREATED)
         request.data['password'] = make_password(request.data['password'])
+        request.data["Nicknames"] = {request.user.id:"King"}
         serializer = TournamentHistorySerializer(data=request.data)
         brackets = create_bracket(request.data['room_size'])
         brackets[brackets["current_round"]][0][0] = request.user.id
@@ -258,6 +262,7 @@ class TournamentjoinedUsers(generics.GenericAPIView):
             users = {}
             for user_id in tournament.members:
                 data = getUserData(request, user_id)
+                data["username"] = tournament.Nicknames[f"{user_id}"]
                 users[user_id] = data
 
             data = {

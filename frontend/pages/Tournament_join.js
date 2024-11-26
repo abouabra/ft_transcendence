@@ -28,6 +28,28 @@ export default class Join_Tournament extends HTMLElement {
                                 <div class="join_passworddv">
                                     <input class="join_password" type="password" placeholder="password">
                                 </div>
+                                
+                                <div class="tournament_visibility platinum_40_color_border position-relative">
+							        <select class="form-select" required>
+							            <option value="" disabled selected>Nickname</option>
+							            <option value="Legend">Legend</option>Champion
+							            <option value="Champion">Champion</option>
+							            <option value="Ace">Ace</option>
+							            <option value="Chief">Chief</option>
+							            <option value="Captain">Captain</option>
+							            <option value="Warrior">Warrior</option>
+							            <option value="Rogue">Rogue</option>
+							            <option value="Titan">Titan</option>
+							            <option value="Phantom">Phantom</option>
+							            <option value="Overlord">Overlord</option>
+							            <option value="Knight">Knight</option>
+							            <option value="Baron">Baron</option>
+							            <option value="Guardian">Guardian</option>
+							            <option value="Warlord">Warlord</option>
+							            <option value="Conqueror">Conqueror</option>
+							        </select>
+							        <i class="arrowdown position-absolute bottom-50"></i>
+						        </div>
                                 <button-component data-text="Join" class="join_button"></button-component>
                                 <button-component data-type="no-bg" data-text="Back" onclick="GoTo('/tournament/')"></button-component>
                             </div>
@@ -36,14 +58,30 @@ export default class Join_Tournament extends HTMLElement {
                 </div>
             `
             let join_password = this.querySelector(".join_password")
+            const selectElement = this.querySelector(".form-select");
+            const listnickname = JSON.parse(data.Nicknames)
+            let nickname = ""
             let join_passdd = this.querySelector(".join_passworddv")
             let join_btn = this.querySelector(".join_button")
             if (data.visibility === "private")
                 join_passdd.style.display = "block";
+            selectElement.addEventListener('change', ()=>{
+                nickname = selectElement.value
+            })
             join_btn.addEventListener("click", () => {
+            if (nickname === "")
+            {
+                showToast("error", "Please select a nickname")
+                return
+            }
+            if (Object.values(listnickname).includes(nickname))
+            {
+                showToast("error", "Nickname already taken")
+                return
+            }
             if (!(data.visibility === "private" && join_password.value === ""))
             {
-                makeRequest(`/api/tournaments/tournament_rooms/`, "POST", {'tournament_name':tournament_name, 'password':join_password.value}).then((data) => {                    
+                makeRequest(`/api/tournaments/tournament_rooms/`, "POST", {'tournament_name':tournament_name, 'password':join_password.value,'nickname':nickname}).then((data) => {                    
                     this.socket.send(JSON.stringify({"sender_id": localStorage.getItem("id")}))
                     GoTo(`/tournament/match/?tournament_name=${data.tournament_name}`)
                     }).catch(error => {

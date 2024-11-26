@@ -24,13 +24,13 @@ export default class AboutUs_Page extends HTMLElement {
 	this.innerHTML = /* html */`
 	<div class="landing_page_container">
 		<div class="landing_page_section">
-			<div class="d-flex flex-column" style="gap:30px; width:75%;">
+			<div class="d-flex flex-column transcendece_blobk">
 				<h1 class="landing_page_header primary_color_color">ft_transcendence</h1>
-				<span class="p1_bold" style="line-height:40px; text-align: justify;">
+				<span class="p1_bold transcendece_description">
 					ft_transcendence is an innovative online multiplayer arcade platform that brings classic games like Pong 1972, Road Fighter 1984, and Space Invaders 1978 into a modern gaming experience. Our platform offers an engaging environment where players can compete, chat, and climb leaderboards while enjoying seamless gameplay powered by cutting-edge technologies like Django, Redis, Kubernetes, and WebSockets. Designed by a passionate team of three developers, ft_transcendence blends nostalgia with modern tech to create a unique gaming community.
 				</span>
 			</div>
-			<div class="d-flex flex-column justify-content-around align-items-center" style="gap: 170px;margin-bottom:150px;">
+			<div class="d-flex flex-column justify-content-around align-items-center team_block">
 				<div class="d-flex flex-column justify-content-around flex-wrap" style="gap:30px;">
 					<h1 class="landing_page_header primary_color_color">Meet the Team</h1>
 					<span class="p1_bold" style="line-height:40px;">
@@ -78,8 +78,8 @@ export default class AboutUs_Page extends HTMLElement {
 		<div class="d-flex flex-column technologies_used" style="gap: 50px;">
 			<h1 class="landing_page_header primary_color_color">Technologies used</h1>
 			<div class="d-flex w-100 justify-content-center" >
-				<div class="d-flex flex-column" style="gap: 50px;width: fit-content" >
-					<div class="d-flex flex-wrap" style="gap: 50px;width: fit-content" id="technologies_used_row">
+				<div class="d-flex flex-column text_fit_gap50" >
+					<div class="d-flex flex-wrap text_fit_gap50" id="technologies_used_row">
 						<div class="d-flex flex-column justify-content-between" style="gap: 50px;">
 							<div class="d-flex flex-column w-100 blur platinum_40_color_border technologies_used_container">
 								<span class="header_h2">
@@ -166,7 +166,7 @@ export default class AboutUs_Page extends HTMLElement {
 									</aboutus-techcard>
 								</div>
 							</div>
-							<div class="d-flex flex-column blur platinum_40_color_border technologies_used_container" style="width: fit-content; height:600px; margin-top:40px">
+							<div class="d-flex flex-column blur platinum_40_color_border technologies_used_container containerization_block">
 								<span class="header_h2">
 									Containerization & Orchestration
 								</span>
@@ -189,7 +189,9 @@ export default class AboutUs_Page extends HTMLElement {
 				</div>
 			</div>
 		</div>
-		<landing-page-footer text_span="${text_if_auth}"></landing-page-footer>
+		<div style="margin-top:60px;">
+			<landing-page-footer text_span="${text_if_auth}"></landing-page-footer>
+		</div>
 	</div>
 	`;
 

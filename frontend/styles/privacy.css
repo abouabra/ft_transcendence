@@ -52,6 +52,10 @@ privacy-page {
     flex-direction: column;
 }
 
+.privacy_page_section .p2_regular{
+    text-align: justify;
+}
+
 @media screen and (max-width: 768px) {
     .privacy_page_container {
         padding: 50px 20px;

@@ -135,7 +135,7 @@ export default class Settings_Page extends HTMLElement {
 					<span class="header_h3">Two-Factor Authenticator</span>
 					<span class="header_h5">Scan the QR code with your Two factor Authenticator app</span>
 						<div class="d-flex flex-column align-items-center">
-							<img src="../assets/images/qrcode_2fa/qrcode.png">
+							<img src=${`/assets/images/qrcode_2fa/qrcode.png?` + new Date().getTime()}>
 						</div>
 						<div class="small_card_cta">
 							<button-component data-text="Cancel" data-type="no-bg" onclick="Delete_Card('#card1'); Delete_Card('#card2')"></button-component>
